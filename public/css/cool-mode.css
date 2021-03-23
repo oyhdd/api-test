@@ -689,7 +689,7 @@ body.dark-mode .web-uploader .filelist li p.title,body.dark-mode .web-uploader .
 }
 
 body.dark-mode .slider-panel {
-	background-color: #242436
+	background-color: rgba(0, 0, 0, 0.7) !important;
 }
 
 body.dark-mode .right-side-filter-container .header {

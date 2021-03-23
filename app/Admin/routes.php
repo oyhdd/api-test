@@ -31,4 +31,10 @@ Route::group([
     $router->post('regression_test/save_reg_test', 'RegressionTestController@saveRegTest');
     $router->resource('regression_test', RegressionTestController::class);
 
+    // 单元测试
+    $router->resource('unit_test', UnitTestController::class);
+
+    // 集成测试
+    $router->resource('integration_test', IntegrationTestController::class);
+
 });

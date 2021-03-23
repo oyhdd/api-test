@@ -48,7 +48,7 @@
     }
 </style>
 
-<div class="login-page text-white">
+<div class="login-page text-info">
     <div class="login-box">
         <div class="login-logo mb-2">
             <b>{{ config('admin.name') }}</b>
