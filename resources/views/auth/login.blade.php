@@ -8,66 +8,43 @@
         padding: 1.5rem 1.8rem 1.6rem;
     }
 
-    .card,
-    .card-body {
-        border-radius: .25rem;
-        box-shadow: 0 5px 5px 0 rgb(0 0 0 / 25%);
-        background: url("/img/bg-2.jpg") fixed;
-        -webkit-transition: none;
-        transition: none;
-        background-size: 1666px 937px;
-        background-position: -263px 0px;
-    }
-
     .login-btn {
         padding-left: 2rem !important;
         ;
         padding-right: 1.5rem !important;
     }
 
-    .animated {
-        -webkit-animation-duration: 1s;
-        animation-duration: 1s;
-        -webkit-animation-fill-mode: both;
-        animation-fill-mode: both;
-    }
-
-    .zoomIn {
-        -webkit-animation-name: zoomIn;
-        animation-name: zoomIn;
-    }
-
     .content {
         overflow-x: hidden;
     }
 
-    .form-group .control-label {
-        text-align: left;
-    }
 
     .login-page {
-        background: url("/img/bg.jpg") center center no-repeat !important;
+        background: url("/img/login_bg.png") center center no-repeat !important;
         background-size: 100%;
     }
 
-    .form-label-group>label {
-        color: white !important;
+    body.dark-mode .login-card-body,
+    body.dark-mode .register-card-body {
+        background-color: #223;
+        color: #4e9876 !important
     }
 
-    .vs-checkbox-con .vs-checkbox {
-        border: 2px solid #ffffff !important;
+    body.dark-mode input::-webkit-input-placeholder {
+        color: gray !important
+    }
+
+    body.dark-mode input::-moz-placeholder {
+        color: gray !important
+    }
+
+    body.dark-mode input:-ms-input-placeholder {
+        color: gray !important
     }
 
     .form-label-group>input:not(:focus):not(:placeholder-shown)~label,
     .form-label-group textarea:not(:focus):not(:placeholder-shown)~label {
-        color: white !important;
-    }
-
-    .form-label-group>input:focus:not(:placeholder-shown)~label,
-    .form-label-group>input:not(:active):not(:placeholder-shown)~label,
-    .form-label-group textarea:focus:not(:placeholder-shown)~label,
-    .form-label-group textarea:not(:active):not(:placeholder-shown)~label {
-        color: white !important;
+        color: rgba(34, 41, 47, .6) !important;
     }
 </style>
 
@@ -76,9 +53,9 @@
         <div class="login-logo mb-2">
             <b>{{ config('admin.name') }}</b>
         </div>
-        <div class="card animated zoomIn">
-            <div class="card-body login-card-body shadow-100">
-                <p class="login-box-msg mt-1 mb-1 text-white">{{ __('admin.welcome_back') }}</p>
+        <div class="card" style="background: hsla(0, 0%, 100%, .6) !important">
+            <div class="card-body login-card-body shadow-100" style="background: inherit !important;">
+                <p class="login-box-msg mt-1 mb-1 text-info">{{ __('admin.welcome_back') }}</p>
 
                 <form id="login-form" method="POST" action="{{ admin_url('auth/login') }}">
 
@@ -125,7 +102,7 @@
                         <div class="text-left">
                             @if(config('admin.auth.remember'))
                             <fieldset class="checkbox">
-                                <div class="vs-checkbox-con vs-checkbox-primary text-white">
+                                <div class="vs-checkbox-con vs-checkbox-primary text-info">
                                     <input id="remember" name="remember" value="1" type="checkbox" {{ old('remember') ? 'checked' : '' }}>
                                     <span class="vs-checkbox">
                                         <span class="vs-checkbox--check">

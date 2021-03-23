@@ -32,7 +32,7 @@ if (in_array('cool-mode', config('admin.layout.body_class'))) {
         'link'           => '#fbbd08',
     ]);
     config([
-        'admin.layout.body_class' => array_merge(config('admin.layout.body_class'), ['dark-mode']),
+        'admin.layout.body_class' => array_merge(config('admin.layout.body_class'), []),
         'admin.layout.color' => 'green',
     ]);
     Admin::css('/css/cool-mode.css');
