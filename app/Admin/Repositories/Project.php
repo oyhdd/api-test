@@ -2,7 +2,7 @@
 
 namespace App\Admin\Repositories;
 
-use App\Models\Project as Model;
+use App\Models\ProjectModel as Model;
 use Dcat\Admin\Repositories\EloquentRepository;
 
 class Project extends EloquentRepository

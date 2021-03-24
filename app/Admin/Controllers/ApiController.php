@@ -6,7 +6,6 @@ use App\Admin\Repositories\Api;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
-use Dcat\Admin\Http\Controllers\AdminController;
 
 class ApiController extends AdminController
 {

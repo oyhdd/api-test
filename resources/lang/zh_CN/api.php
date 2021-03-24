@@ -1,7 +1,7 @@
 <?php 
 return [
     'labels' => [
-        'Api' => 'Api',
+        'Api' => '接口列表',
         'api' => 'Api',
     ],
     'fields' => [
@@ -14,7 +14,6 @@ return [
         'response_example' => '返回示例',
         'response_desc' => '返回值说明',
         'alarm_enable' => '是否告警 0关闭 1开启',
-        'status' => '状态：0已删除 1正常',
     ],
     'options' => [
     ],

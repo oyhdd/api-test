@@ -1,18 +1,20 @@
 <?php 
 return [
     'labels' => [
-        'Project' => 'Project',
+        'Project' => '项目管理',
         'project' => 'Project',
     ],
     'fields' => [
-        'name' => '项目名',
-        'intro' => '简介',
-        'alarm_enable' => '是否告警 0关闭 1开启',
-        'alarm_param' => '告警接收者 alarm_email,alarm_sms,alarm_qy_wechat',
-        'domain_text' => '测试环境域名',
-        'domain_prod' => '线上环境域名',
-        'owner_uid' => '负责人id',
-        'status' => '状态：0已删除 1正常',
+        'name'            => '项目名',
+        'intro'           => '简介',
+        'alarm_enable'    => '是否告警',
+        'alarm_param'     => '告警接收者',
+        'domain_text'     => '测试环境域名',
+        'domain_prod'     => '线上环境域名',
+        'owner_uid'       => '项目负责人',
+        'users'           => '项目用户',
+        'alarm_email'     => '告警邮件',
+        'alarm_qy_wechat' => '告警企业微信群聊',
     ],
     'options' => [
     ],

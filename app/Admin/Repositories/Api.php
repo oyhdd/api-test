@@ -2,7 +2,7 @@
 
 namespace App\Admin\Repositories;
 
-use App\Models\Api as Model;
+use App\Models\ApiModel as Model;
 use Dcat\Admin\Repositories\EloquentRepository;
 
 class Api extends EloquentRepository

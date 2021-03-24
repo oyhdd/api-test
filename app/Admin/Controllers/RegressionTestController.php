@@ -6,7 +6,6 @@ use App\Admin\Repositories\RegressionTest;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
-use Dcat\Admin\Http\Controllers\AdminController;
 
 class RegressionTestController extends AdminController
 {

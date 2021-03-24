@@ -1,7 +1,7 @@
 <?php 
 return [
     'labels' => [
-        'IntegrationTest' => 'IntegrationTest',
+        'IntegrationTest' => '集成测试',
         'integration-test' => 'IntegrationTest',
     ],
     'fields' => [
@@ -9,7 +9,6 @@ return [
         'parent_id' => '父id',
         'unit_test_id' => '单元测试id',
         'name' => '用例名称',
-        'status' => '状态：0已删除 1正常',
     ],
     'options' => [
     ],

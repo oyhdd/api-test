@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Query\Expression;
 
 class CreateApiTestTable extends Migration
 {
@@ -19,7 +20,7 @@ class CreateApiTestTable extends Migration
             $table->string('name', 64)->default('')->comment('项目名');
             $table->string('intro', 128)->default('')->comment('简介');
             $table->tinyInteger('alarm_enable')->default(0)->comment('是否告警 0关闭 1开启');
-            $table->json('alarm_param')->comment('告警接收者 alarm_email,alarm_sms,alarm_qy_wechat');
+            $table->text('alarm_param')->nullable()->comment('告警接收者 alarm_email,alarm_sms,alarm_qy_wechat');
             $table->string('domain_text', 64)->default('')->comment('测试环境域名');
             $table->string('domain_prod', 64)->default('')->comment('线上环境域名');
             $table->integer('owner_uid')->default(0)->comment('负责人id');
@@ -51,9 +52,9 @@ class CreateApiTestTable extends Migration
                 'GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'
             ])->default('GET')->comment('请求方法');
             $table->string('desc', 255)->default('')->comment('接口描述');
-            $table->text('request_example')->comment('请求示例');
-            $table->text('response_example')->comment('返回示例');
-            $table->text('response_desc')->comment('返回值说明');
+            $table->text('request_example')->nullable()->comment('请求示例');
+            $table->text('response_example')->nullable()->comment('返回示例');
+            $table->text('response_desc')->nullable()->comment('返回值说明');
             $table->tinyInteger('alarm_enable')->default(0)->comment('是否告警 0关闭 1开启');
             $table->tinyInteger('status')->default(1)->comment('状态：0已删除 1正常');
             $table->timestamps();
@@ -69,8 +70,8 @@ class CreateApiTestTable extends Migration
             $table->integer('project_id')->default(0)->comment('项目id');
             $table->integer('api_id')->default(0)->comment('接口id');
             $table->string('name', 64)->default('')->comment('用例名称');
-            $table->text('header')->comment('header参数，json格式');
-            $table->text('body')->comment('body参数，json格式');
+            $table->text('header')->nullable()->comment('header参数，json格式');
+            $table->text('body')->nullable()->comment('body参数，json格式');
             $table->tinyInteger('status')->default(1)->comment('状态：0已删除 1正常');
             $table->timestamps();
 

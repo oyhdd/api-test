@@ -1,0 +1,154 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Dcat\Admin\Traits\HasDateTimeFormatter;
+use Dcat\Admin\Models\Administrator;
+
+class BaseModel extends Model
+{
+    use HasFactory;
+    use HasDateTimeFormatter;
+
+    /**
+     * 模型日期列的存储格式
+     *
+     * @var string
+     */
+    protected $dateFormat = 'Y-m-d H:i:s';
+
+    /**
+     * 数据状态
+     */
+    const STATUS_DELETED = 0;
+    const STATUS_NORMAL  = 1;
+    public static $label_status = [
+        self::STATUS_DELETED => '已删除',
+        self::STATUS_NORMAL  => '正常',
+    ];
+
+    const YES = 1;
+    const NO  = 0;
+    public static $label_yes_or_no = [
+        self::YES  => '是',
+        self::NO => '否',
+    ];
+
+    /**
+     * 回归模式
+     */
+    const REG_TYPE_ALL     = 1;
+    const REG_TYPE_SUCCESS = 2;
+    public static $label_reg_type = [
+        self::REG_TYPE_ALL     => '完全匹配',
+        self::REG_TYPE_SUCCESS => '请求成功',
+    ];
+
+    /**
+     * 请求方法
+     */
+    public static $label_request_methods = [
+        'GET'     => 'GET',
+        'HEAD'    => 'HEAD',
+        'POST'    => 'POST',
+        'PUT'     => 'PUT',
+        'DELETE'  => 'DELETE',
+        'CONNECT' => 'CONNECT',
+        'OPTIONS' => 'OPTIONS',
+        'TRACE'   => 'TRACE',
+        'PATCH'   => 'PATCH'
+    ];
+
+    /**
+     * 获取所有数据
+     * @param  array   $where
+     * @param  array   $select
+     * @return models
+     */
+    public static function getAll(array $where = [], array $select = ['*'])
+    {
+        if (!isset($where['status'])) {
+            $where['status'] = self::STATUS_NORMAL;
+        }
+
+        return self::select($select)->where($where)->get();
+    }
+
+    /**
+     * 获取单条数据
+     * @param  array   $where
+     * @param  array   $select
+     * @return model
+     */
+    public static function getOne(array $where = [], array $select = ['*'])
+    {
+        if (!isset($where['status'])) {
+            $where['status'] = self::STATUS_NORMAL;
+        }
+
+        return self::select($select)->where($where)->first();
+    }
+
+    public function getDateFormat()
+    {
+        return 'Y-m-d H:i:s';
+    }
+
+    /**
+     * 获取用户列表
+     * @param  array   $uids
+     * @return array
+     */
+    public static function getUserList(array $uids = []): array
+    {
+        return Administrator::where(function ($query) use ($uids) {
+            if (!empty($uids)) {
+                return $query->whereIn('id', $uids);
+            }
+        })->get()->pluck('name', 'id')->toArray();
+    }
+
+    /**
+     * 获取项目id
+     * @param  int      $user_id
+     * @return array
+     */
+    public static function getProjectIds(int $user_id): array
+    {
+        $projectUsers = ProjectUserModel::getAll(['user_id' => $user_id], ['project_id'])->toArray();
+        $projects = ProjectModel::getAll(['owner_uid' => $user_id], ['id'])->toArray();
+        $project_ids = array_merge(array_column($projectUsers, 'project_id'), array_column($projects, 'id'));
+        return array_unique($project_ids);
+    }
+
+    /**
+     * 获取接口id
+     * @param  int      $user_id
+     * @return array
+     */
+    public static function getApiIds(int $user_id): array
+    {
+        $project_ids = self::getProjectIds($user_id);
+        $apiIds = ApiModel::whereIn('project_id', $project_ids)->where('status', self::STATUS_NORMAL)->get('id')->toArray();
+        return array_column($apiIds, 'id');
+    }
+
+    /**
+     * Set a given attribute on the model.
+     *
+     * @param  string  $key
+     * @param  mixed  $value
+     * @return mixed
+     */
+    public function setAttribute($key, $value)
+    {
+        if ($value === null) {
+            return $this;
+        }
+        return parent::setAttribute($key, $value);
+    }
+}

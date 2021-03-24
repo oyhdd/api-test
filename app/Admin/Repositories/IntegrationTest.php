@@ -2,7 +2,7 @@
 
 namespace App\Admin\Repositories;
 
-use App\Models\IntegrationTest as Model;
+use App\Models\IntegrationTestModel as Model;
 use Dcat\Admin\Repositories\EloquentRepository;
 
 class IntegrationTest extends EloquentRepository

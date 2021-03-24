@@ -25,12 +25,9 @@ use Dcat\Admin\Show;
  *
  */
 
+\Dcat\Admin\Show\Field::extend('textarea', App\Extensions\Show\Textarea::class);
+
 if (in_array('cool-mode', config('admin.layout.body_class'))) {
-    \Dcat\Admin\Color::extend('green', [
-        'primary'        => '#fbbd08',
-        'primary-darker' => '#fbbd08',
-        'link'           => '#fbbd08',
-    ]);
     config([
         'admin.layout.body_class' => array_merge(config('admin.layout.body_class'), []),
         'admin.layout.color' => 'green',

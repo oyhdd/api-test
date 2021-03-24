@@ -1,7 +1,7 @@
 <?php 
 return [
     'labels' => [
-        'UnitTest' => 'UnitTest',
+        'UnitTest' => '测试用例',
         'unit-test' => 'UnitTest',
     ],
     'fields' => [
@@ -10,7 +10,6 @@ return [
         'name' => '用例名称',
         'header' => 'header参数，json格式',
         'body' => 'body参数，json格式',
-        'status' => '状态：0已删除 1正常',
     ],
     'options' => [
     ],
