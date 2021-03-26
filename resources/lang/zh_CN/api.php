@@ -5,7 +5,7 @@ return [
         'api' => 'Api',
     ],
     'fields' => [
-        'project_id' => '项目id',
+        'project_id' => '项目',
         'name' => '接口名称',
         'url' => '接口地址',
         'method' => '请求方法',
@@ -13,7 +13,6 @@ return [
         'request_example' => '请求示例',
         'response_example' => '返回示例',
         'response_desc' => '返回值说明',
-        'alarm_enable' => '是否告警 0关闭 1开启',
     ],
     'options' => [
     ],

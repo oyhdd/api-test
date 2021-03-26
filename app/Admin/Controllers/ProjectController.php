@@ -27,16 +27,18 @@ class ProjectController extends AdminController
             $grid->model()->where(['status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
-            $grid->column('name');
+            $grid->column('name')->sortable();
             $grid->column('intro');
-            $grid->column('alarm_enable')->switch();
+            $grid->column('alarm_enable')->switch()->sortable();
             $grid->column('owner.name', '项目负责人');
+            $grid->column('created_at');
             $grid->column('updated_at')->sortable();
         
             $grid->filter(function (Grid\Filter $filter) {
-                $filter->panel();
-                $filter->like('name', '项目名');
-                $filter->equal('alarm_enable', '是否告警')->select(BaseModel::$label_yes_or_no);
+                $filter->padding(0, 0, '20px')->panel();
+
+                $filter->like('name', '项目名')->width(6);
+                $filter->equal('alarm_enable', '是否告警')->select(BaseModel::$label_yes_or_no)->width(6);
             });
         });
     }

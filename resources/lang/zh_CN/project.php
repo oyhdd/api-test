@@ -5,9 +5,8 @@ return [
         'project' => 'Project',
     ],
     'fields' => [
-        'name'            => '项目名',
+        'name'            => '项目',
         'intro'           => '简介',
-        'alarm_enable'    => '是否告警',
         'alarm_param'     => '告警接收者',
         'domain_text'     => '测试环境域名',
         'domain_prod'     => '线上环境域名',

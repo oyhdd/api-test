@@ -10,6 +10,15 @@ class ProjectModel extends BaseModel
 {
     protected $table = 'project';
 
+    /**
+     * 获取用户的项目列表
+     */
+    public static function getProjectList(int $user_id)
+    {
+        $projectIds = self::getProjectIds($user_id);
+        return self::whereIn('id', $projectIds)->where(['status' => self::STATUS_NORMAL])->get();
+    }
+
     public function owner()
     {
         return $this->belongsTo(Administrator::class, 'owner_uid', 'id');

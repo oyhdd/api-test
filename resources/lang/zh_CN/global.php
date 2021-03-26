@@ -23,6 +23,7 @@ return [
         'input'                 => '输入',
         'type'                  => '类型',
         'status'                => '状态',
+        'alarm_enable'          => '是否告警',
     ],
     'labels' => [
         'list'     => '列表',
