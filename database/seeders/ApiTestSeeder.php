@@ -13,6 +13,8 @@ class ApiTestSeeder extends Seeder
      */
     public function run()
     {
+        $now = date('Y-m-d H:i:s');
+
         // 添加菜单
         \Dcat\Admin\Models\Menu::insert([
             [
@@ -23,8 +25,8 @@ class ApiTestSeeder extends Seeder
                 'uri' => '/project',
                 'extension' => '',
                 'show' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
+                'created_at' => $now,
+                'updated_at' => $now
             ], [
                 'parent_id' => 0,
                 'order' => 1,
@@ -33,8 +35,8 @@ class ApiTestSeeder extends Seeder
                 'uri' => '',
                 'extension' => '',
                 'show' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
+                'created_at' => $now,
+                'updated_at' => $now
             ], [
                 'parent_id' => 9,
                 'order' => 1,
@@ -43,8 +45,8 @@ class ApiTestSeeder extends Seeder
                 'uri' => '/api',
                 'extension' => '',
                 'show' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
+                'created_at' => $now,
+                'updated_at' => $now
             ], [
                 'parent_id' => 9,
                 'order' => 1,
@@ -53,8 +55,8 @@ class ApiTestSeeder extends Seeder
                 'uri' => '/unit_test',
                 'extension' => '',
                 'show' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
+                'created_at' => $now,
+                'updated_at' => $now
             ], [
                 'parent_id' => 0,
                 'order' => 1,
@@ -63,8 +65,8 @@ class ApiTestSeeder extends Seeder
                 'uri' => '/regression_test',
                 'extension' => '',
                 'show' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
+                'created_at' => $now,
+                'updated_at' => $now
             ], [
                 'parent_id' => 0,
                 'order' => 1,
@@ -73,9 +75,33 @@ class ApiTestSeeder extends Seeder
                 'uri' => '/integration_test',
                 'extension' => '',
                 'show' => 1,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
+                'created_at' => $now,
+                'updated_at' => $now
             ]
         ]);
+
+        \Dcat\Admin\Models\Permission::insert([
+            [
+                'id'          => 7,
+                'name'        => '普通用户',
+                'slug'        => 'normal_user',
+                'http_method' => '',
+                'http_path'   => '/project*,/api*,/unit_test*,/regression_test*,/integration_test*',
+                'parent_id'   => 0,
+                'order'       => 7,
+                'created_at'  => $now,
+                'updated_at'  => $now,
+            ],
+        ]);
+
+        \Dcat\Admin\Models\Role::insert([
+            [
+                'name'       => '普通用户',
+                'slug'       => 'user',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]
+        ]);
+        \Dcat\Admin\Models\Role::find(2)->permissions()->save(\Dcat\Admin\Models\Permission::find(7));
     }
 }

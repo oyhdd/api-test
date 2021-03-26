@@ -29,7 +29,7 @@ class ProjectController extends AdminController
             $grid->column('id')->sortable();
             $grid->column('name');
             $grid->column('intro');
-            $grid->column('alarm_enable');
+            $grid->column('alarm_enable')->switch();
             $grid->column('owner.name', '项目负责人');
             $grid->column('updated_at')->sortable();
         
