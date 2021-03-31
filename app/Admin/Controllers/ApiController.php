@@ -9,6 +9,7 @@ use Dcat\Admin\Show;
 use Dcat\Admin\Admin;
 use App\Models\ProjectModel;
 use App\Models\BaseModel;
+use App\Models\UnitTestModel;
 
 class ApiController extends AdminController
 {
@@ -31,10 +32,16 @@ class ApiController extends AdminController
             $grid->column('name')->sortable();
             $grid->column('url');
             $grid->column('method')->sortable();
-            $grid->column('desc');
+            $grid->column('desc')->display(function ($desc) {
+                return cut_substr($desc);
+            });
             $grid->column('alarm_enable')->switch()->sortable();
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
+
+            $grid->actions(function ($actions) {
+                $actions->prepend("<a href='/admin/unit-test/run/0'><i title='运行' class='fa fa-paper-plane grid-action-icon'></i>&nbsp; </a>");
+            });
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->padding(0, 0, '20px')->panel();
@@ -71,6 +78,12 @@ class ApiController extends AdminController
             });
             $show->field('method')->label('success');
             $show->field('desc')->textarea();
+            $show->header()->as(function ($header) {
+                return $this->getParamTable($header);
+            })->unescape();
+            $show->body()->as(function ($body) {
+                return $this->getParamTable($body);
+            })->unescape();
             $show->field('request_example')->textarea();
             $show->field('response_example')->textarea();
             $show->field('response_desc')->textarea();
@@ -101,9 +114,29 @@ class ApiController extends AdminController
             $form->switch('alarm_enable');
             $form->select('method')->options(BaseModel::$label_request_methods)->default('GET')->required();
             $form->textarea('desc');
+            $form->fieldset('参数设置', function ($form) {
+                $form->table('header', function ($table) {
+                    $table->text('key', '参数名')->required();
+                    $table->text('type', '参数类型')->default('string');
+                    $table->radio('is_necessary', '是否必填')->options(BaseModel::$label_yes_or_no)->default(BaseModel::NO);
+                    $table->text('desc', '参数说明');
+                })->saving(function ($v) {
+                    return json_encode($v);
+                });
+                $form->table('body', function ($table) {
+                    $table->text('key', '参数名')->required();
+                    $table->text('type', '参数类型')->default('string');
+                    $table->radio('is_necessary', '是否必填')->options(BaseModel::$label_yes_or_no)->default(BaseModel::NO);
+                    $table->text('desc', '参数说明');
+                })->saving(function ($v) {
+                    return json_encode($v);
+                });
+            });
             $form->textarea('request_example');
             $form->textarea('response_example');
             $form->textarea('response_desc');
+
+            $form->width(9, 2);
 
             $form->saving(function (Form $form) {
                 $form->url = "/" . ltrim($form->url ?? '', "/");
@@ -113,4 +146,23 @@ class ApiController extends AdminController
             });
         });
     }
+
+    public function unitTestList()
+    {
+        $api_id = intval($this->request->input('q', 0));
+        if ($api_id <= 0) {
+            return [];
+        }
+
+        $unitTest = UnitTestModel::getAll(['api_id' => $api_id])->toArray();
+        foreach ($unitTest as $key => $unit) {
+            $ret[$key] = [
+                'id' => $unit['id'],
+                'text' => $unit['name'],
+            ];
+        }
+        return $ret;
+    }
+
+
 }

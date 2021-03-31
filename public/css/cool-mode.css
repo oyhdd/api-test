@@ -435,11 +435,11 @@ body.dark-mode .table.default-table td,body.dark-mode .table.default-table th {
 }
 
 body.dark-mode .table.default-table th,body.dark-mode table.table-bordered.dataTable.complex-headers th {
-	background: #26263a
+	background: hsla(0, 0%, 100%, .2) !important
 }
 
 body.dark-mode .table.default-table td,body.dark-mode table.table-bordered.dataTable.complex-headers td {
-	background: #2a2a40
+	background: rgba(0,0,0,.09)!important
 }
 
 body.dark-mode .table {
@@ -1041,6 +1041,17 @@ body.dark-mode .filter-box.card {
 }
 body.dark-mode .filter-box.card .card-body {
     background: rgba(0, 0, 0, 0) !important;
+}
+body.dark-mode .btn-primary.btn-outline {
+    color: white !important;
+    border-color: #4e9876 !important;
+    background: #4e9876 !important;
+}
+table.table-has-many .input-group-prepend {
+    display: none;
+}
+.form-divider {
+    height: 23px !important;
 }
 
 /* 动画效果 */

@@ -6,6 +6,8 @@ use App\Admin\Repositories\RegressionTest;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
+use Dcat\Admin\Admin;
+use App\Models\ProjectModel;
 
 class RegressionTestController extends AdminController
 {
@@ -64,10 +66,24 @@ class RegressionTestController extends AdminController
     protected function form()
     {
         return Form::make(new RegressionTest(), function (Form $form) {
+            if (!Admin::user()->isAdministrator()) {
+                $projectList = ProjectModel::getProjectList(Admin::user()->id)->pluck('name', 'id');
+            } else {
+                $projectList = ProjectModel::getAll()->pluck('name', 'id');
+            }
+
             $form->display('id');
-            $form->text('project_id');
-            $form->text('api_id');
-            $form->text('unit_test_id');
+            $form->select('project_id')
+                ->options($projectList)
+                ->required()
+                ->load('api_id', "/project/api-list");
+            $form->select('api_id')
+                ->options([])
+                ->required()
+                ->load('unit_test_id', "/api/unit-test-list");
+            $form->select('unit_test_id')
+                ->options([])
+                ->required();
             $form->text('response_md5');
             $form->text('type');
             $form->text('status');

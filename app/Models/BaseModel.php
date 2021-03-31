@@ -1,13 +1,12 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Dcat\Admin\Traits\HasDateTimeFormatter;
 use Dcat\Admin\Models\Administrator;
+use Dcat\Admin\Widgets\Table;
 
 class BaseModel extends Model
 {
@@ -150,5 +149,25 @@ class BaseModel extends Model
             return $this;
         }
         return parent::setAttribute($key, $value);
+    }
+
+    public static function getParamTable($params = [])
+    {
+        if (empty($params)) {
+            return '';
+        }
+
+        $headerLabels = ['key' => '参数名', 'type' => '类型', 'is_necessary' => '必须', 'desc' => '注释', 'value' => '参数值'];
+        $headers = array_intersect_key($headerLabels, $params[0]);
+
+        $body = array_map(function($item){
+            if (isset($item['is_necessary'])) {
+                $item['is_necessary'] = self::$label_yes_or_no[$item['is_necessary']];
+            }
+            return $item;
+        }, $params);
+
+        $table = new Table($headers, $body);
+        return $table->render();
     }
 }

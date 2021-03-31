@@ -2,7 +2,7 @@
 return [
     'labels' => [
         'IntegrationTest' => '集成测试',
-        'integration-test' => 'IntegrationTest',
+        'integration-test' => '集成测试',
     ],
     'fields' => [
         'project_id' => '项目id',

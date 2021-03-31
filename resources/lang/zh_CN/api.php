@@ -1,8 +1,8 @@
-<?php 
+<?php
 return [
     'labels' => [
         'Api' => '接口列表',
-        'api' => 'Api',
+        'api' => '接口列表',
     ],
     'fields' => [
         'project_id' => '项目',
@@ -10,6 +10,8 @@ return [
         'url' => '接口地址',
         'method' => '请求方法',
         'desc' => '接口描述',
+        'header' => '请求头',
+        'body' => '请求体',
         'request_example' => '请求示例',
         'response_example' => '返回示例',
         'response_desc' => '返回值说明',

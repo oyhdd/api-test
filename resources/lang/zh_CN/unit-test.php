@@ -1,15 +1,15 @@
-<?php 
+<?php
 return [
     'labels' => [
         'UnitTest' => '测试用例',
-        'unit-test' => 'UnitTest',
+        'unit-test' => '测试用例',
     ],
     'fields' => [
         'project_id' => '项目',
         'api_id' => '接口',
         'name' => '用例名称',
-        'header' => 'header参数，json格式',
-        'body' => 'body参数，json格式',
+        'header' => '请求头',
+        'body' => '请求体',
         'url' => '接口地址',
         'desc' => '接口描述',
         'request_example' => '请求示例',

@@ -52,6 +52,8 @@ class CreateApiTestTable extends Migration
                 'GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'
             ])->default('GET')->comment('请求方法');
             $table->string('desc', 255)->default('')->comment('接口描述');
+            $table->text('header')->nullable()->comment('header参数，json格式');
+            $table->text('body')->nullable()->comment('body参数，json格式');
             $table->text('request_example')->nullable()->comment('请求示例');
             $table->text('response_example')->nullable()->comment('返回示例');
             $table->text('response_desc')->nullable()->comment('返回值说明');

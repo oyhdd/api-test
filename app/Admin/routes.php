@@ -17,24 +17,26 @@ Route::group([
     $router->get('auth/login', 'AuthController@getLogin');
 
     // 项目管理
-    $router->get('project/api_list', 'ProjectController@apiList');
+    $router->get('project/api-list', 'ProjectController@apiList');
     $router->resource('project', ProjectController::class);
 
     // 接口管理
+    $router->get('api/unit-test-list', 'ApiController@unitTestList');
     $router->resource('api', ApiController::class);
 
     // 测试用例
-    $router->get('unit_test/run', 'UnitTestController@run');
-    $router->resource('unit_test', UnitTestController::class);
+    $router->get('unit-test/api-detail/{api_id}', 'UnitTestController@apiDetail');
+    $router->get('unit-test/run/{id}', 'UnitTestController@run');
+    $router->resource('unit-test', UnitTestController::class);
 
     // 回归测试
-    $router->post('regression_test/save_reg_test', 'RegressionTestController@saveRegTest');
-    $router->resource('regression_test', RegressionTestController::class);
+    $router->post('regression-test/save-reg-test', 'RegressionTestController@saveRegTest');
+    $router->resource('regression-test', RegressionTestController::class);
 
     // 单元测试
-    $router->resource('unit_test', UnitTestController::class);
+    $router->resource('unit-test', UnitTestController::class);
 
     // 集成测试
-    $router->resource('integration_test', IntegrationTestController::class);
+    $router->resource('integration-test', IntegrationTestController::class);
 
 });

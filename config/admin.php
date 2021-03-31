@@ -160,7 +160,7 @@ return [
         | The global Grid action display class.
         |--------------------------------------------------------------------------
         */
-        'grid_action_class' => Dcat\Admin\Grid\Displayers\DropdownActions::class,
+        'grid_action_class' => Dcat\Admin\Grid\Displayers\Actions::class,
     ],
 
     /*
@@ -293,7 +293,7 @@ return [
         'sidebar_collapsed' => false,
 
         // light, primary, dark
-        'sidebar_style' => 'light',
+        'sidebar_style' => 'primary',
 
         'dark_mode_switch' => true,
 

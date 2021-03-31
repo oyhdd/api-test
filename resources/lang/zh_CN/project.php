@@ -2,7 +2,7 @@
 return [
     'labels' => [
         'Project' => '项目管理',
-        'project' => 'Project',
+        'project' => '项目管理',
     ],
     'fields' => [
         'name'            => '项目',
