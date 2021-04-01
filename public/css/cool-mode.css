@@ -224,7 +224,7 @@ body.dark-mode .btn.btn-custom:not(.btn-outline),body.dark-mode .btn.btn-danger:
 }
 
 body.dark-mode hr {
-	border-color: gray
+	border-color: #999999
 }
 
 body.dark-mode pre {

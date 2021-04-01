@@ -1,10 +1,24 @@
 <style>
+    .TreeMenuList>div {
+        border: ridge;
+    }
+
+    .TreeMenuList {
+        float: left;
+    }
+
+    .run-panel {
+        float: right;
+    }
+
     body.dark-mode pre {
+        animation: mymove 0.5s;
         background-color: black !important;
         color: darkgray;
     }
 
     ul.tabs {
+        animation: mymove 0.5s;
         margin: 0;
         padding: 0;
         float: left;
@@ -74,27 +88,38 @@
         background: linear-gradient(to right, #4a9dd3, #3085d6);
     }
 
-    textarea {
+    .input-example {
         width: 100%;
-        overflow: hidden !important;
+        overflow: auto !important;
         padding-left: 10px;
         outline: none;
         resize: vertical;
-        color: white!important;
-        border-color: gray!important;
-        background-color: rgba(0,0,0,.09);
+        color: white !important;
+        border-color: gray !important;
+        background-color: rgba(0, 0, 0, .09);
+        height: 350px;
+    }
+
+    #input_request_example {
+        height: 100px;
     }
 
     body.dark-mode a:hover {
         color: white;
     }
 
+    body.dark-mode a.edit-api:hover {
+        color: limegreen;
+    }
 </style>
 
-<div class="run-panel col-md-12 col-sm-12">
+<div class="TreeMenuList col-md-3 col-sm-12">
+    <div id="TreeMenu"></div>
+</div>
+<div class="run-panel col-md-9 col-sm-12">
 
-    <pre id="api_desc"><b><br><span class="label bg-success">{{ $model->api->method }}</span>&nbsp;<span class="label bg-gray">{{ $model->api->url }}</span>
-        <br>接口描述：{{ $model->api->desc }}<br>回归测试：<input id="save_reg_test" type="checkbox" {{ empty($model->regTest) ? "" : "checked" }} /><?php if (!empty($model->regTest)) : ?><br>完全匹配：<input type="radio" name="reg-model" value="{{ $model::REG_TYPE_ALL }}" {{ (!empty($model->regTest) && $model->regTest->type == $model::REG_TYPE_ALL) ? "checked" : "" }}/>&nbsp;请求成功：<input type="radio" name="reg-model" value="{{ $model::REG_TYPE_SUCCESS }} " {{ (!empty($model->regTest) && $model->regTest->type == $model::REG_TYPE_SUCCESS) ? "checked" : "" }}/><?php endif; ?>
+    <pre id="api_desc"><b><br><span class="label bg-success">{{ $model->method }}</span>&nbsp;<span class="label bg-gray">{{ $model->url }}</span>
+        <br>接口名称：{{ $model->name }}<br>接口描述：{{ $model->desc }}<br>回归测试：<input id="save_reg_test" type="checkbox" {{ empty($model->regTest) ? "" : "checked" }} /><?php if (!empty($model->regTest)) : ?><br>完全匹配：<input type="radio" class="reg-model" name="reg-model" value="{{ $model::REG_TYPE_ALL }}" {{ (!empty($model->regTest) && $model->regTest->type == $model::REG_TYPE_ALL) ? "checked" : "" }}/>&nbsp;请求成功：<input class="reg-model" type="radio" name="reg-model" value="{{ $model::REG_TYPE_SUCCESS }} " {{ (!empty($model->regTest) && $model->regTest->type == $model::REG_TYPE_SUCCESS) ? "checked" : "" }}/><?php endif; ?>
     </b></pre>
     <br>
     <ul class="tabs">
@@ -104,56 +129,106 @@
     <div class="tab_container">
         <div id="tab1" class="tab_content" style="display: block; padding: 2%;">
 
-            <h3><span class='label bg-success'>请求头</span></h3>
+            <h4><span class='label bg-success'>请求头</span></h4>
+            @if (!empty($model->header))
             {!! $model->getParamTable($model->header) !!}
+            @else
+            <pre>Empty.</pre>
+            @endif
             <br>
 
-            <h3><span class='label bg-success'>请求体</span></h3>
+            <h4><span class='label bg-success'>请求体</span></h4>
+            @if (!empty($model->body))
             {!! $model->getParamTable($model->body) !!}
-            <br>
+            @else
+            <pre>Empty.</pre>
+            @endif
+            <hr>
 
-            <h3><span class='label bg-success'>请求示例</span></h3>
-            <textarea id="input_request_example" class="input-example" placeholder="请输入 curl请求示例"></textarea>
+            <h4><span class='label bg-success'>请求示例</span></h4>
+            <textarea id="input_request_example" class="input-example" placeholder="请输入 curl请求示例">{{ $model->request_example }}</textarea>
             <div class="form-group pull-right">
                 <button name="request_example" type="button" class="btn btn-primary submit-example" data-loading-text="保存中..." autocomplete="off">保存</button>
             </div>
             <br>
             <br>
 
-            <h3><span class='label bg-success'>返回示例</span></h3>
-            <textarea id="input_response_example" class="input-example" placeholder="请输入 返回示例" style="min-height:200px;max-height:600px;"></textarea>
+            <h4><span class='label bg-success'>返回示例</span></h4>
+            <textarea id="input_response_example" class="input-example" placeholder="请输入 返回示例">{{ $model->response_example }}</textarea>
             <div class="form-group pull-right">
                 <button name="response_example" type="button" class="btn btn-primary submit-example " data-loading-text="保存中..." autocomplete="off">保存</button>
             </div>
             <br>
             <br>
 
-            <h3><span class='label bg-success'>返回值说明</span></h3>
-            <textarea id="input_response_desc" class="input-example" placeholder="请输入 返回值说明" style="min-height:200px;max-height:600px;"></textarea>
+            <h4><span class='label bg-success'>返回值说明</span></h4>
+            <textarea id="input_response_desc" class="input-example" placeholder="请输入 返回值说明">{{ $model->response_desc }}</textarea>
             <div class="form-group pull-right">
                 <button name="response_desc" type="button" class="btn btn-primary submit-example" data-loading-text="保存中..." autocomplete="off">保存</button>
             </div>
 
         </div>
         <div id="tab2" class="tab_content" style="display: none; ">
-
-            <h3>返回值说明</h3>
-
+            @php
+            echo view('unit_test._debug', [
+            'model' => $model
+            ]);
+            @endphp
         </div>
     </div>
 </div>
 
 <script type="text/javascript">
-    $(document).ready(function() {
+    Dcat.ready(function() {
+        $("body").addClass("sidebar-collapse");
+        let api_id = '<?php echo $model->id ?>';
 
         // 保存回归测试
-        $(document).on('click', '#save_reg_test', function() {
-            uploadExample();
+        Dcat.init('#save_reg_test', function($this, id) {
+            $this.on('click', function() {
+                uploadExample();
+            });
         });
+
         // 保存回归测试
-        $(document).on('click', ':radio[name=reg-model]', function() {
-            uploadExample();
+        Dcat.init('.reg-model', function($this, id) {
+            $this.on('click', function() {
+                uploadExample();
+            });
         });
+
+        // 保存请求响应示例
+        $('.submit-example').click(function() {
+            var type = $(this).attr('name');
+            var desc = $('#input_' + type).val();
+
+            $.ajax({
+                url: '/admin/api/' + api_id,
+                type: 'POST',
+                data: {
+                    [type]: desc,
+                    _method: "PUT"
+                },
+                success: function(retData) {
+                    Dcat.success("操作成功");
+                    Dcat.reload();
+                },
+                error: function(retData) {
+                    Dcat.error(retData.responseJSON.message, null, {
+                        timeOut: 10000
+                    });
+                }
+            });
+        });
+
+        let navItems = <?php echo json_encode($model->getNavItems()); ?>;
+        //左侧菜单栏
+        var menuConfig = {
+            treeMenuId: "#TreeMenu",
+            superLevel: 1,
+            multiple: true,
+        };
+        treeMenu.init(navItems, menuConfig);
 
         //tab栏
         $(".tab_content").hide();
@@ -178,14 +253,13 @@
                 unit_test_id: '<?php echo $model->id ?? ''; ?>',
                 status: Number($("#save_reg_test").prop('checked')),
                 type: $(":radio[name=reg-model]:checked").val(),
-                _token: LA.token,
             },
             success: function(retData) {
-                $.pjax.reload('#api_desc');
-                toastr.success("操作成功");
+                Dcat.success("操作成功");
+                Dcat.reload();
             },
             error: function(retData) {
-                toastr.error(retData.responseJSON.message, '', {
+                Dcat.error(retData.responseJSON.message, null, {
                     timeOut: 10000
                 });
             }

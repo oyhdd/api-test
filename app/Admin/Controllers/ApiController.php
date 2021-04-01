@@ -7,9 +7,8 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Admin;
-use App\Models\ProjectModel;
-use App\Models\BaseModel;
-use App\Models\UnitTestModel;
+use App\Models\{ApiModel, UnitTestModel, ProjectModel, BaseModel};
+use Dcat\Admin\Layout\Content;
 
 class ApiController extends AdminController
 {
@@ -40,7 +39,7 @@ class ApiController extends AdminController
             $grid->column('updated_at')->sortable();
 
             $grid->actions(function ($actions) {
-                $actions->prepend("<a href='/admin/unit-test/run/0'><i title='运行' class='fa fa-paper-plane grid-action-icon'></i>&nbsp; </a>");
+                $actions->prepend("<a href='/admin/api/run/{$this->getKey()}'><i title='运行' class='fa fa-paper-plane grid-action-icon'></i>&nbsp; </a>");
             });
 
             $grid->filter(function (Grid\Filter $filter) {
@@ -164,5 +163,27 @@ class ApiController extends AdminController
         return $ret;
     }
 
+    /**
+     * 运行接口
+     *
+     * @param mixed   $id
+     * @param Content $content
+     *
+     * @return Content
+     */
+    public function run($id, Content $content)
+    {
+        Admin::js([
+            '/js/checkutil.js',
+            '/js/treeMenu.js',
+        ]);
+        Admin::css('/css/treeMenu.css');
+        $model = ApiModel::where(['status' => ApiModel::STATUS_NORMAL])->findOrFail($id);
+
+        return $content
+            ->title($model->project->name ?? "")
+            ->description($model->name)
+            ->row(view('unit_test.index', ['model' => $model]));
+    }
 
 }

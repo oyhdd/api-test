@@ -37,7 +37,7 @@ class UnitTestController extends AdminController
             $grid->column('updated_at')->sortable();
 
             $grid->actions(function ($actions) {
-                $actions->prepend("<a href='/admin/unit-test/run/{$this->getKey()}'><i title='运行' class='fa fa-paper-plane grid-action-icon'></i>&nbsp; </a>");
+                $actions->prepend("<a href='/admin/api/run/{$this->api_id}'><i title='运行' class='fa fa-paper-plane grid-action-icon'></i>&nbsp; </a>");
             });
 
             $grid->filter(function (Grid\Filter $filter) {
@@ -181,7 +181,7 @@ class UnitTestController extends AdminController
                 $form->select('api_id', '接口')->options([])->required();
             }
 
-            $form->text('name');
+            $form->text('name')->required();
             $form->fieldset('参数设置', function ($form) {
                 $form->table('header', function ($table) {
                     $table->text('key', '参数名')->required();
@@ -255,20 +255,4 @@ class UnitTestController extends AdminController
         return "<div id='api_refresh'>" . $show->render() . "</div>";
     }
 
-    /**
-     * 运行测试用例
-     *
-     * @param mixed   $id
-     * @param Content $content
-     *
-     * @return Content
-     */
-    public function run($id, Content $content)
-    {
-        $model = UnitTestModel::where(['status' => UnitTestModel::STATUS_NORMAL])->findOrFail($id);
-        return $content
-            ->title($model->project->name)
-            ->description($model->api->name . "-" . $model->name)
-            ->row(view('unit_test.index', ['model' => $model]));
-    }
 }
