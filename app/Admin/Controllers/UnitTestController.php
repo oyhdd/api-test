@@ -37,7 +37,7 @@ class UnitTestController extends AdminController
             $grid->column('updated_at')->sortable();
 
             $grid->actions(function ($actions) {
-                $actions->prepend("<a href='/admin/api/run/{$this->api_id}'><i title='运行' class='fa fa-paper-plane grid-action-icon'></i>&nbsp; </a>");
+                $actions->prepend("<a href='/admin/run/{$this->api_id}'><i title='运行' class='fa fa-paper-plane grid-action-icon'></i>&nbsp; </a>");
             });
 
             $grid->filter(function (Grid\Filter $filter) {
@@ -101,10 +101,10 @@ class UnitTestController extends AdminController
             $show->field('project.name', '项目')->label('info');
             $show->field('name');
             $show->header()->as(function ($header) {
-                return BaseModel::getParamTable($header);
+                return BaseModel::getParamTable($this->formatTableData($header));
             })->unescape();
             $show->body()->as(function ($body) {
-                return BaseModel::getParamTable($body);
+                return BaseModel::getParamTable($this->formatTableData($body));
             })->unescape();
             $show->field('created_at');
             $show->field('updated_at');
@@ -182,20 +182,9 @@ class UnitTestController extends AdminController
             }
 
             $form->text('name')->required();
-            $form->fieldset('参数设置', function ($form) {
-                $form->table('header', function ($table) {
-                    $table->text('key', '参数名')->required();
-                    $table->text('value', '参数值')->required();
-                })->saving(function ($v) {
-                    return json_encode($v);
-                });
-                $form->table('body', function ($table) {
-                    $table->text('key', '参数名')->required();
-                    $table->text('value', '参数值')->required();
-                })->saving(function ($v) {
-                    return json_encode($v);
-                });
-            });
+            $form->keyValue('header')->saveAsJson();
+            $form->keyValue('body')->saveAsJson();
+
             $form->width(10, 2);
             $form->footer(function ($footer) {
                 $footer->disableViewCheck()->disableEditingCheck()->disableCreatingCheck();
@@ -253,6 +242,18 @@ class UnitTestController extends AdminController
         });
 
         return "<div id='api_refresh'>" . $show->render() . "</div>";
+    }
+
+    public function save()
+    {
+        $ret = UnitTestModel::saveUnitTest($this->request->all());
+
+        return [
+            'status'  => $ret,
+            'data' => [
+                'message' => empty($ret) ? "保存失败" : "保存成功",
+            ]
+        ];
     }
 
 }

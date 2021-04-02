@@ -21,11 +21,14 @@ Route::group([
     $router->resource('project', ProjectController::class);
 
     // 接口管理
-    $router->get('api/run/{id}', 'ApiController@run');
     $router->get('api/unit-test-list', 'ApiController@unitTestList');
     $router->resource('api', ApiController::class);
 
+    // 接口运行
+    $router->resource('run', RunController::class);
+
     // 测试用例
+    $router->post('unit-test/save', 'UnitTestController@save');
     $router->get('unit-test/api-detail/{api_id}', 'UnitTestController@apiDetail');
     $router->resource('unit-test', UnitTestController::class);
 

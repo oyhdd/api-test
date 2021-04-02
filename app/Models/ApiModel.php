@@ -49,8 +49,8 @@ class ApiModel extends BaseModel
             foreach ($apis as $api) {
                 $subMenus[] = [
                     "name" => $api->name,
-                    "href" => "/admin/api/run/{$api->id}",
-                    "edit_href" => "/admin/api/{$api->id}/edit",
+                    "href" => "/admin/run/{$api->id}",
+                    "edit_href" => "/admin/{$api->id}/edit",
                     "active" => $this->id == $api->id,
                 ];
             }
@@ -63,6 +63,14 @@ class ApiModel extends BaseModel
         }
 
         return $navItems;
+    }
+
+    public function getDomainOptions()
+    {
+        return [
+            $this->project->domain_text => $this->project->domain_text,
+            $this->project->domain_prod => $this->project->domain_prod,
+        ];
     }
 
     public function getHeaderAttribute($value)
