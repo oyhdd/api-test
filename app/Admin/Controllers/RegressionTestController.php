@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Admin\Repositories\RegressionTest;
+use App\Models\BaseModel;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -10,6 +11,7 @@ use Dcat\Admin\Admin;
 use App\Models\ProjectModel;
 use App\Models\RegressionTestModel;
 use App\Models\UnitTestModel;
+use App\Models\ApiModel;
 
 class RegressionTestController extends AdminController
 {
@@ -20,20 +22,41 @@ class RegressionTestController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(new RegressionTest(), function (Grid $grid) {
+        return Grid::make(RegressionTest::with(['project', 'api', 'unitTest']), function (Grid $grid) {
+            if (!Admin::user()->isAdministrator()) {
+                $project_ids = BaseModel::getProjectIds(Admin::user()->id);
+                $grid->model()->whereIn('project_id', $project_ids);
+            }
+            $grid->model()->where(['status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
             $grid->column('id')->sortable();
-            $grid->column('project_id');
-            $grid->column('api_id');
-            $grid->column('unit_test_id');
-            $grid->column('response_md5');
-            $grid->column('type');
-            $grid->column('status');
-            $grid->column('created_at');
+            $grid->column('project.name', '项目')->label('info');
+            $grid->column('api.name', '接口名称')->label('info');
+            $grid->column('unitTest.name', '测试用例')->label('info');
+            $grid->column('type')->select(BaseModel::$label_reg_type, true);
             $grid->column('updated_at')->sortable();
-        
+
+            $grid->actions(function ($actions) {
+                $actions->prepend("<a href='/admin/run/{$this->api_id}'><i title='运行' class='fa fa-paper-plane grid-action-icon'></i>&nbsp; </a>");
+            });
+
             $grid->filter(function (Grid\Filter $filter) {
-                $filter->equal('id');
-        
+                $filter->padding(0, 0, '20px')->panel();
+
+                if (!Admin::user()->isAdministrator()) {
+                    $projectList = ProjectModel::getProjectList(Admin::user()->id)->pluck('name', 'id');
+                    $apiList = ApiModel::getApiList(Admin::user()->id);
+                } else {
+                    $projectList = ProjectModel::getAll()->pluck('name', 'id');
+                    $apiList = ApiModel::getAll();
+                }
+                $apiList = $apiList->flatMap(function ($item) {
+                    $item->name .= ": " . $item->url;
+                    return [$item];
+                })->toArray();
+                $apiList = array_column($apiList, 'name', 'id');
+                $filter->equal('project_id')->select($projectList)->width(6);
+                $filter->equal('type')->select(BaseModel::$label_reg_type)->width(6);
+                $filter->equal('api_id')->select($apiList)->width(6);
             });
         });
     }

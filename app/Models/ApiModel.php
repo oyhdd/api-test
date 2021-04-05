@@ -50,7 +50,7 @@ class ApiModel extends BaseModel
                 $subMenus[] = [
                     "name" => $api->name,
                     "href" => "/admin/run/{$api->id}",
-                    "edit_href" => "/admin/{$api->id}/edit",
+                    "edit_href" => "/admin/api/{$api->id}/edit",
                     "active" => $this->id == $api->id,
                 ];
             }
