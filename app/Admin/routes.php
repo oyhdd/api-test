@@ -33,7 +33,6 @@ Route::group([
     $router->resource('unit-test', UnitTestController::class);
 
     // 回归测试
-    $router->post('regression-test/save-reg-test', 'RegressionTestController@saveRegTest');
     $router->resource('regression-test', RegressionTestController::class);
 
     // 单元测试

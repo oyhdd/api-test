@@ -3,7 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Admin\Repositories\UnitTest;
-use App\Models\{ApiModel, UnitTestModel, ProjectModel, BaseModel};
+use App\Models\{ApiModel, UnitTestModel, ProjectModel, BaseModel, RegressionTestModel};
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -246,12 +246,25 @@ class UnitTestController extends AdminController
 
     public function save()
     {
-        $ret = UnitTestModel::saveUnitTest($this->request->all());
+        $ret = [
+            'status'  => false,
+            'data' => [
+                'message' => "保存测试用例失败",
+            ]
+        ];
+
+        $params = $this->request->all();
+        if (! UnitTestModel::saveUnitTest($params)) {
+            return $ret;
+        }
+
+        $params['status'] = $params['regression_status'];
+        $ret = RegressionTestModel::saveRegTest($params);
 
         return [
             'status'  => $ret,
             'data' => [
-                'message' => empty($ret) ? "保存失败" : "保存成功",
+                'message' => empty($ret) ? "保存回归测试失败" : "保存成功",
             ]
         ];
     }

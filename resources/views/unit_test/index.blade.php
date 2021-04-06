@@ -119,7 +119,7 @@
     <div class="run-panel col-md-9 col-sm-12">
 
         <pre id="api_desc"><b><br><span class="label bg-success">{{ $model->method }}</span>&nbsp;<span class="label bg-gray">{{ $model->url }}</span>
-            <br>接口名称：{{ $model->name }}<br>接口描述：{{ $model->desc }}<br>回归测试：<input id="save_reg_test" type="checkbox" {{ empty($model->regTest) ? "" : "checked" }} /><?php if (!empty($model->regTest)) : ?><br>完全匹配：<input type="radio" class="reg-model" name="reg-model" value="{{ $model::REG_TYPE_ALL }}" {{ (!empty($model->regTest) && $model->regTest->type == $model::REG_TYPE_ALL) ? "checked" : "" }}/>&nbsp;请求成功：<input class="reg-model" type="radio" name="reg-model" value="{{ $model::REG_TYPE_SUCCESS }} " {{ (!empty($model->regTest) && $model->regTest->type == $model::REG_TYPE_SUCCESS) ? "checked" : "" }}/><?php endif; ?>
+            <br>接口名称：{{ $model->name }}<br>接口描述：{{ $model->desc }}
         </b></pre>
         <ul class="tabs">
             <li class="active"><a href="#tab1">接口文档</a></li>
@@ -182,20 +182,6 @@
         $("body").addClass("sidebar-collapse");
         let api_id = '<?php echo $model->id ?>';
 
-        // 保存回归测试
-        Dcat.init('#save_reg_test', function($this, id) {
-            $this.on('click', function() {
-                uploadExample();
-            });
-        });
-
-        // 保存回归测试
-        Dcat.init('.reg-model', function($this, id) {
-            $this.on('click', function() {
-                uploadExample();
-            });
-        });
-
         // 保存请求响应示例
         $('.submit-example').click(function() {
             var type = $(this).attr('name');
@@ -245,24 +231,4 @@
         });
     });
 
-    function uploadExample() {
-        $.ajax({
-            url: '/admin/regression-test/save-reg-test',
-            type: 'POST',
-            data: {
-                unit_test_id: '<?php echo $model->id ?? ''; ?>',
-                status: Number($("#save_reg_test").prop('checked')),
-                type: $(":radio[name=reg-model]:checked").val(),
-            },
-            success: function(retData) {
-                Dcat.success("操作成功");
-                Dcat.reload();
-            },
-            error: function(retData) {
-                Dcat.error(retData.responseJSON.message, null, {
-                    timeOut: 10000
-                });
-            }
-        });
-    }
 </script>

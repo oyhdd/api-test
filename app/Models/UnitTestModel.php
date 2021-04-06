@@ -25,6 +25,11 @@ class UnitTestModel extends BaseModel
         return $this->belongsTo(ProjectModel::class, 'project_id', 'id');
     }
 
+    public function regTest()
+    {
+        return $this->belongsTo(RegressionTestModel::class, 'id', 'unit_test_id')->where('status', self::STATUS_NORMAL);
+    }
+
     public static function formatTableData($params = [])
     {
         $data = [];
@@ -55,10 +60,23 @@ class UnitTestModel extends BaseModel
             $params['body'] = json_encode($params['body']);
         }
 
-        $model = new UnitTestModel();
-        $params['status'] = UnitTestModel::STATUS_NORMAL;
+        $model = UnitTestModel::where(['id' => $params['unit_test_id']])->first();
+        if (empty($model) || $model->name != $params['name']) {
+            $model = new UnitTestModel();
+            $params['status'] = UnitTestModel::STATUS_NORMAL;
+        }
 
         $model->fill($params);
         return $model->save();
+    }
+
+    /**
+     * @name   运行测试用例
+     * @param  array      $params
+     * @return bool
+     */
+    public function run(array $params)
+    {
+        # code...
     }
 }

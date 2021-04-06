@@ -24,7 +24,7 @@ class ApiModel extends BaseModel
 
     public function regTest()
     {
-        return $this->belongsTo(RegressionTestModel::class, 'id', 'unit_test_id')->where('status', self::STATUS_NORMAL);
+        return $this->hasMany(RegressionTestModel::class, 'api_id')->where('status', self::STATUS_NORMAL);
     }
 
     public function unitTest()

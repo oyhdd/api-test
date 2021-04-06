@@ -27,10 +27,15 @@
         min-height: 235px;
         color: white;
     }
+
+    .help-block {
+        font-size: 12px;
+    }
 </style>
 <div class="row">
     <div class="col-md-5 col-sm-12">
         @php
+        $regTest = $model->regTest->pluck('type', 'unit_test_id')->toArray();
 
         $form = new \Dcat\Admin\Widgets\Form();
         $form->action(request()->fullUrl())->setFormId('run_api')->ajax(false);
@@ -89,12 +94,25 @@
 
     <div class="response_panel col-md-7 col-sm-12">
         <h4>请求返回:</h4>
+
+        <hr>
+        <div>
+            <span>回归测试：<input id="save_reg_test" type="checkbox" /></span><br>
+            <span class="regression-type" style="display: none;">
+                完全匹配：<input type="radio" class="reg-model" name="reg-model" value="{{ $model::REG_TYPE_ALL }}" />&nbsp;请求成功：<input class="reg-model" type="radio" name="reg-model" value="{{ $model::REG_TYPE_SUCCESS }}" />
+            </span>
+        </div>
         <div class="input-group">
             <input id="unit_test_name" type="text" class="form-control" placeholder="请输入 用例名称">
             <span class="input-group-btn">
                 <button id="save_unit_test" type="button" class="btn save-btn bg-success" autocomplete="off"><i class="feather icon-save"></i> 保存用例</button>
             </span>
         </div>
+        <span class="help-block">
+            <i class="fa feather icon-help-circle"></i>&nbsp;若用例名称不存在，则新建测试用例
+        </span>
+
+        <hr>
         <pre id="ret">HTTP状态码：</br>请求时间：</br>curl请求示例：</pre>
         <pre id="response">返回内容：</pre>
     </div>
@@ -102,13 +120,24 @@
 
 <script type="text/javascript">
     Dcat.ready(function() {
-        let header = {};
-        let body = {};
+        let response_md5 = {};
+        let can_save = false;
+        let unitTest = <?php echo json_encode($model->unitTest->toArray()); ?>;
+        let regTest = <?php echo json_encode($regTest); ?>;
+
+        // 显示与隐藏回归模式
+        $('#save_reg_test').click(function() {
+            if ($("#save_reg_test").prop('checked')) {
+                $(".regression-type").show();
+            } else {
+                $(".regression-type").hide();
+            }
+        });
 
         // 自动加载测试用例
         $("select[name='unit_test_id']").change(function() {
             var unit_test_id = $("select[name='unit_test_id']").val();
-            var unitTest = <?php echo json_encode($model->unitTest->toArray()); ?>;
+
             for (const i in unitTest) {
                 if (unitTest[i]['id'] != unit_test_id) {
                     continue;
@@ -128,18 +157,31 @@
                 $("#delete_unit_test").attr('disabled', true);
             }
 
+            $("#unit_test_name").val($("select[name='unit_test_id'] :selected").text());
+
+            if (Object.hasOwnProperty.call(regTest, unit_test_id)) {
+                $("#save_reg_test").prop('checked', true);
+                $(".regression-type").show();
+                $(":radio[name='reg-model'][value='" + regTest[unit_test_id] + "']").prop("checked", true);
+            } else {
+                $("#save_reg_test").prop('checked', false);
+                $(".regression-type").hide();
+                $(":radio[name='reg-model']").prop("checked", false);
+            }
         });
 
         // 运行用例
         $('#run_api').form({
             validate: true, //开启表单验证
-            before: function(fields, form, opt) {
-                // fields 为表单内容
-                console.log('所有表单字段的值', fields);
-            },
             success: function(response) {
+                can_save = true;
+                if (typeof response != 'object') {
+                    $('#response').html(response);
+                    return;
+                }
                 var result = response.result;
                 var detail = response.detail;
+                response_md5 = $.md5(JSON.stringify(result));
                 $('#ret').html("HTTP状态码：" + detail.status_code + "<br>请求时间：" + detail.request_time + "ms" + "<br><hr>curl请求示例：" + detail.curl_example);
                 if (detail.status_code == 200) {
                     $('#ret').css({
@@ -219,20 +261,33 @@
 
         // 保存用例
         $('#save_unit_test').click(function() {
-            var name = $("#unit_test_name").val();
-            if (name == '') {
-                Dcat.swal.error('请填写用例名称');
+            if (!can_save) {
+                Dcat.swal.error('', '请先运行用例并确保测试结果正确');
                 return;
             }
-            $('#delete_unit_test').buttonLoading();
+
+            var name = $("#unit_test_name").val();
+            if (name == '') {
+                Dcat.swal.error('', '请填写用例名称');
+                return;
+            }
+            $('#save_unit_test').buttonLoading();
             var data = $('#run_api').serializeArray();
             data.push({
                 "name": "name",
                 "value": name,
-            });
-            data.push({
+            }, {
                 "name": "_method",
                 "value": "POST",
+            }, {
+                "name": "response_md5",
+                "value": response_md5,
+            }, {
+                "name": "type",
+                "value": $(":radio[name=reg-model]:checked").val(),
+            }, {
+                "name": "regression_status",
+                "value": Number($("#save_reg_test").prop('checked')),
             });
 
             $.ajax({
@@ -240,7 +295,11 @@
                 type: 'POST',
                 data: data,
                 success: function(response) {
-                    Dcat.success("保存成功");
+                    if (!response.status) {
+                        Dcat.error(response.data.message);
+                        return false;
+                    }
+                    Dcat.success(response.data.message);
                     Dcat.reload();
                 },
                 error: function(response) {
@@ -248,7 +307,7 @@
                     if (errorData) {
                         Dcat.error(errorData.message);
                     }
-                    $('#delete_unit_test').buttonLoading(false);
+                    $('#save_unit_test').buttonLoading(false);
                 }
             });
         });

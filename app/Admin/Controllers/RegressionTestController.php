@@ -117,23 +117,4 @@ class RegressionTestController extends AdminController
             $form->display('updated_at');
         });
     }
-
-    /**
-     * 保存回归测试用例
-     */
-    public function saveRegTest()
-    {
-        $unit_test_id = $this->request->input('unit_test_id', 0);
-        $type = $this->request->input('type', 0);
-        $status = $this->request->input('status', 0);
-        $response_md5 = $this->request->input('response_md5', '');
-
-        $unit_test = UnitTestModel::where(['status' => UnitTestModel::STATUS_NORMAL])->findOrFail($unit_test_id)->toArray();
-        $unit_test['type'] = $type;
-        $unit_test['status'] = $status;
-        $unit_test['response_md5'] = $response_md5;
-        $unit_test['unit_test_id'] = $unit_test_id;
-        $ret = RegressionTestModel::saveRegTest($unit_test);
-        return $ret;
-    }
 }
