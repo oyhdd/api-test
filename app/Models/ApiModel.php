@@ -37,7 +37,8 @@ class ApiModel extends BaseModel
         if (!Admin::user()->isAdministrator()) {
             $apiLists = self::getApiList(Admin::user()->id);
         } else {
-            $apiLists = ApiModel::getAll();
+            $project_ids = ProjectModel::getAll()->pluck('id');
+            $apiLists = ApiModel::getAll()->whereIn('project_id', $project_ids);
         }
 
         $list = $navItems = [];

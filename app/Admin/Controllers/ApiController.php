@@ -28,7 +28,9 @@ class ApiController extends AdminController
             $grid->model()->whereIn('project_id', $project_ids)->where(['status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
-            $grid->column('project.name', '项目')->label('info');
+            $grid->column('project.name', '项目')->link(function () {
+                return admin_url('project/'.$this->project_id);
+            })->label('info');
             $grid->column('name')->sortable();
             $grid->column('url');
             $grid->column('method')->sortable();
@@ -155,6 +157,7 @@ class ApiController extends AdminController
         }
 
         $unitTest = UnitTestModel::getAll(['api_id' => $api_id])->toArray();
+        $ret = [];
         foreach ($unitTest as $key => $unit) {
             $ret[$key] = [
                 'id' => $unit['id'],

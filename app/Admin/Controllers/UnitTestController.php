@@ -11,6 +11,7 @@ use Dcat\Admin\Layout\Column;
 use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Layout\Row;
 use Dcat\Admin\Admin;
+use Illuminate\Support\Facades\DB;
 
 class UnitTestController extends AdminController
 {
@@ -30,8 +31,12 @@ class UnitTestController extends AdminController
             $grid->model()->whereIn('project_id', $project_ids)->where(['status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
-            $grid->column('project.name', '项目')->label('info');
-            $grid->column('api.name', '接口名称');
+            $grid->column('project.name', '项目')->link(function () {
+                return admin_url('project/' . $this->project_id);
+            })->label('info');
+            $grid->column('api.name', '接口名称')->link(function () {
+                return admin_url('api/' . $this->api_id);
+            })->label('warning');
             $grid->column('name')->sortable();
             $grid->column('api.method', '请求方法')->label();
             $grid->column('api.url', '接口地址');
@@ -270,6 +275,54 @@ class UnitTestController extends AdminController
                 'message' => empty($ret) ? "保存回归测试失败" : "保存成功",
             ]
         ];
+    }
+
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param int $id
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($ids)
+    {
+        $data = [
+            'status'  => true,
+            'data' => [
+                'alert' => true,
+                'message' => trans('admin.delete_succeeded'),
+            ],
+        ];
+
+        try {
+            DB::beginTransaction();
+
+            $ids = explode(",", $ids);
+            foreach ($ids as $id) {
+                $model = $this->form()->repository()->model()->findOrFail($id);
+                if (isset($model->status)) {
+                    $model->status = $model::STATUS_DELETED;
+                    $ret = $model->save();
+                } else {
+                    $ret = $this->form()->destroy($id);
+                }
+                if (!$ret) {
+                    throw new \Exception(trans('admin.delete_failed'), 1);
+                }
+                if (!empty($model->regTest)) {
+                    $model->regTest->status = $model::STATUS_DELETED;
+                    $model->regTest->save();
+                }
+            }
+            DB::commit();
+        } catch (\Throwable $th) {
+            $data['status'] = false;
+            $data['data']['message'] = $th->getMessage();
+            DB::rollBack();
+        }
+
+        return response()->json($data);
     }
 
 }

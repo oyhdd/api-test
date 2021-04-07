@@ -33,6 +33,7 @@ class UnitTestModel extends BaseModel
     public static function formatTableData($params = [])
     {
         $data = [];
+        $params = $params ?? [];
         if (!is_array($params)) {
             $params = json_decode($params, true);
         }
@@ -71,15 +72,5 @@ class UnitTestModel extends BaseModel
             return $model;
         }
         return false;
-    }
-
-    /**
-     * @name   运行测试用例
-     * @param  array      $params
-     * @return bool
-     */
-    public function run(array $params)
-    {
-        # code...
     }
 }

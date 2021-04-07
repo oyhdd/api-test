@@ -930,8 +930,11 @@ body.dark-mode [class*=sidebar-dark-] .nav-sidebar>.nav-item>.nav-link.active,bo
 	background: #209e91
 }
 
+body.dark-mode .main-sidebar .nav-treeview.nav .nav-item .nav-link {
+    padding: 5px 10px 7px 35px!important;
+}
 body.dark-mode [class*=sidebar-dark-] .nav-treeview.nav .nav-item .nav-link.active {
-	padding: 10px 10px 10px 25px!important
+	padding: 10px 10px 10px 35px!important
 }
 
 body.dark-mode .main-menu .navbar-header .navbar-brand {
@@ -1052,6 +1055,14 @@ table.table-has-many .input-group-prepend {
 }
 .form-divider {
     height: 23px !important;
+}
+
+body.dark-mode .label a {
+    color: white;
+}
+
+body.dark-mode .label a:hover {
+    color: whitesmoke;
 }
 
 /* 动画效果 */

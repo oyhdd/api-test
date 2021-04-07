@@ -13,6 +13,9 @@ use App\Models\ApiModel;
 
 class RegressionTestController extends AdminController
 {
+    protected $description = [
+        'create' => '建议从接口在线运行界面添加',
+    ];
     /**
      * Make a grid builder.
      *
@@ -28,9 +31,15 @@ class RegressionTestController extends AdminController
             }
             $grid->model()->whereIn('project_id', $project_ids)->where(['status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
             $grid->column('id')->sortable();
-            $grid->column('project.name', '项目')->label('info');
-            $grid->column('api.name', '接口名称')->label('info');
-            $grid->column('unitTest.name', '测试用例')->label('info');
+            $grid->column('project.name', '项目')->link(function () {
+                return admin_url('project/' . $this->project_id);
+            })->label('info');
+            $grid->column('api.name', '接口名称')->link(function () {
+                return admin_url('api/' . $this->api_id);
+            })->label('warning');
+            $grid->column('unitTest.name', '测试用例')->link(function () {
+                return admin_url('unit-test/' . $this->unit_test_id . "/edit");
+            });
             $grid->column('type')->select(BaseModel::$label_reg_type, true);
             $grid->column('updated_at')->sortable();
 
@@ -69,14 +78,17 @@ class RegressionTestController extends AdminController
      */
     protected function detail($id)
     {
-        return Show::make($id, new RegressionTest(), function (Show $show) {
+        return Show::make($id, RegressionTest::with(['project', 'api', 'unitTest']), function (Show $show) {
             $show->field('id');
-            $show->field('project_id');
-            $show->field('api_id');
-            $show->field('unit_test_id');
+            $show->field('project.name', '项目');
+            $show->field('api.name', '接口名称');
+            $show->field('api.url', '接口地址');
+            $show->field('api.desc', '接口描述');
+            $show->field('unit_test.name', '测试用例')->link('/admin/unit-test/'. $show->model()->unit_test_id)->label('info');
             $show->field('response_md5');
-            $show->field('type');
-            $show->field('status');
+            $show->field('type')->as(function ($type) {
+                return BaseModel::$label_reg_type[$type] ?? '';
+            });
             $show->field('created_at');
             $show->field('updated_at');
         });
@@ -109,8 +121,7 @@ class RegressionTestController extends AdminController
                 ->options([])
                 ->required();
             $form->text('response_md5');
-            $form->text('type');
-            $form->text('status');
+            $form->select('type')->options(BaseModel::$label_reg_type);
         
             $form->display('created_at');
             $form->display('updated_at');

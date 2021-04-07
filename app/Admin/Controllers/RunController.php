@@ -4,12 +4,36 @@ namespace App\Admin\Controllers;
 
 use Dcat\Admin\Admin;
 use App\Models\ApiModel;
+use App\Models\ProjectModel;
 use Dcat\Admin\Layout\Content;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 
 class RunController extends AdminController
 {
+    /**
+     * Index interface.
+     *
+     * @param Content $content
+     *
+     * @return Content
+     */
+    public function index(Content $content)
+    {
+        if (!Admin::user()->isAdministrator()) {
+            $apiList = ApiModel::getApiList(Admin::user()->id)->pluck('id')->toArray();
+        } else {
+            $project_ids = ProjectModel::getAll()->pluck('id');
+            $apiList = ApiModel::getAll()->whereIn('project_id', $project_ids)->pluck('id')->toArray();
+        }
+        if ($api_id = current($apiList)) {
+            return redirect(admin_url('run/'.$api_id));
+        }
+
+        return $content
+            ->title('接口调试')
+            ->body("请先 <a href='/admin/api'>添加接口</a>");
+    }
 
     /**
      * 运行接口界面
@@ -60,7 +84,9 @@ class RunController extends AdminController
             $client = new Client();
             $options = empty($header) ? [] : ['headers' => $header];
             if ($method == 'GET') {
-                $url .= '?' . http_build_query($body);
+                if (!empty($body)) {
+                    $url .= '?' . http_build_query($body);
+                }
                 $curl_example .= " -g \"{$url}\" ";
             } else {
                 $options['headers']['Accept'] = 'application/json';
