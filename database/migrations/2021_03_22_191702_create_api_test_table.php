@@ -48,9 +48,7 @@ class CreateApiTestTable extends Migration
             $table->integer('project_id')->default(0)->comment('项目id');
             $table->string('name', 64)->default('')->comment('接口名称');
             $table->string('url', 255)->default('')->comment('接口地址');
-            $table->enum('method', [
-                'GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'
-            ])->default('GET')->comment('请求方法');
+            $table->enum('method', ['GET', 'POST'])->default('GET')->comment('请求方法');
             $table->string('desc', 255)->default('')->comment('接口描述');
             $table->text('header')->nullable()->comment('header参数，json格式');
             $table->text('body')->nullable()->comment('body参数，json格式');

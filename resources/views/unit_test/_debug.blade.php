@@ -41,6 +41,8 @@
         $form->action(request()->fullUrl())->setFormId('run_api')->ajax(false);
         $form->hidden('_method')->default("PUT");
         $form->hidden('_token')->default(csrf_token());
+        $form->hidden('url')->default($model->url);
+        $form->hidden('method')->default($model->method);
         $form->hidden('project_id')->default($model->project->id);
         $form->hidden('api_id')->default($model->id);
         $form->select('domain', '运行环境')->options($model->getDomainOptions())->default(current($model->getDomainOptions()))->required();
@@ -182,7 +184,7 @@
                 var result = response.result;
                 var detail = response.detail;
                 response_md5 = $.md5(JSON.stringify(result));
-                $('#ret').html("HTTP状态码：" + detail.status_code + "<br>请求时间：" + detail.request_time + "ms" + "<br><hr>curl请求示例：" + detail.curl_example);
+                $('#ret').html("HTTP状态码：" + detail.status_code + "<br>请求时间：" + detail.request_time + "ms" + "<br><hr>curl请求示例：<br>" + detail.curl_example);
                 if (detail.status_code == 200) {
                     $('#ret').css({
                         color: 'lightgreen'
@@ -193,14 +195,10 @@
                     });
                 }
 
-                if (typeof result === 'string' && result.indexOf('content="text/html;') != -1) {
-                    $('#response').html(result);
-                } else {
+                try {
                     if (typeof result == 'object') {
                         result = JSON.stringify(result);
                         var formatText = js_beautify(result, 4, ' ');
-                    } else if (result.indexOf('<script> Sfdump = window.Sfdump') != -1) {
-                        var formatText = result;
                     } else if (typeof result === 'string') {
                         //防中文乱码
                         result = eval("(" + result + ")")
@@ -209,9 +207,11 @@
                     } else {
                         var formatText = result;
                     }
-
-                    $('#response').html(formatText);
+                } catch (error) {
+                    var formatText = result;
                 }
+                $('#response').html(formatText);
+
             },
             error: function(response) {
                 var errorData = JSON.parse(response.responseText);
@@ -221,9 +221,9 @@
                     var formatText = js_beautify(result, 4, ' ');
                     $('#response').html(formatText);
                 }
-                $('#ret').html("请求失败<br>" + errorData.message);
+                $('#ret').html("服务器内部错误！请联系管理员<br>" + errorData.message);
                 $('#ret').css({
-                    color: "#dda451"
+                    color: "orangered"
                 });
                 return false;
             },

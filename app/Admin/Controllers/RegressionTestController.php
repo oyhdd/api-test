@@ -9,8 +9,6 @@ use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Admin;
 use App\Models\ProjectModel;
-use App\Models\RegressionTestModel;
-use App\Models\UnitTestModel;
 use App\Models\ApiModel;
 
 class RegressionTestController extends AdminController
@@ -25,9 +23,10 @@ class RegressionTestController extends AdminController
         return Grid::make(RegressionTest::with(['project', 'api', 'unitTest']), function (Grid $grid) {
             if (!Admin::user()->isAdministrator()) {
                 $project_ids = BaseModel::getProjectIds(Admin::user()->id);
-                $grid->model()->whereIn('project_id', $project_ids);
+            } else {
+                $project_ids = ProjectModel::getAll()->pluck('id');
             }
-            $grid->model()->where(['status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
+            $grid->model()->whereIn('project_id', $project_ids)->where(['status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
             $grid->column('id')->sortable();
             $grid->column('project.name', '项目')->label('info');
             $grid->column('api.name', '接口名称')->label('info');

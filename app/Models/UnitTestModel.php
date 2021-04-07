@@ -49,9 +49,9 @@ class UnitTestModel extends BaseModel
     /**
      * @name   保存测试用例
      * @param  array      $params
-     * @return bool
+     * @return false | model
      */
-    public static function saveUnitTest(array $params): bool
+    public static function saveUnitTest(array $params)
     {
         if (!empty($params['header']) && is_array($params['header'])) {
             $params['header'] = json_encode($params['header']);
@@ -67,7 +67,10 @@ class UnitTestModel extends BaseModel
         }
 
         $model->fill($params);
-        return $model->save();
+        if ($model->save()) {
+            return $model;
+        }
+        return false;
     }
 
     /**

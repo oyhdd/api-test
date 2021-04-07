@@ -52,14 +52,7 @@ class BaseModel extends Model
      */
     public static $label_request_methods = [
         'GET'     => 'GET',
-        'HEAD'    => 'HEAD',
         'POST'    => 'POST',
-        'PUT'     => 'PUT',
-        'DELETE'  => 'DELETE',
-        'CONNECT' => 'CONNECT',
-        'OPTIONS' => 'OPTIONS',
-        'TRACE'   => 'TRACE',
-        'PATCH'   => 'PATCH'
     ];
 
     /**

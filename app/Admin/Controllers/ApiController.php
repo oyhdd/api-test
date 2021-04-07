@@ -22,9 +22,10 @@ class ApiController extends AdminController
         return Grid::make(Api::with(['project']), function (Grid $grid) {
             if (!Admin::user()->isAdministrator()) {
                 $project_ids = BaseModel::getProjectIds(Admin::user()->id);
-                $grid->model()->whereIn('project_id', $project_ids);
+            } else {
+                $project_ids = ProjectModel::getAll()->pluck('id');
             }
-            $grid->model()->where(['status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
+            $grid->model()->whereIn('project_id', $project_ids)->where(['status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
             $grid->column('project.name', '项目')->label('info');

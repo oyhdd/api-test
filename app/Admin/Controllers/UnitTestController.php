@@ -24,13 +24,14 @@ class UnitTestController extends AdminController
         return Grid::make(UnitTest::with(['project', 'api']), function (Grid $grid) {
             if (!Admin::user()->isAdministrator()) {
                 $project_ids = BaseModel::getProjectIds(Admin::user()->id);
-                $grid->model()->whereIn('project_id', $project_ids);
+            } else {
+                $project_ids = ProjectModel::getAll()->pluck('id');
             }
-            $grid->model()->where(['status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
+            $grid->model()->whereIn('project_id', $project_ids)->where(['status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
             $grid->column('project.name', '项目')->label('info');
-            $grid->column('api.name', '接口名称')->label('info');
+            $grid->column('api.name', '接口名称');
             $grid->column('name')->sortable();
             $grid->column('api.method', '请求方法')->label();
             $grid->column('api.url', '接口地址');
@@ -254,10 +255,12 @@ class UnitTestController extends AdminController
         ];
 
         $params = $this->request->all();
-        if (! UnitTestModel::saveUnitTest($params)) {
+        $model = UnitTestModel::saveUnitTest($params);
+        if (empty($model)) {
             return $ret;
         }
 
+        $params['unit_test_id'] = $model->id;
         $params['status'] = $params['regression_status'];
         $ret = RegressionTestModel::saveRegTest($params);
 
