@@ -60,6 +60,16 @@ class ApiTestSeeder extends Seeder
             ], [
                 'parent_id' => 0,
                 'order' => 1,
+                'title' => '接口调试',
+                'icon' => 'fa-paper-plane',
+                'uri' => '/run',
+                'extension' => '',
+                'show' => 1,
+                'created_at' => $now,
+                'updated_at' => $now
+            ], [
+                'parent_id' => 0,
+                'order' => 1,
                 'title' => '回归测试',
                 'icon' => 'feather icon-corner-right-up',
                 'uri' => '/regression-test',
