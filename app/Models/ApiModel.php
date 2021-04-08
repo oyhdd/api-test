@@ -35,11 +35,11 @@ class ApiModel extends BaseModel
     public function getNavItems()
     {
         if (!Admin::user()->isAdministrator()) {
-            $apiLists = self::getApiList(Admin::user()->id);
+            $project_ids = self::getProjectIds(Admin::user()->id);
         } else {
-            $project_ids = ProjectModel::getAll()->pluck('id');
-            $apiLists = ApiModel::getAll()->whereIn('project_id', $project_ids);
+            $project_ids = ProjectModel::getAll()->pluck('id')->toArray();
         }
+        $apiLists = ApiModel::getAll()->whereIn('project_id', $project_ids);
 
         $list = $navItems = [];
         foreach ($apiLists as $api) {
@@ -64,6 +64,52 @@ class ApiModel extends BaseModel
         }
 
         return $navItems;
+    }
+
+
+    /**
+     * 获取回归测试列表
+     */
+    public static function getRegressList()
+    {
+        if (!Admin::user()->isAdministrator()) {
+            $project_ids = self::getProjectIds(Admin::user()->id);
+        } else {
+            $project_ids = ProjectModel::getAll()->pluck('id')->toArray();
+        }
+        $apiLists = ApiModel::getAll()->whereIn('project_id', $project_ids);
+
+        $regressList = RegressionTestModel::getAll([], ['api_id'])->toArray();
+        $apiIds = array_unique(array_column($regressList, 'api_id'));
+
+        $list = [];
+        foreach ($apiLists as $api) {
+            if (! in_array($api->id, $apiIds)) {
+                continue;
+            }
+            if (!isset($list[$api->project->id])) {
+                $list[$api->project->id] = [
+                    'id' => $api->project->id,
+                    'name' => $api->project->name,
+                    'domain' => [$api->project->domain_text, $api->project->domain_prod],
+                    'apiList' => [[
+                        'id' => $api->id,
+                        'name' => $api->name,
+                        'url' => $api->url,
+                        'desc' => $api->desc,
+                    ]],
+                ];
+            } else {
+                $list[$api->project->id]['apiList'][] = [
+                    'id' => $api->id,
+                    'name' => $api->name,
+                    'url' => $api->url,
+                    'desc' => $api->desc,
+                ];
+            }
+        }
+
+        return $list;
     }
 
     public function getDomainOptions()

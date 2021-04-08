@@ -34,11 +34,8 @@ class ApiController extends AdminController
             $grid->column('name')->sortable();
             $grid->column('url');
             $grid->column('method')->sortable();
-            $grid->column('desc')->display(function ($desc) {
-                return cut_substr($desc);
-            });
+            $grid->column('desc')->limit(20);
             $grid->column('alarm_enable')->switch()->sortable();
-            // $grid->column('created_at');
             $grid->column('updated_at')->sortable();
 
             $grid->actions(function ($actions) {

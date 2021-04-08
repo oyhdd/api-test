@@ -25,6 +25,7 @@ Route::group([
     $router->resource('api', ApiController::class);
 
     // 接口运行
+    $router->post('run/regress', 'RunController@regress');
     $router->resource('run', RunController::class);
 
     // 测试用例

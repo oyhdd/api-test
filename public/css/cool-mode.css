@@ -195,13 +195,13 @@ body.dark-mode .dcat-loading:not(.layui-layer-shade) {
 
 body.dark-mode .btn.btn-default,body.dark-mode .btn.btn-light,body.dark-mode .btn.btn-white {
 	color: #a8a9bb;
-	background-color: #223;
-	border-color: #223
+	background-color: darkgray !important;
+	border-color: darkgray
 }
 
 body.dark-mode .btn.btn-default:hover,body.dark-mode .btn.btn-light:hover,body.dark-mode .btn.btn-white:focus,body.dark-mode .btn.btn-white:hover {
 	color: white!important;
-	background-color: #228b80 !important;
+	background-color: gray !important;
 }
 
 body.dark-mode .bg-light,body.dark-mode .btn.btn-light {
@@ -321,7 +321,7 @@ body.dark-mode .dropdown-item a,body.dark-mode .dropdown-menu label {
 }
 
 body.dark-mode .modal .modal-header,body.dark-mode .modal .modal-header[class*=bg-] {
-	border-color: gray;
+	border-color: #ededed;
 	background-color: #242436
 }
 
@@ -955,7 +955,7 @@ body.dark-mode {
     background: url("/img/bg.jpg") fixed no-repeat !important;
     background-size: cover !important;
 }
-
+body.dark-mode .modal-footer,
 body.dark-mode .modal-body,
 body.dark-mode .modal-header,
 body.dark-mode .modal-content,

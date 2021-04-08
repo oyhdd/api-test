@@ -96,7 +96,7 @@ class ApiTestSeeder extends Seeder
                 'name'        => '普通用户',
                 'slug'        => 'normal_user',
                 'http_method' => '',
-                'http_path'   => '/project*,/api*,/unit-test*,/regression-test*,/integration-test*',
+                'http_path'   => '/project*,/api*,/unit-test*,/regression-test*,/integration-test*,/run*',
                 'parent_id'   => 0,
                 'order'       => 7,
                 'created_at'  => $now,

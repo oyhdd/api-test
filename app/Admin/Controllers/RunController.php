@@ -7,6 +7,8 @@ use App\Models\ApiModel;
 use App\Models\ProjectModel;
 use Dcat\Admin\Layout\Content;
 use GuzzleHttp\Client;
+use GuzzleHttp\Pool;
+use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use GuzzleHttp\Exception\RequestException;
 
 class RunController extends AdminController
@@ -62,11 +64,6 @@ class RunController extends AdminController
 
     /**
      * 运行接口
-     *
-     * @param mixed   $id
-     * @param Content $content
-     *
-     * @return Content
      */
     public function update($id)
     {
@@ -125,4 +122,219 @@ class RunController extends AdminController
         ];
     }
 
+    /**
+     * 回归测试
+     */
+    public function regress()
+    {
+        $auth = $this->request->header('Authorization');
+        $ret = [
+            'code' => -1,
+            'message' => '回归测试失败，请重试！',
+            'data' => [],
+        ];
+dd($this->request->all());
+        $list = ApiModel::getRegressList();
+        dd($list);
+        $url = $this->request->get('url');
+        $apiDocModels = ApiDoc::getAll($url);
+        $apiDocModels = array_column($apiDocModels, null, 'id');
+        $apiDocIds = array_keys($apiDocModels);
+        $apiParamsModels = ApiDocParams::getByApiIds($apiDocIds);
+
+        foreach ($apiDocModels as $apiId => $apiDoc) {
+            if ($apiDoc['regression_test'] != ApiDoc::STATUS_REG_TEST_YES) {
+                unset($apiDocModels[$apiId]);
+            } else {
+                $apiDocModels[$apiId]['api_params'] = empty($apiParamsModels[$apiId]) ? [] : $apiParamsModels[$apiId];
+                $unitTestList[$apiId] = $apiDoc;
+            }
+        }
+        $ret['data'] = $this->sendRequest($apiDocModels, $auth);
+        if (!empty($ret['data'])) {
+            $ret['code'] = 0;
+            $ret['message'] = '成功';
+        }
+
+        return $ret;
+    }
+
+    /**
+     * 发送并发请求
+     * @author wangmeng
+     * @date   2019-05-15
+     * @param  array        $list               list
+     * @param  string       $auth               网站auth认证
+     * @param  integer      $timeOut            超时限制60s
+     * @return false|array
+     */
+    public static function sendRequest($list = [], $auth = null, $timeOut = 120)
+    {
+        $requestData = [];
+        $total_api = $total_unit = $success_count = $fail_count = 0;
+        $client = new Client(['timeout' => $timeOut]);
+        foreach ($list as $apiId => $api) {
+            if (in_array($api['method'], ["GET", "get"])) {
+                foreach ($api['api_params'] as $key => $apiParams) {
+                    $body = json_decode($apiParams['body'], true);
+                    $header = json_decode($apiParams['header'], true);
+                    if (empty($body)) {
+                        $body = [];
+                    }
+                    if (empty($header)) {
+                        $header = [];
+                    }
+                    foreach ($body as $key1 => $value) {
+                        if (is_array($value) && substr($key1, -2) == '[]') {
+                            unset($body[$key1]);
+                            $body[substr($key1, 0, -2)] = $value;
+                        }
+                    }
+                    if (!empty($auth)) {
+                        $header['Authorization'] = $auth;
+                    }
+                    $url = $api['url'];
+                    if (preg_match_all('/(\/{.*})/', $url, $matches) && !empty($matches[1])) {
+                        foreach ($body as $p_key => $p_value) {
+                            $url = str_replace('{' . $p_key . '}', $p_value, $url);
+                        }
+                    }
+                    $requestData[] = [
+                        'url' => $url . "?" . http_build_query($body),
+                        'headers' => $header,
+                        'key' => $key,
+                        'api_id' => $apiId,
+                        'method' => "GET",
+                        'regression_model' => $api["regression_model"],
+                    ];
+                    $total_unit++;
+                }
+            } elseif (in_array($api['method'], ["POST", "post"])) {
+                foreach ($api['api_params'] as $key => $apiParams) {
+                    $body = json_decode($apiParams['body'], true);
+                    $header = json_decode($apiParams['header'], true);
+                    if (empty($body)) {
+                        $body = [];
+                    }
+                    if (empty($header)) {
+                        $header = [];
+                    }
+                    foreach ($body as $key1 => $value) {
+                        if (is_array($value) && substr($key1, -2) == '[]') {
+                            unset($body[$key1]);
+                            $body[substr($key1, 0, -2)] = $value;
+                        }
+                    }
+
+                    if (!empty($auth)) {
+                        $header['Authorization'] = $auth;
+                    }
+
+                    $url = $api['url'];
+                    if (preg_match_all('/(\/{.*})/', $url, $matches) && !empty($matches[1])) {
+                        foreach ($body as $p_key => $p_value) {
+                            $url = str_replace('{' . $p_key . '}', $p_value, $url);
+                        }
+                    }
+                    $requestData[] = [
+                        'url' => $url,
+                        'form_params' => $body,
+                        'headers' => $header,
+                        'key' => $key,
+                        'api_id' => $apiId,
+                        'method' => "POST",
+                        'regression_model' => $api["regression_model"],
+                    ];
+                    $total_unit++;
+                }
+            } else {
+                return false;
+            }
+            $total_api++;
+        }
+
+        $requests = function ($params) use ($client) {
+            if (!empty($params)) {
+                foreach ($params as $key => $param) {
+                    if ($param['method'] == "GET") {
+                        yield new GuzzleRequest('GET', $param['url'], $param['headers']);
+                    } elseif ($param['method'] == "POST") {
+                        yield function () use ($client, $param) {
+                            return $client->requestAsync('post', $param['url'], [
+                                'headers' => $param['headers'],
+                                'json' => $param['form_params'],
+                            ]);
+                        };
+                    }
+                }
+            }
+        };
+        $temp = [];
+        $pool = new Pool($client, $requests($requestData), [
+            'concurrency' => 20,
+            'fulfilled' => function ($response, $index) use (&$temp) { //成功
+                $temp[$index] = [
+                    'key' => $index,
+                    'success' => true,
+                    'response' => $response->getBody()->getContents(),
+                ];
+            },
+            'rejected' => function ($reason, $index) use (&$temp) { //失败
+                $str = $reason->getMessage();
+                $str = str_replace("\\", '\\\\', $str);
+                $str = str_replace("\r\n", '\n', $str);
+                $temp[$index] = [
+                    'key' => $index,
+                    'success' => false,
+                    'response' => json_encode([$str]),
+                ];
+            }
+        ]);
+
+        $promise = $pool->promise();
+        $promise->wait();
+
+        $ret = [];
+        foreach ($temp as $key => $response) {
+            $api_id = $requestData[$key]['api_id'];
+            $index = $requestData[$key]['key'];
+            $success = false;
+            if ($response['success']) {
+                //完全匹配
+                if ($requestData[$key]['regression_model'] == ApiDoc::MODEL_REG_STRCIT) {
+                    $success = (md5(stripslashes(trim($response['response']))) == $list[$api_id]['api_params'][$index]['response_md5']);
+                } elseif ($requestData[$key]['regression_model'] == ApiDoc::MODEL_REG_REQUEST) {
+                    $success = true;
+                }
+            }
+            $data = [
+                'id' => $list[$api_id]['api_params'][$index]['id'],
+                'success' => $success,
+                'test_title' => $list[$api_id]['api_params'][$index]['test_title'],
+                'response' => json_decode($response['response'], true)
+            ];
+
+            if (!isset($ret['list'][$api_id]['fail_count'])) {
+                $ret['list'][$api_id]['fail_count'] = 0;
+            }
+            if ($success) {
+                $success_count++;
+            } else {
+                $ret['list'][$api_id]['fail_count']++;
+                $fail_count++;
+            }
+
+            $ret['list'][$api_id]['method'] = $requestData[$key]['method'];
+            $ret['list'][$api_id]['title'] = $list[$api_id]['title'];
+            $ret['list'][$api_id]['url'] = $list[$api_id]['url'];
+            $ret['list'][$api_id]['list'][] = $data;
+        }
+
+        $ret['total_api'] = $total_api;
+        $ret['total_unit'] = $total_unit;
+        $ret['success_count'] = $success_count;
+        $ret['fail_count'] = $fail_count;
+
+        return $ret;
+    }
 }

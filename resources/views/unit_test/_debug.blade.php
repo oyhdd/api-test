@@ -1,36 +1,11 @@
 <style>
-    textarea.form-control {
-        padding: 6px 12px;
-        line-height: 1.42857;
-        height: 34px;
-    }
-
-    .response_panel {
-        padding: 18px 20px 10px 18px;
-    }
-
-    .save-btn {
-        width: 110px;
-        color: white;
-        border-top-left-radius: 0;
-    }
-
-    .form-group input {
-        width: 100%;
-    }
-
-    .input-group {
-        margin: 10px 0;
-    }
-
-    #response {
-        min-height: 235px;
-        color: white;
-    }
-
-    .help-block {
-        font-size: 12px;
-    }
+    textarea.form-control {padding: 6px 12px;line-height: 1.42857;height: 34px;}
+    .response_panel {padding: 18px 20px 10px 18px;}
+    .save-btn {width: 110px;color: white;border-top-left-radius: 0;}
+    .form-group input {width: 100%;}
+    .input-group {margin: 10px 0;}
+    #response {min-height: 235px;color: white;}
+    .help-block {font-size: 12px;}
 </style>
 <div class="row">
     <div class="col-md-5 col-sm-12">
@@ -131,6 +106,9 @@
         $('#save_reg_test').click(function() {
             if ($("#save_reg_test").prop('checked')) {
                 $(".regression-type").show();
+                if (typeof $(":radio[name=reg-model]:checked").val() == 'undefined') {
+                    $(":radio[name='reg-model']").eq(0).prop("checked", true);
+                }
             } else {
                 $(".regression-type").hide();
             }
