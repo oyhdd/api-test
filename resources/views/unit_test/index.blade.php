@@ -21,11 +21,13 @@
     #start_regression_test_time {line-height: 34px;font-size: 12px;}
     .table td {height: 34px;line-height: 34px;}
     option {color: #ececec;background: #2b4048;}
-    .panel {background: url(/img/bg-1.jpg) fixed !important;border: 2px solid transparent;border-radius: 4px;}
+    .panel {background: rgb(15 14 14 / 40%) !important;border: 1px solid gray;border-radius: 4px;}
     .panel-heading {padding: 10px;border-top-left-radius: 3px;border-top-right-radius: 3px;}
     .panel-title {margin-top: 0;margin-bottom: 0;font-size: 16px;color: inherit;}
     .panel-body {padding: 10px;}
-    .collapsing {position: relative;height: 0;overflow: hidden;transition: height .1s ease-in}</style>
+    .collapsing {position: relative;height: 0;overflow: hidden;transition: height .1s ease-in}
+    body.dark-mode .vs-checkbox-con .vs-checkbox {border: 2px solid white;}
+    body.dark-mode .vs-checkbox-con input:checked~.vs-checkbox {border-color: #4e9876;}
 </style>
 <!-- 模态弹出窗 -->
 <div id="mymodal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden='true' data-backdrop='static'>
@@ -33,12 +35,12 @@
         <div class="modal-content">
             <div class="modal-header" style="padding:15px 15px 5px;">
                 <h2 id="myModalLabel" class="modal-title">回归测试
-                    <h6 id="static_info" class="mt-1" style="display: block;">
-                        <span id="total_project" class="label bg-info">项目数：0</span>
-                        <span id="total_api" class="label bg-info">接口数：0</span>
-                        <span id="total_unit" class="label bg-info mr-2">用例数：0</span>
-                        <span id="fail_count" class="label bg-success">成功：0</span>
-                        <span id="success_count" class="label bg-success">失败：0</span>
+                    <h6 id="static_info" class="mt-1" style="display: none;">
+                        <span class="label bg-info">项目数：<span id="total_project"></span></span>
+                        <span class="label bg-info">接口数：<span id="total_api"></span></span>
+                        <span class="label bg-info mr-2">用例数：<span id="total_unit"></span></span>
+                        <span class="label bg-success">成功数：<span id="success_count"></span></span>
+                        <span class="fail-count label bg-success">失败数：<span id="fail_count"></span></span>
                     </h6>
                 </h2>
             </div>
@@ -56,7 +58,7 @@
                                 <div class="row">
                                     <div class="col-lg-3 text-right">
                                         <span class="label bg-info">
-                                            <a href="#project_content_{{ $project['id'] ?? '' }}" data-toggle="collapse">{{ $project['name'] ?? '' }}</a>
+                                            <a href="#project_request_{{ $project['id'] ?? '' }}" data-toggle="collapse">{{ $project['name'] ?? '' }}</a>
                                         </span>
                                     </div>
                                     <br>
@@ -71,7 +73,7 @@
                             </h5>
                         </div>
                     </div>
-                    <div id="project_content_{{ $project['id'] ?? '' }}" class="panel-body collapse">
+                    <div id="project_request_{{ $project['id'] ?? '' }}" class="panel-body collapse">
                         <div>
                             <table class="table default-table">
                                 <thead>
@@ -83,8 +85,9 @@
                                             </div>
                                         </th>
                                         <th>接口名称</th>
-                                        <th>测试描述</th>
+                                        <th>请求方式</th>
                                         <th>接口地址</th>
+                                        <th>测试描述</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -97,8 +100,9 @@
                                             </div>
                                         </td>
                                         <td>{{ $api['name'] ?? '' }}</td>
-                                        <td>{{ $api['desc'] ?? '' }}</td>
+                                        <td>{{ $api['method'] ?? '' }}</td>
                                         <td>{{ $api['url'] ?? '' }}</td>
+                                        <td>{{ $api['desc'] ?? '' }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -106,12 +110,9 @@
                         </div>
                     </div>
                 </div>
-
-
-                <hr>
                 @endforeach
 
-                <br>
+                <hr>
                 <div id="regression_testing_detail"> </div>
             </div>
             <div class="modal-footer">
@@ -278,6 +279,7 @@
 
         //回归测试
         $('#start_regression_test').click(function() {
+            $('#start_regression_test').buttonLoading();
             var data = [];
             for (let i = 0; i < projectIds.length; i++) {
                 var project_id = projectIds[i];
@@ -290,91 +292,129 @@
                     "value": $("#run_env_" + project_id).val(),
                 });
             }
-            $('#start_regression_test').buttonLoading();
-            $('#regression_testing_detail').empty();
-            $('#start_regression_test_time').empty();
+            $("#static_info").hide();
+            $("#total_project").empty();
             $("#total_api").empty();
             $("#total_unit").empty();
             $("#success_count").empty();
             $("#fail_count").empty();
-            $('#start_regression_test_time').append('正在进行回归测试，可稍后查看！');
+            $('#regression_testing_detail').empty();
+            $('#start_regression_test_time').empty().html('正在进行回归测试，可稍后查看！');
             $.ajax({
                 url: '/admin/run/regress',
                 type: 'POST',
                 data: data,
                 success: function(retData) {
-
                     $("#static_info").show();
                     $('#start_regression_test').buttonLoading(false);
-                    $('#regression_testing_detail').empty();
                     if (retData.code == 0) {
-                        $("#total_api").html('接口：' + retData.data.total_api);
-                        $("#total_unit").html('用例：' + retData.data.total_unit);
-                        $("#success_count").html('成功：' + retData.data.success_count);
-                        $("#fail_count").html('失败：' + retData.data.fail_count);
+                        $('#regression_testing_detail').html("<h4>测试结果</4>");
+                        $("#total_project").html(retData.data.total_project);
+                        $("#total_api").html(retData.data.total_api);
+                        $("#total_unit").html(retData.data.total_unit);
+                        $("#success_count").html(retData.data.success_count);
+                        $("#fail_count").html(retData.data.fail_count);
+                        $('#start_regression_test_time').empty().html('回归测试已完成！');
                         if (retData.data.fail_count > 0) {
-                            $("#fail_count").addClass('label-danger');
+                            $(".fail-count").addClass('bg-danger');
                         }
 
                         var html = "";
                         var list = retData.data.list;
 
-                        for (var i in list) {
-                            var temp = list[i];
-
-                            var fail_count_class = 'label label-success';
-                            if (temp.fail_count > 0) {
-                                fail_count_class = 'label label-danger';
+                        for (let i in list) {
+                            var project = list[i];
+                            var fail_count_class = 'bg-success';
+                            if (project.fail_count > 0) {
+                                fail_count_class = 'bg-danger';
                             }
-
-                            html += "<div class='panel panel-default'><div class='panel-heading' style='background-color: #e9e9ec;'>" +
-                                "<h3 class='panel-title' style='word-break: break-word;'><span class='label label-primary'>" +
-                                temp.title + "</span>&nbsp;<span class='label label-info'>" + temp.method + "</span>&nbsp;&nbsp;<span class='label label-default'>" +
-                                temp.url + "</span>&nbsp;" +
-                                "<span class='" + fail_count_class + "'>失败：" +
-                                temp.fail_count + "</span>&nbsp;" +
-                                "<a data-toggle='collapse' href='#collapse_api_" + i + "'>" +
-                                "<span  class='collapse_click glyphicon glyphicon-chevron-right'></span></a>" +
-                                "</h3></div><div id='collapse_api_" + i + "' class='panel-collapse collapse'><div class='panel-body'>";
-
-                            for (var j in temp.list) {
-                                var sub_temp = temp.list[j];
-
-                                var success_status = '失败';
-                                var success_class = "label label-danger";
-                                if (sub_temp.success) {
-                                    success_status = '成功';
-                                    success_class = "label label-success";
+                            html += '<div class="panel">' + 
+                                '<div class="panel-heading bg-white">' + 
+                                    '<div><a href="#project_response_' + project["id"] +'" data-toggle="collapse">' + 
+                                    '<span class="label bg-info">' + project["name"] + '</span>' +
+                                    '&nbsp;&nbsp;<span class="label bg-custom">' + project["domain"] + '</span>' +
+                                    '&nbsp;&nbsp;<span class="label ' + fail_count_class + '">失败数：' + project["fail_count"] + '</span>' +
+                                    '</a></div>' + 
+                                '</div>' +
+                                '<div id="project_response_' + project["id"] +'" class="panel-body collapse">';
+ 
+                            var apiList = project['apiList'];
+                            console.log(apiList);
+                            for (let j in apiList) {
+                                var api = apiList[j];
+                                var fail_count_class = 'bg-success';
+                                if (api.fail_count > 0) {
+                                    fail_count_class = 'bg-danger';
                                 }
+                                html += '<div class="panel">' + 
+                                    '<div class="panel-heading bg-white">' + 
+                                        '<div><a href="#api_response_' + api["id"] +'" data-toggle="collapse">' + 
+                                        '<span class="label bg-custom">' + api["name"] + '</span>' +
+                                        '&nbsp;&nbsp;<span class="label bg-custom">' + api["method"] + '</span>' +
+                                        '&nbsp;&nbsp;<span class="label bg-gray text-light">' + api["url"] + '</span>' +
+                                        '&nbsp;&nbsp;<span class="label ' + fail_count_class + '">失败数：' + api["fail_count"] + '</span>' +
+                                        '</a></div>' + 
+                                    '</div>' +
+                                    '<div id="api_response_' + api["id"] +'" class="panel-body collapse">';
 
-                                var response = sub_temp.response
-                                response = JSON.stringify(response);
-                                response = js_beautify(response, 4, ' ');
+                                var unitTestList = api['unitTestList'];
+                                for (let k in unitTestList) {
+                                    var unitTest = unitTestList[k];
 
-                                html += "<div class='panel panel-default'><div class='panel-heading' style='padding: 10px 5px;'><h4 class='panel-title'>" +
-                                    "<span class='label label-info'>" + sub_temp.test_title + "</span>&nbsp;&nbsp;<span class='" +
-                                    success_class + "'>" + success_status + "</span>&nbsp;&nbsp;<a data-toggle='collapse' href='#collapse_unit_test" +
-                                    sub_temp.id + "'><span class='label label-warning'>查看结果</span></a></h4></div><div id='collapse_unit_test" +
-                                    sub_temp.id + "' class='panel-collapse collapse'><div class='panel-body'><pre><xmp>" +
-                                    response + "</xmp></pre></div></div></div>";
+                                    var result_class = 'bg-danger';
+                                    var request_result_class = 'bg-danger';
+                                    var request_result = '请求失败';
+                                    var result = '匹配失败';
+                                    if (unitTest['result']) {
+                                        result_class = 'bg-success';
+                                        result = '匹配成功';
+                                    }
+                                    if (unitTest['request_result']) {
+                                        request_result_class = 'bg-success';
+                                        request_result = '请求成功';
+                                    }
+
+                                    try {
+                                        if (typeof unitTest["response"] == 'object') {
+                                            var content = JSON.stringify(unitTest["response"]);
+                                            var formatText = js_beautify(content, 4, ' ');
+                                        } else if (typeof unitTest["response"] === 'string') {
+                                            //防中文乱码
+                                            var content = eval("(" + unitTest["response"] + ")")
+                                            content = JSON.stringify(content);
+                                            var formatText = js_beautify(content, 4, ' ');
+                                        } else {
+                                            var formatText = unitTest["response"];
+                                        }
+                                    } catch (error) {
+                                        var formatText = unitTest["response"];
+                                    }
+                                    html += '<div class="panel">' + 
+                                    '<div class="panel-heading bg-white">' + 
+                                        '<div><a href="#unitTest_response_' + unitTest["id"] +'" data-toggle="collapse">' + 
+                                        '<span class="label bg-custom">' + unitTest["name"] + '</span>' +
+                                        '&nbsp;&nbsp;<span class="label ' + request_result_class + '">' + request_result + '</span>' +
+                                        '&nbsp;&nbsp;<span class="label ' + result_class + '">' + result + '</span>' +
+                                        '</a></div>' +
+                                    '</div>' +
+                                    '<div id="unitTest_response_' + unitTest["id"] +'" class="panel-body collapse">' + 
+                                    '<pre>' + formatText + '</pre>' +
+                                    '</div></div>';
+                                }
+                                html += '</div></div>';
                             }
-                            html += "</div></div></div>";
+
+                            html += '</div></div>';
                         }
                         $('#regression_testing_detail').append(html);
-
-                        $(".collapse_click").on("click", function() {
-                            $(this).toggleClass('glyphicon-chevron-down');
-                        });
                     } else {
-                        $('#start_regression_test_time').empty();
-                        $('#start_regression_test_time').append('<span class="text-warning">回归测试失败,请重试！</span>');
+                        $('#start_regression_test_time').empty().html('<span class="text-warning">' + retData.message + '</span>');
                     }
                 },
                 error: function(retData) {
                     $('#start_regression_test').buttonLoading(false);
-                    $('#start_regression_test_time').empty();
                     $('#regression_testing_detail').empty();
-                    $('#start_regression_test_time').append('<span class="text-warning">回归测试失败,请重试！</span>');
+                    $('#start_regression_test_time').empty().html('<span class="text-warning">回归测试失败,请重试！</span>');
                 }
             });
         });

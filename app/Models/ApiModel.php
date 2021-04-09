@@ -95,6 +95,7 @@ class ApiModel extends BaseModel
                     'apiList' => [[
                         'id' => $api->id,
                         'name' => $api->name,
+                        'method' => $api->method,
                         'url' => $api->url,
                         'desc' => $api->desc,
                     ]],
@@ -103,6 +104,7 @@ class ApiModel extends BaseModel
                 $list[$api->project->id]['apiList'][] = [
                     'id' => $api->id,
                     'name' => $api->name,
+                    'method' => $api->method,
                     'url' => $api->url,
                     'desc' => $api->desc,
                 ];

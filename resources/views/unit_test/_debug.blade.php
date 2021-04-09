@@ -161,7 +161,7 @@
                 }
                 var result = response.result;
                 var detail = response.detail;
-                response_md5 = $.md5(JSON.stringify(result));
+                response_md5 = $.md5(result);
                 $('#ret').html("HTTP状态码：" + detail.status_code + "<br>请求时间：" + detail.request_time + "ms" + "<br><hr>curl请求示例：<br>" + detail.curl_example);
                 if (detail.status_code == 200) {
                     $('#ret').css({

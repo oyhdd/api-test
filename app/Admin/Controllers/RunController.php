@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use Dcat\Admin\Admin;
 use App\Models\ApiModel;
+use App\Models\BaseModel;
 use App\Models\ProjectModel;
 use Dcat\Admin\Layout\Content;
 use GuzzleHttp\Client;
@@ -127,30 +128,30 @@ class RunController extends AdminController
      */
     public function regress()
     {
-        $auth = $this->request->header('Authorization');
         $ret = [
             'code' => -1,
             'message' => '回归测试失败，请重试！',
             'data' => [],
         ];
-dd($this->request->all());
         $list = ApiModel::getRegressList();
-        dd($list);
-        $url = $this->request->get('url');
-        $apiDocModels = ApiDoc::getAll($url);
-        $apiDocModels = array_column($apiDocModels, null, 'id');
-        $apiDocIds = array_keys($apiDocModels);
-        $apiParamsModels = ApiDocParams::getByApiIds($apiDocIds);
-
-        foreach ($apiDocModels as $apiId => $apiDoc) {
-            if ($apiDoc['regression_test'] != ApiDoc::STATUS_REG_TEST_YES) {
-                unset($apiDocModels[$apiId]);
-            } else {
-                $apiDocModels[$apiId]['api_params'] = empty($apiParamsModels[$apiId]) ? [] : $apiParamsModels[$apiId];
-                $unitTestList[$apiId] = $apiDoc;
-            }
+        $list = $this->request->input('api');
+        
+        if (!Admin::user()->isAdministrator()) {
+            $projectIds = ProjectModel::getProjectIds(Admin::user()->id);
+        } else {
+            $projectIds = ProjectModel::getAll()->pluck('id')->toArray();
         }
-        $ret['data'] = $this->sendRequest($apiDocModels, $auth);
+
+        $projectIds = array_intersect($projectIds, array_keys($list));
+        $projectList = ProjectModel::getAll()->whereIn('id', $projectIds)->pluck('name', 'id')->toArray();
+
+        foreach ($list as $project_id => $value) {
+            $list[$project_id]['project_id'] = $project_id;
+            $list[$project_id]['project_name'] = $projectList[$project_id];
+            $list[$project_id]['api_ids'] = empty($value['api_ids']) ? [] : explode(',', $value['api_ids']);
+        }
+
+        $ret['data'] = $this->sendRequest($list);
         if (!empty($ret['data'])) {
             $ret['code'] = 0;
             $ret['message'] = '成功';
@@ -163,104 +164,87 @@ dd($this->request->all());
      * 发送并发请求
      * @author wangmeng
      * @date   2019-05-15
-     * @param  array        $list               list
-     * @param  string       $auth               网站auth认证
-     * @param  integer      $timeOut            超时限制60s
+     * @param  array        $list               list[[project_id, project_name, domain, api_ids], ...]
+     * @param  int          $concurrency        并发数
+     * @param  array        $header             header,例如登录认证令牌等
+     * @param  int          $timeOut            超时限制60s
      * @return false|array
      */
-    public static function sendRequest($list = [], $auth = null, $timeOut = 120)
+    public static function sendRequest($list = [], $concurrency = 20, $header = [], $timeOut = 120)
     {
-        $requestData = [];
-        $total_api = $total_unit = $success_count = $fail_count = 0;
-        $client = new Client(['timeout' => $timeOut]);
-        foreach ($list as $apiId => $api) {
-            if (in_array($api['method'], ["GET", "get"])) {
-                foreach ($api['api_params'] as $key => $apiParams) {
-                    $body = json_decode($apiParams['body'], true);
-                    $header = json_decode($apiParams['header'], true);
-                    if (empty($body)) {
-                        $body = [];
-                    }
-                    if (empty($header)) {
-                        $header = [];
-                    }
-                    foreach ($body as $key1 => $value) {
-                        if (is_array($value) && substr($key1, -2) == '[]') {
-                            unset($body[$key1]);
-                            $body[substr($key1, 0, -2)] = $value;
-                        }
-                    }
-                    if (!empty($auth)) {
-                        $header['Authorization'] = $auth;
-                    }
-                    $url = $api['url'];
-                    if (preg_match_all('/(\/{.*})/', $url, $matches) && !empty($matches[1])) {
-                        foreach ($body as $p_key => $p_value) {
-                            $url = str_replace('{' . $p_key . '}', $p_value, $url);
-                        }
-                    }
-                    $requestData[] = [
-                        'url' => $url . "?" . http_build_query($body),
-                        'headers' => $header,
-                        'key' => $key,
-                        'api_id' => $apiId,
-                        'method' => "GET",
-                        'regression_model' => $api["regression_model"],
-                    ];
-                    $total_unit++;
-                }
-            } elseif (in_array($api['method'], ["POST", "post"])) {
-                foreach ($api['api_params'] as $key => $apiParams) {
-                    $body = json_decode($apiParams['body'], true);
-                    $header = json_decode($apiParams['header'], true);
-                    if (empty($body)) {
-                        $body = [];
-                    }
-                    if (empty($header)) {
-                        $header = [];
-                    }
-                    foreach ($body as $key1 => $value) {
-                        if (is_array($value) && substr($key1, -2) == '[]') {
-                            unset($body[$key1]);
-                            $body[substr($key1, 0, -2)] = $value;
-                        }
-                    }
+        $requestData = $projectData = [];
+        $total_project = $total_api = $total_unit = $success_count = $fail_count = 0;
 
-                    if (!empty($auth)) {
-                        $header['Authorization'] = $auth;
-                    }
-
-                    $url = $api['url'];
-                    if (preg_match_all('/(\/{.*})/', $url, $matches) && !empty($matches[1])) {
-                        foreach ($body as $p_key => $p_value) {
-                            $url = str_replace('{' . $p_key . '}', $p_value, $url);
-                        }
-                    }
-                    $requestData[] = [
-                        'url' => $url,
-                        'form_params' => $body,
-                        'headers' => $header,
-                        'key' => $key,
-                        'api_id' => $apiId,
-                        'method' => "POST",
-                        'regression_model' => $api["regression_model"],
-                    ];
-                    $total_unit++;
-                }
-            } else {
-                return false;
+        foreach ($list as $item) {
+            $projectData[$item['project_id']] = [
+                'id' => $item['project_id'],
+                'domain' => $item['domain'],
+                'name' => $item['project_name'],
+            ];
+            if (empty($item['api_ids']) || empty($item['domain'])) {
+                continue;
             }
-            $total_api++;
+            $total_project ++;
+
+            // 接口列表
+            $apiList = ApiModel::getAll()->whereIn('id', $item['api_ids']);
+            foreach ($apiList as $api) {
+                $total_api ++;
+                // 回归测试列表
+                foreach ($api->regTest as $key => $regTest) {
+                    if (in_array($api->method, BaseModel::$label_request_methods)) {
+                        $body = json_decode($regTest->unitTest->body, true);
+                        $headers = json_decode($regTest->unitTest->header, true);
+                        if (empty($body)) {
+                            $body = [];
+                        }
+                        if (empty($headers)) {
+                            $headers = [];
+                        }
+                        if (!empty($header)) {
+                            $headers += $header;
+                        }
+
+                        if ($api->method == "GET") {
+                            $url = $item['domain'] . $api->url . "?" . http_build_query($body);
+                            $form_params = [];
+                        } else {
+                            $url = $item['domain'] . $api->url;
+                            $form_params = $body;
+                        }
+
+                        $requestData[] = [
+                            'url' => $url,
+                            'headers' => $header,
+                            'form_params' => $form_params,
+                            // 'key' => $key,
+                            'api_id' => $api->id,
+                            'api_name' => $api->name,
+                            'api_url' => $api->url,
+                            'project_id' => $item['project_id'],
+                            'unit_test_id' => $regTest->unit_test_id,
+                            'method' => $api->method,
+                            'type' => $regTest->type,
+                            'response_md5' => $regTest->response_md5,
+                            'unit_test_name' => $regTest->unitTest->name,
+                        ];
+                        $total_unit ++;
+                    } else {
+                        continue;
+                    }
+                }
+            }
         }
 
+        $client = new Client(['timeout' => $timeOut]);
         $requests = function ($params) use ($client) {
             if (!empty($params)) {
-                foreach ($params as $key => $param) {
+                foreach ($params as $param) {
                     if ($param['method'] == "GET") {
-                        yield new GuzzleRequest('GET', $param['url'], $param['headers']);
+                        yield new GuzzleRequest($param['method'], $param['url'], $param['headers']);
                     } elseif ($param['method'] == "POST") {
                         yield function () use ($client, $param) {
-                            return $client->requestAsync('post', $param['url'], [
+                            return $client->requestAsync($param['method'], $param['url'], [
                                 'headers' => $param['headers'],
                                 'json' => $param['form_params'],
                             ]);
@@ -269,9 +253,10 @@ dd($this->request->all());
                 }
             }
         };
+
         $temp = [];
         $pool = new Pool($client, $requests($requestData), [
-            'concurrency' => 20,
+            'concurrency' => $concurrency,
             'fulfilled' => function ($response, $index) use (&$temp) { //成功
                 $temp[$index] = [
                     'key' => $index,
@@ -296,38 +281,54 @@ dd($this->request->all());
 
         $ret = [];
         foreach ($temp as $key => $response) {
-            $api_id = $requestData[$key]['api_id'];
-            $index = $requestData[$key]['key'];
+            $requestItem = $requestData[$key];
+            $project_id = $requestItem['project_id'];
+            $api_id = $requestItem['api_id'];
             $success = false;
             if ($response['success']) {
-                //完全匹配
-                if ($requestData[$key]['regression_model'] == ApiDoc::MODEL_REG_STRCIT) {
-                    $success = (md5(stripslashes(trim($response['response']))) == $list[$api_id]['api_params'][$index]['response_md5']);
-                } elseif ($requestData[$key]['regression_model'] == ApiDoc::MODEL_REG_REQUEST) {
+                // 完全匹配
+                if ($requestItem['type'] == BaseModel::REG_TYPE_ALL) {
+                    $success = (md5((trim($response['response']))) == $requestItem['response_md5']);
+                } else {
+                    // 请求成功
                     $success = true;
                 }
             }
-            $data = [
-                'id' => $list[$api_id]['api_params'][$index]['id'],
-                'success' => $success,
-                'test_title' => $list[$api_id]['api_params'][$index]['test_title'],
-                'response' => json_decode($response['response'], true)
-            ];
 
-            if (!isset($ret['list'][$api_id]['fail_count'])) {
-                $ret['list'][$api_id]['fail_count'] = 0;
+            if (!isset($ret['list'][$project_id])) {
+                $ret['list'][$project_id] = [
+                    "id" => $project_id,
+                    "fail_count" => 0,
+                    "name" => $projectData[$project_id]['name'],
+                    "domain" => $projectData[$project_id]['domain'],
+                ];
             }
+            if (!isset($ret['list'][$project_id]['apiList'][$api_id])) {
+                $ret['list'][$project_id]['apiList'][$api_id] = [
+                    "id" => $api_id,
+                    "fail_count" => 0,
+                    "method" => $requestItem['method'],
+                    "name" => $requestItem['api_name'],
+                    "url" => $requestItem['api_url'],
+                ];
+            }
+            if (!isset($ret['list'][$project_id]['apiList'][$api_id]['unitTestList'][$requestItem['unit_test_id']])) {
+                $ret['list'][$project_id]['apiList'][$api_id]['unitTestList'][$requestItem['unit_test_id']] = [
+                    'id' => $requestItem['unit_test_id'],
+                    'result' => $success,
+                    "request_result" => $response['success'],
+                    'name' => $requestItem['unit_test_name'],
+                    'response' => $response['response'],
+                ];
+            }
+
             if ($success) {
-                $success_count++;
+                $success_count ++;
             } else {
-                $ret['list'][$api_id]['fail_count']++;
-                $fail_count++;
+                $ret['list'][$project_id]['fail_count'] ++;
+                $ret['list'][$project_id]['apiList'][$api_id]['fail_count'] ++;
+                $fail_count ++;
             }
-
-            $ret['list'][$api_id]['method'] = $requestData[$key]['method'];
-            $ret['list'][$api_id]['title'] = $list[$api_id]['title'];
-            $ret['list'][$api_id]['url'] = $list[$api_id]['url'];
-            $ret['list'][$api_id]['list'][] = $data;
         }
 
         $ret['total_api'] = $total_api;
