@@ -21,6 +21,11 @@
     #start_regression_test_time {line-height: 34px;font-size: 12px;}
     .table td {height: 34px;line-height: 34px;}
     option {color: #ececec;background: #2b4048;}
+    .panel {background: url(/img/bg-1.jpg) fixed !important;border: 2px solid transparent;border-radius: 4px;}
+    .panel-heading {padding: 10px;border-top-left-radius: 3px;border-top-right-radius: 3px;}
+    .panel-title {margin-top: 0;margin-bottom: 0;font-size: 16px;color: inherit;}
+    .panel-body {padding: 10px;}
+    .collapsing {position: relative;height: 0;overflow: hidden;transition: height .1s ease-in}</style>
 </style>
 <!-- 模态弹出窗 -->
 <div id="mymodal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden='true' data-backdrop='static'>
@@ -44,57 +49,65 @@
                 @endphp
 
                 @foreach($regressList as $project)
-                <div id="project_{{ $project['id'] ?? '' }}">
-                    <h5 style="line-height: 34px;">
-                        <div class="row">
-                            <div class="col-lg-3 text-right">
-                                <span class="label bg-info">
-                                    <a href="#project_content_{{ $project['id'] ?? '' }}" data-toggle="collapse">{{ $project['name'] ?? '' }}</a>
-                                </span>
-                            </div>
-                            <br>
-                            <div class="col-lg-6">
-                                <select id="run_env_{{ $project['id'] ?? '' }}" class="form-control">
-                                    @foreach($project['domain'] as $domain)
-                                    <option>{{ $domain }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                <div class="panel">
+                    <div class="panel-heading bg-white">
+                        <div id="project_{{ $project['id'] ?? '' }}">
+                            <h5 style="line-height: 34px;">
+                                <div class="row">
+                                    <div class="col-lg-3 text-right">
+                                        <span class="label bg-info">
+                                            <a href="#project_content_{{ $project['id'] ?? '' }}" data-toggle="collapse">{{ $project['name'] ?? '' }}</a>
+                                        </span>
+                                    </div>
+                                    <br>
+                                    <div class="col-lg-6">
+                                        <select id="run_env_{{ $project['id'] ?? '' }}" class="form-control">
+                                            @foreach($project['domain'] as $domain)
+                                            <option>{{ $domain }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </h5>
                         </div>
-                    </h5>
+                    </div>
+                    <div id="project_content_{{ $project['id'] ?? '' }}" class="panel-body collapse">
+                        <div>
+                            <table class="table default-table">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <div class="vs-checkbox-con vs-checkbox-primary checkbox-grid checkbox-grid-header">
+                                                <input type="checkbox" class="select-all {{ $project['id'] ?? '' }}_grid-select-all">
+                                                <span class="vs-checkbox"><span class="vs-checkbox--check"><i class="vs-icon feather icon-check"></i></span></span>
+                                            </div>
+                                        </th>
+                                        <th>接口名称</th>
+                                        <th>测试描述</th>
+                                        <th>接口地址</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($project['apiList'] as $api)
+                                    <tr>
+                                        <td>
+                                            <div class="vs-checkbox-con vs-checkbox-primary checkbox-grid checkbox-grid-column" style="height: 34px;">
+                                                <input type="checkbox" class="{{ $project['id'] ?? '' }}_grid-row-checkbox grid-row-checkbox" data-id="{{ $api['id'] ?? '' }}" data-label="{{ $api['name'] ?? '' }}">
+                                                <span class="vs-checkbox"><span class="vs-checkbox--check"><i class="vs-icon feather icon-check"></i></span></span>
+                                            </div>
+                                        </td>
+                                        <td>{{ $api['name'] ?? '' }}</td>
+                                        <td>{{ $api['desc'] ?? '' }}</td>
+                                        <td>{{ $api['url'] ?? '' }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div id="project_content_{{ $project['id'] ?? '' }}" class="collapse">
-                    <table class="table default-table">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <div class="vs-checkbox-con vs-checkbox-primary checkbox-grid checkbox-grid-header">
-                                        <input type="checkbox" class="select-all {{ $project['id'] ?? '' }}_grid-select-all">
-                                        <span class="vs-checkbox"><span class="vs-checkbox--check"><i class="vs-icon feather icon-check"></i></span></span>
-                                    </div>
-                                </th>
-                                <th>接口名称</th>
-                                <th>测试描述</th>
-                                <th>接口地址</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($project['apiList'] as $api)
-                            <tr>
-                                <td>
-                                    <div class="vs-checkbox-con vs-checkbox-primary checkbox-grid checkbox-grid-column" style="height: 34px;">
-                                        <input type="checkbox" class="{{ $project['id'] ?? '' }}_grid-row-checkbox grid-row-checkbox" data-id="{{ $api['id'] ?? '' }}" data-label="{{ $api['name'] ?? '' }}">
-                                        <span class="vs-checkbox"><span class="vs-checkbox--check"><i class="vs-icon feather icon-check"></i></span></span>
-                                    </div>
-                                </td>
-                                <td>{{ $api['name'] ?? '' }}</td>
-                                <td>{{ $api['desc'] ?? '' }}</td>
-                                <td>{{ $api['url'] ?? '' }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+
+
                 <hr>
                 @endforeach
 
@@ -104,7 +117,7 @@
             <div class="modal-footer">
                 <span id="select_rows">已选择 0 项</span>&nbsp;&nbsp;&nbsp;&nbsp;
                 <span id="start_regression_test_time">将运行选中的回归测试用例，运行时可关闭面板，稍后再次点击查看！</span>
-                <button id="start_regression_test" type="button" class="btn btn-primary  pull-right">开始测试</button>
+                <button id="start_regression_test" type="button" class="btn btn-success  pull-right">开始测试</button>
                 <button type="button" class="btn btn-default pull-right" data-dismiss="modal">关闭</button>
             </div>
         </div>
