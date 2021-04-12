@@ -226,7 +226,7 @@
         });
 
 
-        $("body").addClass("sidebar-collapse");
+        // $("body").addClass("sidebar-collapse");
         let api_id = '<?php echo $model->id ?>';
 
         // 保存请求响应示例

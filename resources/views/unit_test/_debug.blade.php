@@ -97,7 +97,7 @@
 
 <script type="text/javascript">
     Dcat.ready(function() {
-        let response_md5 = {};
+        let response_md5 = '';
         let can_save = false;
         let unitTest = <?php echo json_encode($model->unitTest->toArray()); ?>;
         let regTest = <?php echo json_encode($regTest); ?>;
@@ -161,7 +161,7 @@
                 }
                 var result = response.result;
                 var detail = response.detail;
-                response_md5 = $.md5(result);
+                response_md5 = response.detail.response_md5;
                 $('#ret').html("HTTP状态码：" + detail.status_code + "<br>请求时间：" + detail.request_time + "ms" + "<br><hr>curl请求示例：<br>" + detail.curl_example);
                 if (detail.status_code == 200) {
                     $('#ret').css({

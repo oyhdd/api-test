@@ -29,7 +29,7 @@ use Dcat\Admin\Show;
 
 if (in_array('cool-mode', config('admin.layout.body_class'))) {
     config([
-        'admin.layout.body_class' => array_merge(config('admin.layout.body_class'), []),
+        'admin.layout.body_class' => array_merge(config('admin.layout.body_class'), ['dark-mode']),
         'admin.layout.color' => 'green',
     ]);
     Admin::css('/css/cool-mode.css');

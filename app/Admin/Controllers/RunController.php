@@ -86,6 +86,9 @@ class RunController extends AdminController
                     $url .= '?' . http_build_query($body);
                 }
                 $curl_example .= " -g \"{$url}\" ";
+                foreach ($header as $key => $value) {
+                    $curl_example .= " -H \"{$key}:$value\"";
+                }
             } else {
                 $options['headers']['Accept'] = 'application/json';
                 $options['headers']['Content-type'] = 'application/json';
@@ -119,6 +122,7 @@ class RunController extends AdminController
                 'status_code' => $status_code,
                 'request_time' => round((microtime(true) - $start_time) * 1000),
                 'curl_example' => $curl_example,
+                'response_md5' => md5((trim($result))),
             ]
         ];
     }
@@ -215,7 +219,7 @@ class RunController extends AdminController
 
                         $requestData[] = [
                             'url' => $url,
-                            'headers' => $header,
+                            'headers' => $headers,
                             'form_params' => $form_params,
                             // 'key' => $key,
                             'api_id' => $api->id,
