@@ -193,6 +193,7 @@
 <script type="text/javascript">
     Dcat.ready(function() {
         let projectIds = <?php echo json_encode($projectIds) ?>;
+        let api_url = '<?php echo $model->url ?>';
 
         $(".breadcrumb").html(
             "<div data-toggle='modal' data-target='#mymodal' class='btn btn-sm btn-success'>" +
@@ -239,6 +240,7 @@
                 type: 'POST',
                 data: {
                     [type]: desc,
+                    url: api_url,
                     _method: "PUT"
                 },
                 success: function(retData) {

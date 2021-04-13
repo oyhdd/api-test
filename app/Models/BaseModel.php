@@ -150,7 +150,7 @@ class BaseModel extends Model
             return '';
         }
 
-        $headerLabels = ['key' => '参数名', 'type' => '类型', 'is_necessary' => '必须', 'desc' => '注释', 'value' => '参数值'];
+        $headerLabels = ['key' => '参数名', 'type' => '类型', 'is_necessary' => '必填', 'desc' => '备注', 'value' => '参数值'];
         $headers = array_intersect_key($headerLabels, $params[0]);
 
         $body = array_map(function($item){
