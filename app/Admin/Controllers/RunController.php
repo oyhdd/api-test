@@ -71,10 +71,10 @@ class RunController extends AdminController
         $domain = $this->request->input('domain');
         $url = $this->request->input('url');
         $method = $this->request->input('method');
-        $header = $this->request->input('header', []);
-        $body = $this->request->input('body', []);
+        $header = unset_null($this->request->input('header', []));
+        $body = unset_null($this->request->input('body', []));
         $url = $domain . $url;
-        
+
         $status = false;
         $start_time = microtime(true);
         $curl_example = 'curl';
@@ -208,6 +208,8 @@ class RunController extends AdminController
                         if (!empty($header)) {
                             $headers += $header;
                         }
+                        $body = unset_null($body);
+                        $headers = unset_null($headers);
 
                         if ($api->method == "GET") {
                             $url = $item['domain'] . $api->url . "?" . http_build_query($body);

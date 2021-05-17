@@ -37,3 +37,31 @@ if (!function_exists('encrypt_str')) {
         return $strlen <= 2 ? $firstStr . str_repeat('*', mb_strlen($str, 'utf-8') - 1) : $firstStr . str_repeat("*", $strlen - $first_lenth - $end_lenth) . $lastStr;
     }
 }
+
+if (!function_exists('unset_null')) {
+    //递归方式把数组或字符串 null转换为空''字符串
+    function unset_null($arr)
+    {
+        if ($arr !== null) {
+            if (is_array($arr)) {
+                if (!empty($arr)) {
+                    foreach ($arr as $key => $value) {
+                        if ($value === null) {
+                            $arr[$key] = '';
+                        } else {
+                            $arr[$key] = unset_null($value); //递归再去执行
+                        }
+                    }
+                }
+            } else {
+                if ($arr === null) { //注意三个等号
+                    $arr = '';
+                }
+            }
+        } else {
+            $arr = '';
+        }
+
+        return $arr;
+    }
+}

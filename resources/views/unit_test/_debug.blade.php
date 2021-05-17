@@ -6,6 +6,9 @@
     .input-group {margin: 10px 0;}
     #response {min-height: 235px;color: white;}
     .help-block {font-size: 12px;}
+    .form-group .control-label {
+        text-align: left;
+    }
 </style>
 <div class="row">
     <div class="col-md-5 col-sm-12">
@@ -41,9 +44,9 @@
         $form->embeds('body', '请求体', function ($form) use ($model) {
             foreach ($model['body'] as $key => $param) {
                 if ($param['is_necessary']) {
-                    $form->textarea($param['key'], $param['key'])->placeholder($param['desc'] ? $param['desc'] : "请输入 {$param['key']}")->width(9, 3)->required();
+                    $form->textarea($param['key'], $param['key'])->placeholder($param['desc'] ? $param['desc'] : "请输入 {$param['key']}")->width(12, 12)->required();
                 } else {
-                    $form->textarea($param['key'], $param['key'])->placeholder($param['desc'] ? $param['desc'] : "请输入 {$param['key']}")->width(9, 3);
+                    $form->textarea($param['key'], $param['key'])->placeholder($param['desc'] ? $param['desc'] : "请输入 {$param['key']}")->width(12, 12);
                 }
             }
 

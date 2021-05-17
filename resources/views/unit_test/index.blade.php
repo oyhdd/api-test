@@ -302,7 +302,7 @@
         //左侧菜单栏
         var menuConfig = {
             treeMenuId: "#TreeMenu",
-            superLevel: 2,
+            superLevel: 1,
             multiple: true,
         };
         treeMenu.init(navItems, menuConfig);
