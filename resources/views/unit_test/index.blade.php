@@ -56,13 +56,20 @@
                         <div id="project_{{ $project['id'] ?? '' }}">
                             <h5 style="line-height: 34px;">
                                 <div class="row">
-                                    <div class="col-lg-3 text-right">
+                                    <div class="col-md-1">
+                                        <div class="vs-checkbox-con float-right" style="margin-top: 9px;">
+                                            <input type="checkbox" class="select-all-items {{ $project['id'] }}_select-all-items" data-project_id="{{ $project['id'] }}" value="0">
+                                            <span class="vs-checkbox"><span class="vs-checkbox--check"><i class="vs-icon feather icon-check"></i></span></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 text-left">
                                         <span class="label bg-info">
                                             <a href="#project_request_{{ $project['id'] ?? '' }}" data-toggle="collapse">{{ $project['name'] ?? '' }}</a>
                                         </span>
                                     </div>
                                     <br>
-                                    <div class="col-lg-6">
+                                    <small>选择域名：</small>
+                                    <div class="col-md-6">
                                         <select id="run_env_{{ $project['id'] ?? '' }}" class="form-control">
                                             @foreach($project['domain'] as $domain)
                                             <option>{{ $domain }}</option>
@@ -215,12 +222,23 @@
             Dcat.grid.addSelector(selector, projectIds[i]);
         }
         $(document).off('change', '.grid-row-checkbox').on('change', '.grid-row-checkbox', function() {
+            var all_selected = 0;
             var selected = 0;
             for (let i = 0; i < projectIds.length; i++) {
-                selected += Dcat.grid.selectedRows(projectIds[i]).length;
+                selected = Dcat.grid.selectedRows(projectIds[i]).length;
+                all_selected += selected;
+                if (selected <= 0) {
+                    if ($("." + projectIds[i] + "_select-all-items").val() == 1) {
+                        clickSelectAllItems(projectIds[i]);
+                    }
+                } else {
+                    if ($("." + projectIds[i] + "_select-all-items").val() == 0) {
+                        clickSelectAllItems(projectIds[i]);
+                    }
+                }
             }
-            if (selected) {
-                $("#select_rows").html("已选择 " + selected + " 项");
+            if (all_selected) {
+                $("#select_rows").html("已选择 " + all_selected + " 项");
             } else {
                 $("#select_rows").html("已选择 0 项");
             }
@@ -229,6 +247,30 @@
 
         // $("body").addClass("sidebar-collapse");
         let api_id = '<?php echo $model->id ?>';
+
+        $(".select-all-items").click(function (e) {
+            // 鼠标点击
+            if (e.originalEvent) {
+                var project_id = $(this).data("project_id");
+                var selector = "." + project_id + "_select-all-items";
+                if ($(selector).val() == 1) {
+                    $(selector).val(0);
+                } else {
+                    $(selector).val(1);
+                }
+                $('.' + project_id + '_grid-select-all').click();
+            }
+        })
+
+        function clickSelectAllItems(project_id) {
+            var selector = "." + project_id + "_select-all-items";
+            if ($(selector).val() == 1) {
+                $(selector).val(0);
+            } else {
+                $(selector).val(1);
+            }
+            $(selector).click();
+        }
 
         // 保存请求响应示例
         $('.submit-example').click(function() {
