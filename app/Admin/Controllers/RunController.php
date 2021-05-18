@@ -177,7 +177,7 @@ class RunController extends AdminController
     public static function sendRequest($list = [], $concurrency = 20, $header = [], $timeOut = 120)
     {
         $requestData = $projectData = [];
-        $total_project = $total_api = $total_unit = $success_count = $fail_count = 0;
+        $total_project = $total_api = $total_unit = $success_count = 0;
 
         foreach ($list as $item) {
             $projectData[$item['project_id']] = [
@@ -303,44 +303,46 @@ class RunController extends AdminController
 
             if (!isset($ret['list'][$project_id])) {
                 $ret['list'][$project_id] = [
-                    "id" => $project_id,
-                    "fail_count" => 0,
-                    "name" => $projectData[$project_id]['name'],
-                    "domain" => $projectData[$project_id]['domain'],
+                    "id"            => $project_id,
+                    "success_count" => 0,
+                    "total_count"   => 0,
+                    "name"          => $projectData[$project_id]['name'],
+                    "domain"        => $projectData[$project_id]['domain'],
                 ];
             }
             if (!isset($ret['list'][$project_id]['apiList'][$api_id])) {
                 $ret['list'][$project_id]['apiList'][$api_id] = [
-                    "id" => $api_id,
-                    "fail_count" => 0,
-                    "method" => $requestItem['method'],
-                    "name" => $requestItem['api_name'],
-                    "url" => $requestItem['api_url'],
+                    "id"            => $api_id,
+                    "success_count" => 0,
+                    "total_count"   => 0,
+                    "method"        => $requestItem['method'],
+                    "name"          => $requestItem['api_name'],
+                    "url"           => $requestItem['api_url'],
                 ];
             }
             if (!isset($ret['list'][$project_id]['apiList'][$api_id]['unitTestList'][$requestItem['unit_test_id']])) {
                 $ret['list'][$project_id]['apiList'][$api_id]['unitTestList'][$requestItem['unit_test_id']] = [
-                    'id' => $requestItem['unit_test_id'],
-                    'result' => $success,
+                    'id'             => $requestItem['unit_test_id'],
+                    'result'         => $success,
                     "request_result" => $response['success'],
-                    'name' => $requestItem['unit_test_name'],
-                    'response' => $response['response'],
+                    'name'           => $requestItem['unit_test_name'],
+                    'response'       => $response['response'],
                 ];
             }
 
             if ($success) {
                 $success_count ++;
-            } else {
-                $ret['list'][$project_id]['fail_count'] ++;
-                $ret['list'][$project_id]['apiList'][$api_id]['fail_count'] ++;
-                $fail_count ++;
+                $ret['list'][$project_id]['success_count'] ++;
+                $ret['list'][$project_id]['apiList'][$api_id]['success_count'] ++;
             }
+            $ret['list'][$project_id]['total_count'] ++;
+            $ret['list'][$project_id]['apiList'][$api_id]['total_count'] ++;
         }
 
-        $ret['total_api'] = $total_api;
-        $ret['total_unit'] = $total_unit;
+        $ret['total_api']     = $total_api;
+        $ret['total_unit']    = $total_unit;
+        $ret['total_project'] = $total_project;
         $ret['success_count'] = $success_count;
-        $ret['fail_count'] = $fail_count;
 
         return $ret;
     }

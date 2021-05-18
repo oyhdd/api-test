@@ -40,8 +40,7 @@
                         <span class="label bg-info">项目数：<span id="total_project"></span></span>
                         <span class="label bg-info">接口数：<span id="total_api"></span></span>
                         <span class="label bg-info mr-2">用例数：<span id="total_unit"></span></span>
-                        <span class="label bg-success">成功数：<span id="success_count"></span></span>
-                        <span class="fail-count label bg-success">失败数：<span id="fail_count"></span></span>
+                        <span class="label">成功用例：<span id="success_count"></span></span>
                     </h6>
                 </h2>
             </div>
@@ -343,7 +342,6 @@
             $("#total_api").empty();
             $("#total_unit").empty();
             $("#success_count").empty();
-            $("#fail_count").empty();
             $('#regression_testing_detail').empty();
             $('#start_regression_test_time').empty().html('正在进行回归测试，可稍后查看！');
             $.ajax({
@@ -358,47 +356,47 @@
                         $("#total_project").html(retData.data.total_project);
                         $("#total_api").html(retData.data.total_api);
                         $("#total_unit").html(retData.data.total_unit);
-                        $("#success_count").html(retData.data.success_count);
-                        $("#fail_count").html(retData.data.fail_count);
-                        $('#start_regression_test_time').empty().html('回归测试已完成！');
-                        if (retData.data.fail_count > 0) {
-                            $(".fail-count").addClass('bg-danger');
+                        if (retData.data.success_count < retData.data.total_unit) {
+                            $("#success_count").parent().addClass("bg-danger")
+                        } else {
+                            $("#success_count").parent().addClass("bg-success");
                         }
+                            $("#success_count").html(retData.data.success_count + " / " + retData.data.total_unit);
+                        $('#start_regression_test_time').empty().html('回归测试已完成！');
 
                         var html = "";
                         var list = retData.data.list;
 
                         for (let i in list) {
                             var project = list[i];
-                            var fail_count_class = 'bg-success';
-                            if (project.fail_count > 0) {
-                                fail_count_class = 'bg-danger';
+                            var success_count_class = 'bg-success';
+                            if (project["success_count"] < project["total_count"]) {
+                                success_count_class = 'bg-danger';
                             }
                             html += '<div class="panel">' + 
                                 '<div class="panel-heading bg-white">' + 
                                     '<div><a href="#project_response_' + project["id"] +'" data-toggle="collapse">' + 
-                                    '<span class="label bg-info">' + project["name"] + '</span>' +
+                                    '<span class="label bg-info">项目：' + project["name"] + '</span>' +
                                     '&nbsp;&nbsp;<span class="label bg-custom">' + project["domain"] + '</span>' +
-                                    '&nbsp;&nbsp;<span class="label ' + fail_count_class + '">失败数：' + project["fail_count"] + '</span>' +
+                                    '&nbsp;&nbsp;<span class="label ' + success_count_class + '">成功用例：' + project["success_count"] + " / " + project["total_count"] + '</span>' +
                                     '</a></div>' + 
                                 '</div>' +
                                 '<div id="project_response_' + project["id"] +'" class="panel-body collapse">';
  
                             var apiList = project['apiList'];
-                            console.log(apiList);
                             for (let j in apiList) {
                                 var api = apiList[j];
-                                var fail_count_class = 'bg-success';
-                                if (api.fail_count > 0) {
-                                    fail_count_class = 'bg-danger';
+                                var success_count_class = 'bg-success';
+                                if (api["success_count"] < api["total_count"]) {
+                                    success_count_class = 'bg-danger';
                                 }
                                 html += '<div class="panel">' + 
                                     '<div class="panel-heading bg-white">' + 
                                         '<div><a href="#api_response_' + api["id"] +'" data-toggle="collapse">' + 
-                                        '<span class="label bg-custom">' + api["name"] + '</span>' +
+                                        '<span class="label bg-custom">接口：' + api["name"] + '</span>' +
                                         '&nbsp;&nbsp;<span class="label bg-custom">' + api["method"] + '</span>' +
                                         '&nbsp;&nbsp;<span class="label bg-gray text-light">' + api["url"] + '</span>' +
-                                        '&nbsp;&nbsp;<span class="label ' + fail_count_class + '">失败数：' + api["fail_count"] + '</span>' +
+                                        '&nbsp;&nbsp;<span class="label ' + success_count_class + '">成功用例：' + api["success_count"] + " / " + api["total_count"] + '</span>' +
                                         '</a></div>' + 
                                     '</div>' +
                                     '<div id="api_response_' + api["id"] +'" class="panel-body collapse">';
@@ -438,7 +436,7 @@
                                     html += '<div class="panel">' + 
                                     '<div class="panel-heading bg-white">' + 
                                         '<div><a href="#unitTest_response_' + unitTest["id"] +'" data-toggle="collapse">' + 
-                                        '<span class="label bg-custom">' + unitTest["name"] + '</span>' +
+                                        '<span class="label bg-custom">用例：' + unitTest["name"] + '</span>' +
                                         '&nbsp;&nbsp;<span class="label ' + request_result_class + '">' + request_result + '</span>' +
                                         '&nbsp;&nbsp;<span class="label ' + result_class + '">' + result + '</span>' +
                                         '</a></div>' +
