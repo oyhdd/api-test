@@ -11,6 +11,7 @@
     .json-literal {color: #FFFFFF;font-weight: bold;}
     a .json-string{color: lightgreen;}
     #response .btn-pre-copy{-webkit-user-select: none;-moz-user-select: none;-ms-user-select: none;-khtml-user-select: none;user-select: none;position: absolute;right: 30px;font-size: 12px;line-height: 1;cursor: pointer;color: hsla(0,0%,54.9%,.8);transition: color .1s;}
+    .col-md-12 .pull-right{float: left !important; margin-left: 12px;}
 </style>
 <div class="row">
     <div class="col-md-5 col-sm-12">
@@ -57,7 +58,7 @@
             }
         })->saveAsJson();
 
-        $form->width(9, 3);
+        $form->width(12, 12);
 
         $form->addVariables(['footer' =>
         '<div class="box-footer row d-flex">
