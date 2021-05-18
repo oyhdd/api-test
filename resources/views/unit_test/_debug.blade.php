@@ -6,9 +6,11 @@
     .input-group {margin: 10px 0;}
     #response {min-height: 235px;color: white;}
     .help-block {font-size: 12px;}
-    .form-group .control-label {
-        text-align: left;
-    }
+    .form-group .control-label {text-align: left !important;}
+    .json-string {color: #FFFFFF;}
+    .json-literal {color: #FFFFFF;font-weight: bold;}
+    a .json-string{color: lightgreen;}
+    #response .btn-pre-copy{-webkit-user-select: none;-moz-user-select: none;-ms-user-select: none;-khtml-user-select: none;user-select: none;position: absolute;right: 30px;font-size: 12px;line-height: 1;cursor: pointer;color: hsla(0,0%,54.9%,.8);transition: color .1s;}
 </style>
 <div class="row">
     <div class="col-md-5 col-sm-12">
@@ -99,6 +101,7 @@
 </div>
 
 <script type="text/javascript">
+
     Dcat.ready(function() {
         let response_md5 = '';
         let can_save = false;
@@ -115,6 +118,29 @@
             } else {
                 $(".regression-type").hide();
             }
+        });
+
+        // 执行复制代码操作
+        Dcat.init('.btn-pre-copy', function ($this, id) {
+            $this.on('click', function () {
+                let btn = $(this);
+                let pre = btn.parent();
+                //为了实现复制功能。新增一个临时的textarea节点。使用他来复制内容
+                let temp = $("<textarea></textarea>");
+                //避免复制内容时把按钮文字也复制进去。先临时置空
+                btn.text("");
+                temp.text(pre.text());
+                temp.appendTo(pre);
+                temp.select();
+                document.execCommand("Copy");
+                temp.remove();
+                //修改按钮名
+                btn.text("复制成功");
+                //3s后把按钮名改回来
+                setTimeout(()=> {
+                    btn.text("复制代码");
+                },3000);
+            });
         });
 
         // 自动加载测试用例
@@ -160,6 +186,7 @@
                 can_save = true;
                 if (typeof response != 'object') {
                     $('#response').html(response);
+                    $('#response').prepend("<span class=\"btn-pre-copy\">复制代码</span>");
                     return;
                 }
                 var result = response.result;
@@ -177,21 +204,15 @@
                 }
 
                 try {
-                    if (typeof result == 'object') {
-                        result = JSON.stringify(result);
-                        var formatText = js_beautify(result, 4, ' ');
-                    } else if (typeof result === 'string') {
+                    if (typeof result === 'string') {
                         //防中文乱码
                         result = eval("(" + result + ")")
-                        result = JSON.stringify(result);
-                        var formatText = js_beautify(result, 4, ' ');
-                    } else {
-                        var formatText = result;
                     }
+                    $('#response').jsonViewer(result, {withQuotes:true});
                 } catch (error) {
-                    var formatText = result;
+                    $('#response').html(result);
                 }
-                $('#response').html(formatText);
+                $('#response').prepend("<span class=\"btn-pre-copy\">复制代码</span>");
 
             },
             error: function(response) {
@@ -201,6 +222,7 @@
                     var result = JSON.stringify(errorData);
                     var formatText = js_beautify(result, 4, ' ');
                     $('#response').html(formatText);
+                    $('#response').prepend("<span class=\"btn-pre-copy\">复制代码</span>");
                 }
                 $('#ret').html("服务器内部错误！请联系管理员<br>" + errorData.message);
                 $('#ret').css({

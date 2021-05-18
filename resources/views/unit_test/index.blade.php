@@ -1,3 +1,4 @@
+<link href="/css/json-viewer.css" type="text/css" rel="stylesheet" />
 <style>
     .TreeMenuList>div {border: ridge;margin-bottom: 20px;}
     body.dark-mode pre {animation: mymove 0.5s;background-color: black !important;color: lightgray;margin-bottom: 10px;}
@@ -197,6 +198,7 @@
         </div>
     </div>
 </div>
+<script src="/js/json-viewer.js"></script>
 <script type="text/javascript">
     Dcat.ready(function() {
         let projectIds = <?php echo json_encode($projectIds) ?>;
