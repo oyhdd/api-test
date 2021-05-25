@@ -10,6 +10,7 @@ return [
         'unit_test_id' => '测试用例',
         'response_md5' => '返回值的md5',
         'type' => '回归模式',
+        'ignore_fields' => '忽略字段',
     ],
     'options' => [
     ],

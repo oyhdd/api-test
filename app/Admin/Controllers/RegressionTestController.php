@@ -41,6 +41,7 @@ class RegressionTestController extends AdminController
                 return admin_url('unit-test/' . $this->unit_test_id . "/edit");
             });
             $grid->column('type')->select(BaseModel::$label_reg_type, true);
+            $grid->column('ignore_fields');
             $grid->column('updated_at')->sortable();
 
             $grid->actions(function ($actions) {
@@ -89,6 +90,7 @@ class RegressionTestController extends AdminController
             $show->field('type')->as(function ($type) {
                 return BaseModel::$label_reg_type[$type] ?? '';
             });
+            $show->field('ignore_fields');
             $show->field('created_at');
             $show->field('updated_at');
         });
@@ -122,6 +124,7 @@ class RegressionTestController extends AdminController
                 ->required();
             $form->text('response_md5');
             $form->select('type')->options(BaseModel::$label_reg_type);
+            $form->text('ignore_fields')->help('匹配时忽略字段：多个字段使用英文逗号分隔');
         
             $form->display('created_at');
             $form->display('updated_at');
