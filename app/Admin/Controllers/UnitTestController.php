@@ -260,6 +260,17 @@ class UnitTestController extends AdminController
         ];
 
         $params = $this->request->all();
+        $params['ignore_fields'] = $params['ignore_fields'] ?? '';
+        $ignoreFields = explode(',', $params['ignore_fields']);
+        $apiResponse = json_decode($params['api_response'], true);
+        foreach ($ignoreFields as $ignore_field) {
+            if (!empty($ignore_field) && isset($apiResponse[$ignore_field])) {
+                unset($apiResponse[$ignore_field]);
+            }
+        }
+        $apiResponse = json_encode($apiResponse);
+        $params['response_md5'] = md5((trim($apiResponse)));
+
         $model = UnitTestModel::saveUnitTest($params);
         if (empty($model)) {
             return $ret;

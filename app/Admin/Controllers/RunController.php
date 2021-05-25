@@ -122,7 +122,6 @@ class RunController extends AdminController
                 'status_code' => $status_code,
                 'request_time' => round((microtime(true) - $start_time) * 1000),
                 'curl_example' => $curl_example,
-                'response_md5' => md5((trim($result))),
             ]
         ];
     }
@@ -233,6 +232,7 @@ class RunController extends AdminController
                             'type' => $regTest->type,
                             'response_md5' => $regTest->response_md5,
                             'unit_test_name' => $regTest->unitTest->name,
+                            'ignore_fields' => explode(',', $regTest->ignore_fields),
                         ];
                         $total_unit ++;
                     } else {
@@ -294,7 +294,18 @@ class RunController extends AdminController
             if ($response['success']) {
                 // 完全匹配
                 if ($requestItem['type'] == BaseModel::REG_TYPE_ALL) {
-                    $success = (md5((trim($response['response']))) == $requestItem['response_md5']);
+                    $response_md5 = md5((trim($response['response'])));
+                    if (!empty($requestItem['ignore_fields'])) {
+                        $temp_response = json_decode($response['response'], true);
+                        foreach ($requestItem['ignore_fields'] as $ignore_field) {
+                            if (!empty($ignore_field) && isset($temp_response[$ignore_field])) {
+                                unset($temp_response[$ignore_field]);
+                            }
+                        }
+                        $temp_response = json_encode($temp_response);
+                        $response_md5 = md5((trim($temp_response)));
+                    }
+                    $success = ($response_md5 == $requestItem['response_md5']);
                 } else {
                     // 请求成功
                     $success = true;

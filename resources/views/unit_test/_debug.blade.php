@@ -16,7 +16,7 @@
 <div class="row">
     <div class="col-md-5 col-sm-12">
         @php
-        $regTest = $model->regTest->pluck('type', 'unit_test_id')->toArray();
+        $regTest = array_column($model->regTest->toArray(), null, 'unit_test_id');
 
         $form = new \Dcat\Admin\Widgets\Form();
         $form->action(request()->fullUrl())->setFormId('run_api')->ajax(false);
@@ -33,9 +33,9 @@
         $form->embeds('header', '请求头', function ($form) use ($model) {
             foreach ($model['header'] as $param) {
                 if ($param['is_necessary']) {
-                    $form->textarea($param['key'], $param['key'])->placeholder($param['desc'] ? $param['desc'] : "请输入 {$param['key']}")->width(9, 3)->required();
+                    $form->textarea($param['key'], $param['key'])->placeholder($param['desc'] ? $param['desc'] : "请输入 {$param['key']}")->width(12, 12)->required();
                 } else {
-                    $form->textarea($param['key'], $param['key'])->placeholder($param['desc'] ? $param['desc'] : "请输入 {$param['key']}")->width(9, 3);
+                    $form->textarea($param['key'], $param['key'])->placeholder($param['desc'] ? $param['desc'] : "请输入 {$param['key']}")->width(12, 12);
                 }
             }
 
@@ -62,8 +62,8 @@
 
         $form->addVariables(['footer' =>
         '<div class="box-footer row d-flex">
-            <div class="col-md-3"> &nbsp;</div>
-            <div class="col-md-9">
+            <div class="col-md-2"> &nbsp;</div>
+            <div class="col-md-8">
                 <button type="submit" class="btn btn-success pull-left"><i class="fa fa-paper-plane"></i> 运行</button>
                 <button id="delete_unit_test" type="button" class="btn btn-warning pull-right" disabled><i class="feather icon-trash"></i> 删除用例</button>
             </div>
@@ -80,10 +80,16 @@
 
         <hr>
         <div>
-            <span>回归测试：<input id="save_reg_test" type="checkbox" /></span><br>
-            <span class="regression-type" style="display: none;">
-                完全匹配：<input type="radio" class="reg-model" name="reg-model" value="{{ $model::REG_TYPE_ALL }}" />&nbsp;请求成功：<input class="reg-model" type="radio" name="reg-model" value="{{ $model::REG_TYPE_SUCCESS }}" />
-            </span>
+            <div>回归测试：<input id="save_reg_test" type="checkbox" /></div>
+            <div class="regression-type" style="display: none;">
+                请求成功：<input class="reg-model" type="radio" name="reg-model" value="{{ $model::REG_TYPE_SUCCESS }}" />&nbsp;完全匹配：<input type="radio" class="reg-model" name="reg-model" value="{{ $model::REG_TYPE_ALL }}" />
+            </div>
+            <div class="regression-type-all form-group row form-field" style="display: none;">
+                <label class="col-md-3 text-capitalize control-label">匹配时忽略字段:</label>
+                <div class="col-md-9">
+                    <select class="form-control" id="ignore_fields" multiple="multiple"></select>
+                </div>
+            </div>
         </div>
         <div class="input-group">
             <input id="unit_test_name" type="text" class="form-control" placeholder="请输入 用例名称">
@@ -104,7 +110,15 @@
 <script type="text/javascript">
 
     Dcat.ready(function() {
-        let response_md5 = '';
+        $("#ignore_fields").select2({
+            language : "zh-CN",
+            placeholder:"请选择 需要忽略的字段",
+            allowClear: true,
+            multiple: true,
+            width: '100%'
+        })
+
+        let api_response = '';
         let can_save = false;
         let unitTest = <?php echo json_encode($model->unitTest->toArray()); ?>;
         let regTest = <?php echo json_encode($regTest); ?>;
@@ -113,11 +127,20 @@
         $('#save_reg_test').click(function() {
             if ($("#save_reg_test").prop('checked')) {
                 $(".regression-type").show();
-                if (typeof $(":radio[name=reg-model]:checked").val() == 'undefined') {
+                if (typeof $(":radio[name='reg-model']:checked").val() == 'undefined') {
                     $(":radio[name='reg-model']").eq(0).prop("checked", true);
                 }
             } else {
                 $(".regression-type").hide();
+            }
+        });
+
+        // 显示与隐藏忽略字段
+        $(":radio[name='reg-model']").change(function() {
+            if ($(":radio[name='reg-model']:checked").val() == 1) {
+                $(".regression-type-all").show();
+            } else {
+                $(".regression-type-all").hide();
             }
         });
 
@@ -169,10 +192,23 @@
 
             $("#unit_test_name").val($("select[name='unit_test_id'] :selected").text());
 
+            $(".regression-type-all").hide();
+            $("#ignore_fields").empty();
             if (Object.hasOwnProperty.call(regTest, unit_test_id)) {
                 $("#save_reg_test").prop('checked', true);
                 $(".regression-type").show();
-                $(":radio[name='reg-model'][value='" + regTest[unit_test_id] + "']").prop("checked", true);
+                $(":radio[name='reg-model'][value='" + regTest[unit_test_id]['type'] + "']").prop("checked", true);
+                if (regTest[unit_test_id]['type'] == 1) {
+                    $(".regression-type-all").show();
+                    if (regTest[unit_test_id]['ignore_fields'] != null && regTest[unit_test_id]['ignore_fields'] != '') {
+                        var ignore_fields = (regTest[unit_test_id]['ignore_fields']).split(',');
+                        for (const key in ignore_fields) {
+                            var option = new Option(ignore_fields[key], ignore_fields[key], true, true);
+                            $("#ignore_fields").append(option);
+                        }
+                        $("#ignore_fields").trigger('change');
+                    }
+                }
             } else {
                 $("#save_reg_test").prop('checked', false);
                 $(".regression-type").hide();
@@ -190,9 +226,9 @@
                     $('#response').prepend("<span class=\"btn-pre-copy\">复制代码</span>");
                     return;
                 }
-                var result = response.result;
+                var result = {};
                 var detail = response.detail;
-                response_md5 = response.detail.response_md5;
+                api_response = response.result;
                 $('#ret').html("HTTP状态码：" + detail.status_code + "<br>请求时间：" + detail.request_time + "ms" + "<br><hr>curl请求示例：<br>" + detail.curl_example);
                 if (detail.status_code == 200) {
                     $('#ret').css({
@@ -205,16 +241,29 @@
                 }
 
                 try {
-                    if (typeof result === 'string') {
+                    if (typeof api_response === 'string') {
                         //防中文乱码
-                        result = eval("(" + result + ")")
+                        result = eval("(" + api_response + ")")
                     }
                     $('#response').jsonViewer(result, {withQuotes:true});
                 } catch (error) {
-                    $('#response').html(result);
+                    $('#response').html(api_response);
                 }
                 $('#response').prepend("<span class=\"btn-pre-copy\">复制代码</span>");
 
+                var unit_test_id = $("select[name='unit_test_id']").val();
+                var ori_ignore_fields = [];
+                if (regTest[unit_test_id]['ignore_fields'] != null && regTest[unit_test_id]['ignore_fields'] != '') {
+                    ori_ignore_fields = (regTest[unit_test_id]['ignore_fields']).split(',');
+                }
+                var ignore_fields = Object.keys(result);
+                for (const key in ignore_fields) {
+                    if (ori_ignore_fields.indexOf(ignore_fields[key]) === -1) {
+                        var option = new Option(ignore_fields[key], ignore_fields[key], false, false);
+                        $("#ignore_fields").append(option);
+                    }
+                }
+                $("#ignore_fields").trigger('change');
             },
             error: function(response) {
                 var errorData = JSON.parse(response.responseText);
@@ -284,14 +333,17 @@
                 "name": "_method",
                 "value": "POST",
             }, {
-                "name": "response_md5",
-                "value": response_md5,
+                "name": "api_response",
+                "value": api_response,
             }, {
                 "name": "type",
                 "value": $(":radio[name=reg-model]:checked").val(),
             }, {
                 "name": "regression_status",
                 "value": Number($("#save_reg_test").prop('checked')),
+            }, {
+                "name": "ignore_fields",
+                "value": $("#ignore_fields").val(),
             });
 
             $.ajax({
@@ -299,6 +351,7 @@
                 type: 'POST',
                 data: data,
                 success: function(response) {
+                    $('#save_unit_test').buttonLoading(false);
                     if (!response.status) {
                         Dcat.error(response.data.message);
                         return false;

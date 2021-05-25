@@ -88,6 +88,7 @@ class CreateApiTestTable extends Migration
             $table->integer('unit_test_id')->default(0)->comment('单元测试id');
             $table->string('response_md5', 32)->default('')->comment('返回值的md5');
             $table->tinyInteger('type')->default(1)->comment('回归模式：1完全匹配 2请求成功');
+            $table->text('ignore_fields')->nullable()->comment('匹配时忽略字段');
             $table->tinyInteger('status')->default(1)->comment('状态：0已删除 1正常');
             $table->timestamps();
 

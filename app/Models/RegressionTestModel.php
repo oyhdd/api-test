@@ -14,6 +14,7 @@ class RegressionTestModel extends BaseModel
         'unit_test_id',
         'response_md5',
         'type',
+        'ignore_fields',
         'status',
     ];
 
