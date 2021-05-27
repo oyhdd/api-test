@@ -253,7 +253,8 @@
 
                 var unit_test_id = $("select[name='unit_test_id']").val();
                 var ori_ignore_fields = [];
-                if (regTest[unit_test_id]['ignore_fields'] != null && regTest[unit_test_id]['ignore_fields'] != '') {
+
+                if (regTest[unit_test_id] != null && regTest[unit_test_id]['ignore_fields'] != null && regTest[unit_test_id]['ignore_fields'] != '') {
                     ori_ignore_fields = (regTest[unit_test_id]['ignore_fields']).split(',');
                 }
                 var ignore_fields = Object.keys(result);

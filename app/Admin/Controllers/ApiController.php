@@ -7,8 +7,8 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Admin;
-use App\Models\{ApiModel, UnitTestModel, ProjectModel, BaseModel};
-use Dcat\Admin\Layout\Content;
+use App\Models\{UnitTestModel, ProjectModel, BaseModel};
+use App\Admin\Actions\Grid\CopyApi;
 
 class ApiController extends AdminController
 {
@@ -39,7 +39,8 @@ class ApiController extends AdminController
             $grid->column('updated_at')->sortable();
 
             $grid->actions(function ($actions) {
-                $actions->prepend("<a href='/admin/run/{$this->getKey()}'><i title='运行' class='fa fa-paper-plane grid-action-icon'></i>&nbsp; </a>");
+                $actions->prepend("&nbsp; <a href='/admin/run/{$this->getKey()}'><i title='运行' class='fa fa-paper-plane grid-action-icon'></i>&nbsp; </a>");
+                $actions->prepend(new CopyApi());
             });
 
             $grid->filter(function (Grid\Filter $filter) {

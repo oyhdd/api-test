@@ -14,7 +14,7 @@ use App\Models\ApiModel;
 class RegressionTestController extends AdminController
 {
     protected $description = [
-        'create' => '建议从接口在线运行界面添加',
+        'create' => '建议从接口调试界面添加',
     ];
     /**
      * Make a grid builder.

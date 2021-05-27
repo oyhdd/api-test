@@ -200,6 +200,13 @@
 <script src="/js/json-viewer.js"></script>
 <script type="text/javascript">
     Dcat.ready(function() {
+        $(".nav-item a").each(function() {
+            var url = $(this).attr('href');
+            if (url != undefined && url.indexOf('/admin/run') != -1) {
+                $(this).addClass('active');
+            }
+        })
+
         let projectIds = <?php echo json_encode($projectIds) ?>;
         let api_url = '<?php echo $model->url ?>';
 

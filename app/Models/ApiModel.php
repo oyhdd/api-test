@@ -8,6 +8,21 @@ class ApiModel extends BaseModel
 {
     protected $table = 'api';
 
+    protected $fillable = [
+        'project_id',
+        'name',
+        'url',
+        'method',
+        'desc',
+        'header',
+        'body',
+        'request_example',
+        'response_example',
+        'response_desc',
+        'alarm_enable',
+        'status',
+    ];
+
     public function project()
     {
         return $this->belongsTo(ProjectModel::class, 'project_id', 'id');
