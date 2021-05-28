@@ -2,11 +2,10 @@
 
 namespace App\Admin\Repositories;
 
-use App\Models\ApiModel as Model;
+use App\Models\CrontabModel as Model;
 use Dcat\Admin\Repositories\EloquentRepository;
-use Dcat\Admin\Form;
 
-class Api extends EloquentRepository
+class Crontab extends EloquentRepository
 {
     /**
      * Model.

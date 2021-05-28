@@ -49,7 +49,6 @@ class RunController extends AdminController
     public function show($id, Content $content)
     {
         Admin::js([
-            '/js/jquery.md5.js',
             '/js/jsbeautify.js',
             '/js/checkutil.js',
             '/js/treeMenu.js',

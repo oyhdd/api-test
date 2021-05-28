@@ -48,6 +48,16 @@ class BaseModel extends Model
     ];
 
     /**
+     * 计划任务类型
+     */
+    const TASK_TYPE_UNIT_TEST        = 1;
+    const TASK_TYPE_INTEGRATION_TEST = 2;
+    public static $label_task_type = [
+        self::TASK_TYPE_UNIT_TEST        => '测试用例',
+        self::TASK_TYPE_INTEGRATION_TEST => '集成测试',
+    ];
+
+    /**
      * 请求方法
      */
     public static $label_request_methods = [

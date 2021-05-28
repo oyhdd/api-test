@@ -42,4 +42,7 @@ Route::group([
     // 集成测试
     $router->resource('integration-test', IntegrationTestController::class);
 
+    // 计划任务
+    $router->resource('crontab', CrontabController::class);
+
 });

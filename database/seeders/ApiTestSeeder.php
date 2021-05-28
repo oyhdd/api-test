@@ -87,6 +87,16 @@ class ApiTestSeeder extends Seeder
                 'show' => 1,
                 'created_at' => $now,
                 'updated_at' => $now
+            ], [
+                'parent_id' => 0,
+                'order' => 1,
+                'title' => '计划任务',
+                'icon' => 'fa-clock-o',
+                'uri' => '/crontab',
+                'extension' => '',
+                'show' => 1,
+                'created_at' => $now,
+                'updated_at' => $now
             ]
         ]);
 

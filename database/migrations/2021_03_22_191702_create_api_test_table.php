@@ -4,7 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Query\Expression;
 
 class CreateApiTestTable extends Migration
 {
@@ -30,7 +29,7 @@ class CreateApiTestTable extends Migration
             $table->index('name');
             $table->index('owner_uid');
         });
-        DB::statement("ALTER TABLE `project` comment 'auto_test 项目表'");
+        DB::statement("ALTER TABLE `project` comment 'api_test 项目表'");
 
         Schema::create('project_user', function (Blueprint $table) {
             $table->integer('project_id')->default(0)->comment('项目id');
@@ -41,7 +40,7 @@ class CreateApiTestTable extends Migration
             $table->index('project_id');
             $table->index('user_id');
         });
-        DB::statement("ALTER TABLE `project_user` comment 'auto_test 项目用户表'");
+        DB::statement("ALTER TABLE `project_user` comment 'api_test 项目用户表'");
 
         Schema::create('api', function (Blueprint $table) {
             $table->increments('id');
@@ -63,7 +62,7 @@ class CreateApiTestTable extends Migration
             $table->index('name');
             $table->index('url');
         });
-        DB::statement("ALTER TABLE `api` comment 'auto_test 接口表'");
+        DB::statement("ALTER TABLE `api` comment 'api_test 接口表'");
 
         Schema::create('unit_test', function (Blueprint $table) {
             $table->increments('id');
@@ -79,13 +78,13 @@ class CreateApiTestTable extends Migration
             $table->index('api_id');
             $table->index('name');
         });
-        DB::statement("ALTER TABLE `unit_test` comment 'auto_test 单元测试表'");
+        DB::statement("ALTER TABLE `unit_test` comment 'api_test 测试用例表'");
 
         Schema::create('regression_test', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('project_id')->default(0)->comment('项目id');
             $table->integer('api_id')->default(0)->comment('接口id');
-            $table->integer('unit_test_id')->default(0)->comment('单元测试id');
+            $table->integer('unit_test_id')->default(0)->comment('测试用例id');
             $table->string('response_md5', 32)->default('')->comment('返回值的md5');
             $table->tinyInteger('type')->default(1)->comment('回归模式：1完全匹配 2请求成功');
             $table->text('ignore_fields')->nullable()->comment('匹配时忽略字段');
@@ -102,7 +101,7 @@ class CreateApiTestTable extends Migration
             $table->increments('id');
             $table->integer('project_id')->default(0)->comment('项目id');
             $table->integer('parent_id')->default(0)->comment('父id');
-            $table->integer('unit_test_id')->default(0)->comment('单元测试id');
+            $table->integer('unit_test_id')->default(0)->comment('测试用例id');
             $table->string('name', 64)->default('')->comment('用例名称');
             $table->tinyInteger('status')->default(1)->comment('状态：0已删除 1正常');
             $table->timestamps();
@@ -112,7 +111,25 @@ class CreateApiTestTable extends Migration
             $table->index('unit_test_id');
             $table->index('name');
         });
-        DB::statement("ALTER TABLE `integration_test` comment 'auto_test 集成测试表'");
+
+        DB::statement("ALTER TABLE `integration_test` comment 'api_test 集成测试表'");
+
+        Schema::create('crontab', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('project_id')->default(0)->comment('项目id');
+            $table->string('title', 64)->comment('任务名称');
+            $table->string('desc', 255)->default('')->comment('任务描述');
+            $table->tinyInteger('task_type')->default(1)->comment('任务类型：1测试用例 2集成测试');
+            $table->text('task_value')->nullable()->comment('任务id');
+            $table->string('crontab', 32)->default('* * * * *')->comment('crontab: * * * * *');
+            $table->tinyInteger('status')->default(1)->comment('状态：0已删除 1正常');
+            $table->timestamp('last_time')->nullable()->comment('上次执行时间');
+            $table->timestamps();
+
+            $table->index('title');
+            $table->index('last_time');
+        });
+        DB::statement("ALTER TABLE `crontab` comment 'api_test 计划任务'");
     }
 
     /**
