@@ -2,13 +2,13 @@
 
 namespace App\Admin\Forms;
 
+use App\Admin\Controllers\AdminController;
 use App\Models\ApiModel;
 use App\Models\BaseModel;
 use App\Models\ProjectModel;
 use Dcat\Admin\Widgets\Form;
 use Dcat\Admin\Traits\LazyWidget;
 use Dcat\Admin\Contracts\LazyRenderable;
-use Dcat\Admin\Admin;
 
 class CopyApi extends Form implements LazyRenderable
 {
@@ -39,12 +39,7 @@ class CopyApi extends Form implements LazyRenderable
      */
     public function form()
     {
-        if (!Admin::user()->isAdministrator()) {
-            $projectList = ProjectModel::getProjectList(Admin::user()->id)->pluck('name', 'id');
-        } else {
-            $projectList = ProjectModel::getAll()->pluck('name', 'id');
-        }
-        $this->select('project_id', '项目id')->options($projectList)->required();
+        $this->select('project_id')->options(ProjectModel::getAll()->pluck('name', 'id'))->default(AdminController::getProjectId())->disable();
         $this->text('name')->required();
         $this->text('url', '接口地址');
         $this->switch('alarm_enable');

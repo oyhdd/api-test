@@ -33,13 +33,8 @@ class ProjectController extends AdminController
             $grid->column('owner.name', '项目负责人');
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
-        
-            $grid->filter(function (Grid\Filter $filter) {
-                $filter->padding(0, 0, '20px')->panel();
 
-                $filter->like('name', '项目名')->width(6);
-                $filter->equal('alarm_enable', '是否告警')->select(BaseModel::$label_yes_or_no)->width(6);
-            });
+            $grid->disableFilter();
         });
     }
 

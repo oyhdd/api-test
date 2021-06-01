@@ -132,9 +132,12 @@ class BaseModel extends Model
      * @param  int      $user_id
      * @return array
      */
-    public static function getApiIds(int $user_id): array
+    public static function getApiIds(int $user_id, int $project_id = 0): array
     {
-        $project_ids = self::getProjectIds($user_id);
+        $project_ids = [$project_id];
+        if (empty($project_id)) {
+            $project_ids = self::getProjectIds($user_id);
+        }
         $apiIds = ApiModel::whereIn('project_id', $project_ids)->where('status', self::STATUS_NORMAL)->get('id')->toArray();
         return array_column($apiIds, 'id');
     }

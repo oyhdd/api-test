@@ -31,9 +31,9 @@ class ApiModel extends BaseModel
     /**
      * 获取用户的接口列表
      */
-    public static function getApiList(int $user_id)
+    public static function getApiList(int $user_id, int $project_id = 0)
     {
-        $apiIds = self::getApiIds($user_id);
+        $apiIds = self::getApiIds($user_id, $project_id);
         return self::whereIn('id', $apiIds)->where(['status' => self::STATUS_NORMAL])->get();
     }
 
@@ -49,12 +49,17 @@ class ApiModel extends BaseModel
 
     public function getNavItems()
     {
-        if (!Admin::user()->isAdministrator()) {
-            $project_ids = self::getProjectIds(Admin::user()->id);
-        } else {
-            $project_ids = ProjectModel::getAll()->pluck('id')->toArray();
+        $project_id = request()->session()->get('project_id', 0);
+        if (empty($project_id)) {
+            if (!Admin::user()->isAdministrator()) {
+                $projectList = ProjectModel::getProjectList(Admin::user()->id)->pluck('name', 'id')->toArray();
+            } else {
+                $projectList = ProjectModel::getAll()->pluck('name', 'id')->toArray();
+            }
+            $project_id = key($projectList);
         }
-        $apiLists = ApiModel::getAll()->whereIn('project_id', $project_ids);
+
+        $apiLists = ApiModel::getAll(['project_id' => $project_id]);
 
         $list = $navItems = [];
         foreach ($apiLists as $api) {

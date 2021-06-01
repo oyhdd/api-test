@@ -23,22 +23,14 @@ class UnitTestController extends AdminController
     protected function grid()
     {
         return Grid::make(UnitTest::with(['project', 'api']), function (Grid $grid) {
-            if (!Admin::user()->isAdministrator()) {
-                $project_ids = BaseModel::getProjectIds(Admin::user()->id);
-            } else {
-                $project_ids = ProjectModel::getAll()->pluck('id');
-            }
-            $grid->model()->whereIn('project_id', $project_ids)->where(['status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
+            $grid->model()->where(['project_id' => self::getProjectId(), 'status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
-            $grid->column('project.name', '项目')->link(function () {
-                return admin_url('project/' . $this->project_id);
-            })->label('info');
             $grid->column('api.name', '接口名称')->link(function () {
                 return admin_url('api/' . $this->api_id);
-            })->label('warning');
+            })->label('info');
             $grid->column('name')->sortable();
-            $grid->column('api.method', '请求方法')->label();
+            $grid->column('api.method', '请求方法');
             $grid->column('api.url', '接口地址');
             $grid->column('updated_at')->sortable();
 
@@ -49,22 +41,14 @@ class UnitTestController extends AdminController
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->padding(0, 0, '20px')->panel();
 
-                if (!Admin::user()->isAdministrator()) {
-                    $projectList = ProjectModel::getProjectList(Admin::user()->id)->pluck('name', 'id');
-                    $apiList = ApiModel::getApiList(Admin::user()->id);
-                } else {
-                    $projectList = ProjectModel::getAll()->pluck('name', 'id');
-                    $apiList = ApiModel::getAll();
-                }
+                $apiList = ApiModel::getAll(['project_id' => self::getProjectId()]);
                 $apiList = $apiList->flatMap(function ($item) {
                     $item->name .= ": " . $item->url;
                     return [$item];
                 })->toArray();
                 $apiList = array_column($apiList, 'name', 'id');
-                $filter->equal('project_id')->select($projectList)->width(6);
                 $filter->equal('api_id')->select($apiList)->width(6);
                 $filter->like('name')->width(6);
-                $filter->equal('api.alarm_enable', '是否告警')->select(BaseModel::$label_yes_or_no)->width(6);
             });
         });
     }
@@ -103,17 +87,17 @@ class UnitTestController extends AdminController
     protected function detail($id)
     {
         return Show::make($id, UnitTest::with(['project', 'api']), function (Show $show) {
-            $show->field('id');
-            $show->field('project.name', '项目')->label('info');
-            $show->field('name');
+            $show->field('id')->width(10);
+            $show->field('project.name', '项目')->label('info')->width(10);
+            $show->field('name')->width(10);
             $show->header()->as(function ($header) {
                 return BaseModel::getParamTable($this->formatTableData($header));
-            })->unescape();
+            })->unescape()->width(10);
             $show->body()->as(function ($body) {
                 return BaseModel::getParamTable($this->formatTableData($body));
-            })->unescape();
-            $show->field('created_at');
-            $show->field('updated_at');
+            })->unescape()->width(10);
+            $show->field('created_at')->width(10);
+            $show->field('updated_at')->width(10);
 
             $show->panel()->title('测试用例详情');
         });
@@ -172,17 +156,13 @@ class UnitTestController extends AdminController
     protected function form($id = 0)
     {
         return Form::make(new UnitTest(), function (Form $form) use ($id) {
-            if (!Admin::user()->isAdministrator()) {
-                $projectList = ProjectModel::getProjectList(Admin::user()->id)->pluck('name', 'id');
-            } else {
-                $projectList = ProjectModel::getAll()->pluck('name', 'id');
-            }
             $form->display('id');
 
             if ($id <= 0) {
                 $form->select('project_id', '项目')
-                    ->options($projectList)
-                    ->required()
+                    ->options(ProjectModel::getAll()->pluck('name', 'id'))
+                    ->default(self::getProjectId())
+                    ->disable()
                     ->load('api_id', "/project/api-list");
                 $form->select('api_id', '接口')->options([])->required();
             }

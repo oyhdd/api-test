@@ -19,18 +19,10 @@ class ApiController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(Api::with(['project']), function (Grid $grid) {
-            if (!Admin::user()->isAdministrator()) {
-                $project_ids = BaseModel::getProjectIds(Admin::user()->id);
-            } else {
-                $project_ids = ProjectModel::getAll()->pluck('id');
-            }
-            $grid->model()->whereIn('project_id', $project_ids)->where(['status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
+        return Grid::make(new Api(), function (Grid $grid) {
+            $grid->model()->where(['project_id' => self::getProjectId(), 'status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
-            $grid->column('project.name', '项目')->link(function () {
-                return admin_url('project/'.$this->project_id);
-            })->label('info');
             $grid->column('name')->sortable();
             $grid->column('url');
             $grid->column('method')->sortable();
@@ -45,15 +37,8 @@ class ApiController extends AdminController
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->padding(0, 0, '20px')->panel();
-
-                if (!Admin::user()->isAdministrator()) {
-                    $projectList = ProjectModel::getProjectList(Admin::user()->id)->pluck('name', 'id');
-                } else {
-                    $projectList = ProjectModel::getAll()->pluck('name', 'id');
-                }
-                $filter->in('project_id')->multipleSelect($projectList)->width(6);
-                $filter->equal('alarm_enable', '是否告警')->select(BaseModel::$label_yes_or_no)->width(6);
                 $filter->like('name')->width(6);
+                $filter->equal('alarm_enable', '是否告警')->select(BaseModel::$label_yes_or_no)->width(6);
                 $filter->like('url')->width(6);
             });
         });
@@ -101,14 +86,8 @@ class ApiController extends AdminController
     {
         return Form::make(new Api(), function (Form $form) {
 
-            if (!Admin::user()->isAdministrator()) {
-                $projectList = ProjectModel::getProjectList(Admin::user()->id)->pluck('name', 'id');
-            } else {
-                $projectList = ProjectModel::getAll()->pluck('name', 'id');
-            }
-
             $form->display('id');
-            $form->select('project_id')->options($projectList)->required();
+            $form->select('project_id')->options(ProjectModel::getAll()->pluck('name', 'id'))->default(self::getProjectId())->disable();
             $form->text('name')->required();
             $form->text('url');
             $form->switch('alarm_enable');

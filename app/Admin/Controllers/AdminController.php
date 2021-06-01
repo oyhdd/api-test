@@ -2,7 +2,11 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\BaseModel;
+use App\Models\ProjectModel;
+use Dcat\Admin\Admin;
 use Dcat\Admin\Layout\Content;
+use Dcat\Admin\Widgets\Alert;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -80,6 +84,7 @@ class AdminController extends Controller
      */
     public function show($id, Content $content)
     {
+        $id = $this->switchId($id);
         return $content
             ->title($this->title())
             ->description($this->description()['show'] ?? trans('admin.show'))
@@ -96,6 +101,7 @@ class AdminController extends Controller
      */
     public function edit($id, Content $content)
     {
+        $id = $this->switchId($id);
         return $content
             ->title($this->title())
             ->description($this->description()['edit'] ?? trans('admin.edit'))
@@ -181,5 +187,59 @@ class AdminController extends Controller
         }
 
         return response()->json($data);
+    }
+
+    // 获取当前的项目id
+    public static function getProjectId()
+    {
+        $project_id = request()->session()->get('project_id', 0);
+        if (!empty($project_id)) {
+            return $project_id;
+        }
+
+        if (!Admin::user()->isAdministrator()) {
+            $projectList = ProjectModel::getProjectList(Admin::user()->id)->pluck('name', 'id')->toArray();
+        } else {
+            $projectList = ProjectModel::getAll()->pluck('name', 'id')->toArray();
+        }
+        return key($projectList);
+    }
+
+    // 获取当前的项目
+    public static function getProject()
+    {
+        $project_id = request()->session()->get('project_id', 0);
+        if (!empty($project_id)) {
+            return ProjectModel::getOne(['id' => $project_id]);
+        }
+
+        if (!Admin::user()->isAdministrator()) {
+            $projectList = ProjectModel::getProjectList(Admin::user()->id);
+        } else {
+            $projectList = ProjectModel::getAll();
+        }
+
+        return $projectList->first();
+    }
+
+    protected function switchId($id)
+    {
+        $has_permission = true;
+        if ($this instanceof \App\Admin\Controllers\ApiController) {
+            $apiIds = BaseModel::getApiIds(Admin::user()->id);
+            if (!in_array($id, $apiIds)) {
+                $has_permission = false;
+            }
+        } elseif ($this instanceof \App\Admin\Controllers\ProjectController) {
+            $id = self::getProjectId();
+        }
+
+        if (!$has_permission) {
+            admin_exit(
+                Content::make()->body(Alert::make('无权访问此页面~', '无权访问')->danger())
+            );
+        }
+
+        return $id;
     }
 }

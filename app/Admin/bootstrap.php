@@ -35,3 +35,8 @@ if (in_array('cool-mode', config('admin.layout.body_class'))) {
     Admin::css('/css/cool-mode.css');
 }
 
+Admin::navbar(function (\Dcat\Admin\Layout\Navbar $navbar) {
+
+    $navbar->right(view('navbar.navbar'));
+
+});

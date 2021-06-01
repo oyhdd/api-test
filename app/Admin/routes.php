@@ -13,6 +13,7 @@ Route::group([
 ], function (Router $router) {
 
     $router->get('/', 'HomeController@index');
+    $router->post('/change-project', 'HomeController@changeProject');
 
     $router->get('auth/login', 'AuthController@getLogin');
 
