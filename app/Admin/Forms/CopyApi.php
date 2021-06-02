@@ -39,25 +39,25 @@ class CopyApi extends Form implements LazyRenderable
      */
     public function form()
     {
-        $this->select('project_id')->options(ProjectModel::getAll()->pluck('name', 'id'))->default(AdminController::getProjectId())->disable();
+        $this->select('project_id', '项目')->options(ProjectModel::getAll()->pluck('name', 'id'));
         $this->text('name')->required();
         $this->text('url', '接口地址');
         $this->switch('alarm_enable');
-        $this->select('method')->options(BaseModel::$label_request_methods)->default('GET')->required();
+        $this->select('method')->options(BaseModel::$label_request_methods)->required();
         $this->textarea('desc', '描述');
         $this->fieldset('参数设置', function ($model) {
             $model->table('header', '请求头', function ($table) {
                 $table->text('key', '参数名')->required();
-                $table->text('type', '参数类型')->default('string');
-                $table->radio('is_necessary', '是否必填')->options(BaseModel::$label_yes_or_no)->default(BaseModel::NO);
+                $table->text('type', '参数类型');
+                $table->radio('is_necessary', '是否必填')->options(BaseModel::$label_yes_or_no);
                 $table->text('desc', '参数说明');
             })->saving(function ($v) {
                 return json_encode($v);
             });
             $model->table('body', '请求体', function ($table) {
                 $table->text('key', '参数名')->required();
-                $table->text('type', '参数类型')->default('string');
-                $table->radio('is_necessary', '是否必填')->options(BaseModel::$label_yes_or_no)->default(BaseModel::NO);
+                $table->text('type', '参数类型');
+                $table->radio('is_necessary', '是否必填')->options(BaseModel::$label_yes_or_no);
                 $table->text('desc', '参数说明');
             })->saving(function ($v) {
                 return json_encode($v);

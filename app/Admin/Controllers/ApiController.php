@@ -119,6 +119,9 @@ class ApiController extends AdminController
 
             $form->saving(function (Form $form) {
                 $form->url = "/" . ltrim($form->url ?? '', "/");
+                if ($form->isCreating()) {
+                    $form->project_id = self::getProjectId();
+                }
             });
             $form->footer(function ($footer) {
                 $footer->disableViewCheck()->disableEditingCheck()->disableCreatingCheck();
