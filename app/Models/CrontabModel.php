@@ -24,4 +24,9 @@ class CrontabModel extends BaseModel
     {
         return $this->belongsTo(ProjectModel::class, 'project_id', 'id');
     }
+
+    public function setTaskValueAttribute($value)
+    {
+        $this->attributes['task_value'] = json_encode(array_values($value));
+    }
 }

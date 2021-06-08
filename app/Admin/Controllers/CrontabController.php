@@ -24,18 +24,10 @@ class CrontabController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(Crontab::with(['project']), function (Grid $grid) {
-            if (!Admin::user()->isAdministrator()) {
-                $project_ids = BaseModel::getProjectIds(Admin::user()->id);
-            } else {
-                $project_ids = ProjectModel::getAll()->pluck('id');
-            }
-            $grid->model()->whereIn('project_id', $project_ids)->where(['status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
+        return Grid::make(new Crontab(), function (Grid $grid) {
+            $grid->model()->where(['project_id' => self::getProjectId(), 'status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
-            $grid->column('project.name', '项目')->link(function () {
-                return admin_url('project/'.$this->project_id);
-            })->label('info');
             $grid->column('title')->sortable();
             $grid->column('desc')->limit(40);
             $grid->column('task_type')->display(function($task_type) {
@@ -47,12 +39,6 @@ class CrontabController extends AdminController
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->padding(0, 0, '20px')->panel();
 
-                if (!Admin::user()->isAdministrator()) {
-                    $projectList = ProjectModel::getProjectList(Admin::user()->id)->pluck('name', 'id');
-                } else {
-                    $projectList = ProjectModel::getAll()->pluck('name', 'id');
-                }
-                $filter->in('project_id')->multipleSelect($projectList)->width(6);
                 $filter->like('title')->width(6);
                 $filter->equal('task_type')->select(BaseModel::$label_task_type)->width(6);
             });
@@ -71,7 +57,9 @@ class CrontabController extends AdminController
     protected function form()
     {
         return Form::make(new Crontab(), function (Form $form) {
+
             $form->display('id');
+            $form->select('project_id')->options(ProjectModel::getAll()->pluck('name', 'id'))->default(self::getProjectId())->disable();
             $form->text('title');
             $form->textarea('desc');
 
@@ -80,7 +68,7 @@ class CrontabController extends AdminController
                 // 异步加载测试用例
                 $form->multipleSelectTable('task_value')
                 ->title('选择测试用例')
-                ->from(UnitTest::make())
+                ->from(UnitTest::make(['id' => $form->getKey()]))
                 ->model(UnitTestModel::class, 'id', 'name');
             })
             ->when(BaseModel::TASK_TYPE_INTEGRATION_TEST, function (Form $form) {
@@ -98,6 +86,9 @@ class CrontabController extends AdminController
                 if ($form->task_type == BaseModel::TASK_TYPE_INTEGRATION_TEST) {
                     $task_value = $form->task_value_integration_test;
                     $form->input('task_value', $task_value);
+                }
+                if ($form->isCreating()) {
+                    $form->project_id = self::getProjectId();
                 }
                 $form->deleteInput('task_value_integration_test');
             });
