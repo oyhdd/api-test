@@ -83,6 +83,7 @@ class CreateApiTestTable extends Migration
         Schema::create('regression_test', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('project_id')->default(0)->comment('项目id');
+            $table->string('domain', 64)->default('')->comment('域名');
             $table->integer('api_id')->default(0)->comment('接口id');
             $table->integer('unit_test_id')->default(0)->comment('测试用例id');
             $table->string('response_md5', 32)->default('')->comment('返回值的md5');

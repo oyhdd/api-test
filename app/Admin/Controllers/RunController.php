@@ -135,7 +135,6 @@ class RunController extends AdminController
             'message' => '回归测试失败，请重试！',
             'data' => [],
         ];
-        $list = ApiModel::getRegressList();
         $list = $this->request->input('api');
         
         if (!Admin::user()->isAdministrator()) {
@@ -194,7 +193,7 @@ class RunController extends AdminController
                 $total_api ++;
                 // 回归测试列表
                 foreach ($api->regTest as $key => $regTest) {
-                    if (in_array($api->method, BaseModel::$label_request_methods)) {
+                    if (in_array($api->method, BaseModel::$label_request_methods) && $regTest->domain == $item['domain']) {
                         $body = json_decode($regTest->unitTest->body, true);
                         $headers = json_decode($regTest->unitTest->header, true);
                         if (empty($body)) {

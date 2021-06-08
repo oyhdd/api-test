@@ -10,6 +10,7 @@ class RegressionTestModel extends BaseModel
 
     protected $fillable = [
         'project_id',
+        'domain',
         'api_id',
         'unit_test_id',
         'response_md5',
@@ -44,7 +45,7 @@ class RegressionTestModel extends BaseModel
             $params['type'] = RegressionTestModel::REG_TYPE_ALL;
         }
 
-        $model = RegressionTestModel::where(['unit_test_id' => $params['unit_test_id']])->first();
+        $model = RegressionTestModel::where(['unit_test_id' => $params['unit_test_id'], 'domain' => $params['domain']])->first();
         if (empty($model)) {
             $model = new RegressionTestModel();
             $params['status'] = RegressionTestModel::STATUS_NORMAL;
