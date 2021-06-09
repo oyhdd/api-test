@@ -41,4 +41,16 @@ class ProjectModel extends BaseModel
     {
         $this->attributes['alarm_param'] = json_encode(array_values($value));
     }
+
+    public function getDomainAttribute($value)
+    {
+        return array_values(@json_decode($value, true) ?: []);
+    }
+
+    public static function getDomainByKey($id, $domain_key)
+    {
+        $domain = self::getOne(['id' => $id])->value('domain');
+        $domain = array_column($domain, 'value', 'key');
+        return rtrim($domain[$domain_key] ?? '', '/');
+    }
 }

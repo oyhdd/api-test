@@ -84,7 +84,7 @@ class AdminController extends Controller
      */
     public function show($id, Content $content)
     {
-        $id = $this->switchId($id);
+        $this->hasPermission($id);
         return $content
             ->title($this->title())
             ->description($this->description()['show'] ?? trans('admin.show'))
@@ -101,7 +101,7 @@ class AdminController extends Controller
      */
     public function edit($id, Content $content)
     {
-        $id = $this->switchId($id);
+        $this->hasPermission($id);
         return $content
             ->title($this->title())
             ->description($this->description()['edit'] ?? trans('admin.edit'))
@@ -132,6 +132,7 @@ class AdminController extends Controller
      */
     public function update($id)
     {
+        $this->hasPermission($id);
         return $this->form()->update($id);
     }
 
@@ -167,6 +168,7 @@ class AdminController extends Controller
 
             $ids = explode(",", $ids);
             foreach ($ids as $id) {
+                $this->hasPermission($id);
                 $model = $this->form()->repository()->model()->findOrFail($id);
                 if (isset($model->status)) {
                     $model->status = $model::STATUS_DELETED;
@@ -222,16 +224,29 @@ class AdminController extends Controller
         return $projectList->first();
     }
 
-    protected function switchId($id)
+    /**
+     * 权限判断
+     * @param int $id
+     * @param bool $has_permission
+     */
+    protected function hasPermission($id, $has_permission = true)
     {
-        $has_permission = true;
-        if ($this instanceof \App\Admin\Controllers\ApiController) {
-            $apiIds = BaseModel::getApiIds(Admin::user()->id);
-            if (!in_array($id, $apiIds)) {
-                $has_permission = false;
+        try {
+            $model = $this->form()->repository()->model()->findOrFail($id);
+            if (isset($model->project_id)) {
+                if (!Admin::user()->isAdministrator()) {
+                    $projectList = ProjectModel::getProjectList(Admin::user()->id)->pluck('name', 'id')->toArray();
+                } else {
+                    $projectList = ProjectModel::getAll()->pluck('name', 'id')->toArray();
+                }
+                if (!isset($projectList[$model->project_id])) {
+                    $has_permission = false;
+                }
             }
-        } elseif ($this instanceof \App\Admin\Controllers\ProjectController) {
-            $id = self::getProjectId();
+        } catch (\Throwable $th) {
+            admin_exit(
+                Content::make()->body(Alert::make($th->getMessage(), '服务器错误')->danger())
+            );
         }
 
         if (!$has_permission) {
@@ -239,7 +254,5 @@ class AdminController extends Controller
                 Content::make()->body(Alert::make('无权访问此页面~', '无权访问')->danger())
             );
         }
-
-        return $id;
     }
 }

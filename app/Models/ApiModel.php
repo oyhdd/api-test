@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Dcat\Admin\Admin;
+use App\Admin\Controllers\AdminController;
 
 class ApiModel extends BaseModel
 {
@@ -49,16 +49,7 @@ class ApiModel extends BaseModel
 
     public function getNavItems()
     {
-        $project_id = request()->session()->get('project_id', 0);
-        if (empty($project_id)) {
-            if (!Admin::user()->isAdministrator()) {
-                $projectList = ProjectModel::getProjectList(Admin::user()->id)->pluck('name', 'id')->toArray();
-            } else {
-                $projectList = ProjectModel::getAll()->pluck('name', 'id')->toArray();
-            }
-            $project_id = key($projectList);
-        }
-
+        $project_id = AdminController::getProjectId();
         $apiLists = ApiModel::getAll(['project_id' => $project_id]);
 
         $list = $navItems = [];
@@ -92,12 +83,7 @@ class ApiModel extends BaseModel
      */
     public static function getRegressList()
     {
-        if (!Admin::user()->isAdministrator()) {
-            $project_ids = self::getProjectIds(Admin::user()->id);
-        } else {
-            $project_ids = ProjectModel::getAll()->pluck('id')->toArray();
-        }
-        $apiLists = ApiModel::getAll()->whereIn('project_id', $project_ids);
+        $apiLists = ApiModel::getAll(['project_id' => AdminController::getProjectId()]);
 
         $regressList = RegressionTestModel::getAll([], ['api_id'])->toArray();
         $apiIds = array_unique(array_column($regressList, 'api_id'));
@@ -108,10 +94,12 @@ class ApiModel extends BaseModel
                 continue;
             }
             if (!isset($list[$api->project->id])) {
+                $domain = array_column($api->project->domain, 'value', 'key');
+
                 $list[$api->project->id] = [
                     'id' => $api->project->id,
                     'name' => $api->project->name,
-                    'domain' => [$api->project->domain_text, $api->project->domain_prod],
+                    'domain' => $domain,
                     'apiList' => [[
                         'id' => $api->id,
                         'name' => $api->name,
@@ -134,13 +122,6 @@ class ApiModel extends BaseModel
         return $list;
     }
 
-    public function getDomainOptions()
-    {
-        return [
-            $this->project->domain_text => $this->project->domain_text,
-            $this->project->domain_prod => $this->project->domain_prod,
-        ];
-    }
 
     public function getHeaderAttribute($value)
     {

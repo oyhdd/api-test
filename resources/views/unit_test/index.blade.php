@@ -50,6 +50,9 @@
                     $projectIds = array_keys($regressList);
                 @endphp
 
+                @if (empty($regressList))
+                    <pre>当前无可用的回归测试用例，请先添加回归测试用例.</pre>
+                @endif
                 @foreach($regressList as $project)
                 <div class="panel">
                     <div class="panel-heading bg-white">
@@ -189,7 +192,7 @@
             </div>
             <div id="tab2" class="tab_content" style="display: none; ">
                 @php
-                    echo view('unit_test._debug', [
+                    echo view('unit_test.debug', [
                         'model' => $model
                     ]);
                 @endphp
@@ -364,11 +367,13 @@
                         $("#total_api").html(retData.data.total_api);
                         $("#total_unit").html(retData.data.total_unit);
                         if (retData.data.success_count < retData.data.total_unit) {
+                            $("#success_count").parent().removeClass("bg-success");
                             $("#success_count").parent().addClass("bg-danger")
                         } else {
+                            $("#success_count").parent().removeClass("bg-danger");
                             $("#success_count").parent().addClass("bg-success");
                         }
-                            $("#success_count").html(retData.data.success_count + " / " + retData.data.total_unit);
+                        $("#success_count").html(retData.data.success_count + " / " + retData.data.total_unit);
                         $('#start_regression_test_time').empty().html('回归测试已完成！');
 
                         var html = "";

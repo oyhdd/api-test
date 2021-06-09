@@ -48,6 +48,16 @@ class BaseModel extends Model
     ];
 
     /**
+     * 环境
+     */
+    const DOMAIN_TYPE_TEST = 1;
+    const DOMAIN_TYPE_PROD = 2;
+    public static $label_domain_type = [
+        self::DOMAIN_TYPE_TEST => '测试环境',
+        self::DOMAIN_TYPE_PROD => '正式环境',
+    ];
+
+    /**
      * 计划任务类型
      */
     const TASK_TYPE_UNIT_TEST        = 1;
@@ -157,13 +167,15 @@ class BaseModel extends Model
         return parent::setAttribute($key, $value);
     }
 
-    public static function getParamTable($params = [])
+    public static function getParamTable($params = [], $headerLabels = [])
     {
         if (empty($params)) {
             return '';
         }
 
-        $headerLabels = ['key' => '参数名', 'type' => '类型', 'is_necessary' => '必填', 'desc' => '备注', 'value' => '参数值'];
+        if (empty($headerLabels)) {
+            $headerLabels = ['key' => '参数名', 'type' => '类型', 'is_necessary' => '必填', 'desc' => '备注', 'value' => '参数值'];
+        }
         $headers = array_intersect_key($headerLabels, $params[0]);
 
         $body = array_map(function($item){

@@ -6,6 +6,7 @@ return [
     ],
     'fields' => [
         'project_id' => '项目',
+        'domain' => '域名',
         'title' => '任务名称',
         'desc' => '任务描述',
         'task_type' => '任务类型',

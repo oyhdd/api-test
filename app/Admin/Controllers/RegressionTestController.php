@@ -7,10 +7,12 @@ use App\Models\BaseModel;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
-use Dcat\Admin\Admin;
 use App\Models\ProjectModel;
 use App\Models\ApiModel;
 
+/**
+ * 回归测试
+ */
 class RegressionTestController extends AdminController
 {
     protected $description = [
@@ -23,7 +25,7 @@ class RegressionTestController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(RegressionTest::with(['project', 'api', 'unitTest']), function (Grid $grid) {
+        return Grid::make(RegressionTest::with(['api', 'unitTest']), function (Grid $grid) {
             $grid->model()->where(['project_id' => self::getProjectId(), 'status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
@@ -37,6 +39,7 @@ class RegressionTestController extends AdminController
                 return BaseModel::$label_reg_type[$this->type] ?? '';
             });
             $grid->column('ignore_fields');
+            $grid->column('domain')->limit(60);
             $grid->column('updated_at')->sortable();
 
             $grid->actions(function ($actions) {
@@ -51,9 +54,12 @@ class RegressionTestController extends AdminController
                     $item->name .= ": " . $item->url;
                     return [$item];
                 })->toArray();
+                // $domainList = ProjectModel::getAll(['id' => self::getProjectId()], ['domain_prod', 'domain_text'])->toArray();
+
                 $apiList = array_column($apiList, 'name', 'id');
-                $filter->equal('api_id')->select($apiList)->width(6);
-                $filter->equal('type')->select(BaseModel::$label_reg_type)->width(6);
+                $filter->equal('api_id')->select($apiList)->width(4);
+                // $filter->equal('domain')->select($domainList)->width(4);
+                $filter->equal('type')->select(BaseModel::$label_reg_type)->width(4);
             });
         });
     }

@@ -16,7 +16,9 @@
 <div class="row">
     <div class="col-md-5 col-sm-12">
         @php
-        $regTest = array_column($model->regTest->toArray(), null, 'unit_test_id');
+        $regTest = $model->regTest->toArray();
+        $domain = $model->project->domain;
+        $domainOptions = array_column($model->project->domain, 'value', 'key');
 
         $form = new \Dcat\Admin\Widgets\Form();
         $form->action(request()->fullUrl())->setFormId('run_api')->ajax(false);
@@ -26,7 +28,7 @@
         $form->hidden('method')->default($model->method);
         $form->hidden('project_id')->default($model->project->id);
         $form->hidden('api_id')->default($model->id);
-        $form->select('domain', '运行环境')->options($model->getDomainOptions())->default(current($model->getDomainOptions()))->required();
+        $form->select('domain', '运行环境')->options($domainOptions)->default(key($domainOptions))->required();
         $form->select('unit_test_id', '测试用例')->options(array_column($model->unitTest->toArray(), 'name', "id"));
         $form->divider();
 
@@ -167,6 +169,10 @@
             });
         });
 
+        $("select[name='domain']").change(function() {
+            switchRegression();
+        });
+
         // 自动加载测试用例
         $("select[name='unit_test_id']").change(function() {
             var unit_test_id = $("select[name='unit_test_id']").val();
@@ -192,29 +198,35 @@
 
             $("#unit_test_name").val($("select[name='unit_test_id'] :selected").text());
 
+            switchRegression();
+        });
+
+        function switchRegression() {
+            var unit_test_id = $("select[name='unit_test_id']").val();
             $(".regression-type-all").hide();
             $("#ignore_fields").empty();
-            if (Object.hasOwnProperty.call(regTest, unit_test_id)) {
-                $("#save_reg_test").prop('checked', true);
-                $(".regression-type").show();
-                $(":radio[name='reg-model'][value='" + regTest[unit_test_id]['type'] + "']").prop("checked", true);
-                if (regTest[unit_test_id]['type'] == 1) {
-                    $(".regression-type-all").show();
-                    if (regTest[unit_test_id]['ignore_fields'] != null && regTest[unit_test_id]['ignore_fields'] != '') {
-                        var ignore_fields = (regTest[unit_test_id]['ignore_fields']).split(',');
-                        for (const key in ignore_fields) {
-                            var option = new Option(ignore_fields[key], ignore_fields[key], true, true);
-                            $("#ignore_fields").append(option);
+            $("#save_reg_test").prop('checked', false);
+            $(".regression-type").hide();
+            $(":radio[name='reg-model']").prop("checked", false);
+            for (const key in regTest) {
+                if (regTest[key]['unit_test_id'] == unit_test_id && regTest[key]['domain'] == $("select[name='domain'] :selected").val()) {
+                    $("#save_reg_test").prop('checked', true);
+                    $(".regression-type").show();
+                    $(":radio[name='reg-model'][value='" + regTest[key]['type'] + "']").prop("checked", true);
+                    if (regTest[key]['type'] == 1) {
+                        $(".regression-type-all").show();
+                        if (regTest[key]['ignore_fields'] != null && regTest[key]['ignore_fields'] != '') {
+                            var ignore_fields = (regTest[key]['ignore_fields']).split(',');
+                            for (const key in ignore_fields) {
+                                var option = new Option(ignore_fields[key], ignore_fields[key], true, true);
+                                $("#ignore_fields").append(option);
+                            }
+                            $("#ignore_fields").trigger('change');
                         }
-                        $("#ignore_fields").trigger('change');
                     }
                 }
-            } else {
-                $("#save_reg_test").prop('checked', false);
-                $(".regression-type").hide();
-                $(":radio[name='reg-model']").prop("checked", false);
             }
-        });
+        }
 
         // 运行用例
         $('#run_api').form({

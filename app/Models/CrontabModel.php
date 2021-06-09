@@ -11,6 +11,7 @@ class CrontabModel extends BaseModel
 
     protected $fillable = [
         'project_id',
+        'domain',
         'title',
         'desc',
         'task_type',

@@ -20,8 +20,7 @@ class CreateApiTestTable extends Migration
             $table->string('intro', 128)->default('')->comment('简介');
             $table->tinyInteger('alarm_enable')->default(0)->comment('是否告警 0关闭 1开启');
             $table->text('alarm_param')->nullable()->comment('告警接收者 alarm_email,alarm_sms,alarm_qy_wechat');
-            $table->string('domain_text', 64)->default('')->comment('测试环境域名');
-            $table->string('domain_prod', 64)->default('')->comment('线上环境域名');
+            $table->text('domain')->nullable()->comment('域名');
             $table->integer('owner_uid')->default(0)->comment('负责人id');
             $table->tinyInteger('status')->default(1)->comment('状态：0已删除 1正常');
             $table->timestamps();
@@ -118,6 +117,7 @@ class CreateApiTestTable extends Migration
         Schema::create('crontab', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('project_id')->default(0)->comment('项目id');
+            $table->string('domain', 64)->default('')->comment('域名');
             $table->string('title', 64)->comment('任务名称');
             $table->string('desc', 255)->default('')->comment('任务描述');
             $table->tinyInteger('task_type')->default(1)->comment('任务类型：1测试用例 2集成测试');

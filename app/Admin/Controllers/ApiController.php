@@ -6,10 +6,12 @@ use App\Admin\Repositories\Api;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
-use Dcat\Admin\Admin;
 use App\Models\{UnitTestModel, ProjectModel, BaseModel};
 use App\Admin\Actions\Grid\CopyApi;
 
+/**
+ * 接口管理
+ */
 class ApiController extends AdminController
 {
     /**
@@ -26,7 +28,7 @@ class ApiController extends AdminController
             $grid->column('name')->sortable();
             $grid->column('url');
             $grid->column('method')->sortable();
-            $grid->column('desc')->limit(20);
+            $grid->column('desc')->limit(40);
             $grid->column('alarm_enable')->switch()->sortable();
             $grid->column('updated_at')->sortable();
 

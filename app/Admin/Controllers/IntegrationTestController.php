@@ -7,6 +7,9 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 
+/**
+ * 集成测试
+ */
 class IntegrationTestController extends AdminController
 {
     /**

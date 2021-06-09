@@ -13,6 +13,9 @@ use Dcat\Admin\Layout\Row;
 use Dcat\Admin\Admin;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * 接口管理-测试用例
+ */
 class UnitTestController extends AdminController
 {
     /**
@@ -63,11 +66,12 @@ class UnitTestController extends AdminController
      */
     public function show($id, Content $content)
     {
+        $this->hasPermission($id);
         return $content
             ->title($this->title())
             ->description($this->description()['show'] ?? trans('admin.show'))
             ->row(function (Row $row) use ($id) {
-                $row->column(6, function (Column $column) use ($id)  {
+                $row->column(6, function (Column $column) use ($id) {
                     $model = UnitTestModel::where(['status' => UnitTestModel::STATUS_NORMAL])->findOrFail($id);
                     $column->append($this->apiDetail($model->api_id));
                 });
@@ -135,6 +139,7 @@ class UnitTestController extends AdminController
      */
     public function edit($id, Content $content)
     {
+        $this->hasPermission($id);
         return $content
             ->title($this->title())
             ->description($this->description()['edit'] ?? trans('admin.edit'))

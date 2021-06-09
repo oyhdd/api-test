@@ -9,12 +9,13 @@ use App\Models\BaseModel;
 use App\Models\IntegrationTestModel;
 use App\Models\ProjectModel;
 use App\Models\UnitTestModel;
-use Dcat\Admin\Admin;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
-use Dcat\Admin\Show;
 use Dcat\Admin\Widgets\Table;
 
+/**
+ * 计划任务
+ */
 class CrontabController extends AdminController
 {
     /**
@@ -33,6 +34,7 @@ class CrontabController extends AdminController
             $grid->column('task_type')->display(function($task_type) {
                 return BaseModel::$label_task_type[$task_type] ?? '';
             });
+            $grid->column('domain')->limit(60);
             $grid->column('crontab');
             $grid->column('last_time')->sortable();
 

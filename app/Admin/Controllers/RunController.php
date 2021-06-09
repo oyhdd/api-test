@@ -2,16 +2,21 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Repositories\Api;
 use Dcat\Admin\Admin;
 use App\Models\ApiModel;
 use App\Models\BaseModel;
 use App\Models\ProjectModel;
+use Dcat\Admin\Form;
 use Dcat\Admin\Layout\Content;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use GuzzleHttp\Exception\RequestException;
 
+/**
+ * 接口调试
+ */
 class RunController extends AdminController
 {
     /**
@@ -23,12 +28,7 @@ class RunController extends AdminController
      */
     public function index(Content $content)
     {
-        if (!Admin::user()->isAdministrator()) {
-            $apiList = ApiModel::getApiList(Admin::user()->id)->pluck('id')->toArray();
-        } else {
-            $project_ids = ProjectModel::getAll()->pluck('id');
-            $apiList = ApiModel::getAll()->whereIn('project_id', $project_ids)->pluck('id')->toArray();
-        }
+        $apiList = ApiModel::getAll(['project_id' => AdminController::getProjectId()])->pluck('id')->toArray();
         if ($api_id = current($apiList)) {
             return redirect(admin_url('run/'.$api_id));
         }
@@ -48,6 +48,7 @@ class RunController extends AdminController
      */
     public function show($id, Content $content)
     {
+        $this->hasPermission($id);
         Admin::js([
             '/js/jsbeautify.js',
             '/js/checkutil.js',
@@ -67,7 +68,12 @@ class RunController extends AdminController
      */
     public function update($id)
     {
-        $domain = $this->request->input('domain');
+        $project_id = $this->request->input('project_id');
+        $domain_key = $this->request->input('domain');
+        if (empty($domain_key)) {
+            return admin_toastr('请选择运行环境');
+        }
+        $domain = ProjectModel::getDomainByKey($project_id, $domain_key);
         $url = $this->request->input('url');
         $method = $this->request->input('method');
         $header = unset_null($this->request->input('header', []));
@@ -144,11 +150,13 @@ class RunController extends AdminController
         }
 
         $projectIds = array_intersect($projectIds, array_keys($list));
-        $projectList = ProjectModel::getAll()->whereIn('id', $projectIds)->pluck('name', 'id')->toArray();
+        $projectList = ProjectModel::getAll()->whereIn('id', $projectIds)->toArray();
+        $projectList = array_column($projectList, null, 'id');
 
         foreach ($list as $project_id => $value) {
             $list[$project_id]['project_id'] = $project_id;
-            $list[$project_id]['project_name'] = $projectList[$project_id];
+            $list[$project_id]['project_name'] = $projectList[$project_id]['name'];
+            $list[$project_id]['domain_list'] = array_column($projectList[$project_id]['domain'], 'value', 'key');
             $list[$project_id]['api_ids'] = empty($value['api_ids']) ? [] : explode(',', $value['api_ids']);
         }
 
@@ -165,7 +173,7 @@ class RunController extends AdminController
      * 发送并发请求
      * @author wangmeng
      * @date   2019-05-15
-     * @param  array        $list               list[[project_id, project_name, domain, api_ids], ...]
+     * @param  array        $list               list[[project_id, project_name, domain, domain_list, api_ids], ...]
      * @param  int          $concurrency        并发数
      * @param  array        $header             header,例如登录认证令牌等
      * @param  int          $timeOut            超时限制60s
@@ -193,7 +201,7 @@ class RunController extends AdminController
                 $total_api ++;
                 // 回归测试列表
                 foreach ($api->regTest as $key => $regTest) {
-                    if (in_array($api->method, BaseModel::$label_request_methods) && $regTest->domain == $item['domain']) {
+                    if (in_array($api->method, BaseModel::$label_request_methods) && $item['domain_list'][$regTest->domain] == $item['domain']) {
                         $body = json_decode($regTest->unitTest->body, true);
                         $headers = json_decode($regTest->unitTest->header, true);
                         if (empty($body)) {
@@ -354,5 +362,16 @@ class RunController extends AdminController
         $ret['success_count'] = $success_count;
 
         return $ret;
+    }
+
+        /**
+     * Make a form builder.
+     *
+     * @return Form
+     */
+    protected function form()
+    {
+        return Form::make(new Api(), function (Form $form) {
+        });
     }
 }

@@ -9,7 +9,11 @@ use Dcat\Admin\Show;
 use App\Models\BaseModel;
 use Dcat\Admin\Admin;
 use App\Models\ApiModel;
+use App\Models\ProjectModel;
 
+/**
+ * 项目管理
+ */
 class ProjectController extends AdminController
 {
     /**
@@ -28,10 +32,9 @@ class ProjectController extends AdminController
 
             $grid->column('id')->sortable();
             $grid->column('name')->sortable();
-            $grid->column('intro');
+            $grid->column('intro')->limit(40);
             $grid->column('alarm_enable')->switch()->sortable();
             $grid->column('owner.name', '项目负责人');
-            $grid->column('created_at');
             $grid->column('updated_at')->sortable();
 
             $grid->disableFilter();
@@ -55,8 +58,9 @@ class ProjectController extends AdminController
                 return $this->users->pluck('name');
             })->label('info');
             $show->field('owner.name', '项目负责人')->label('success');
-            $show->field('domain_text')->label('success');
-            $show->field('domain_prod')->label('success');
+            $show->domain()->as(function ($domain) {
+                return $this->getParamTable($domain, ['key' => '环境名称', 'value' => '域名地址']);
+            })->unescape();
             $show->field('alarm_enable')->as(function ($alarm_enable) {
                 return BaseModel::$label_yes_or_no[$alarm_enable] ?? '';
             });
@@ -90,8 +94,12 @@ class ProjectController extends AdminController
                 return array_column($v, 'id');
             });
             $form->select('owner_uid')->options(BaseModel::getUserList())->default(Admin::user()->id)->required();
-            $form->text('domain_text');
-            $form->text('domain_prod');
+            $form->table('domain', function ($table) {
+                $table->text('key', '环境名称')->required();
+                $table->text('value', '域名地址')->default('string');
+            })->saving(function ($v) {
+                return json_encode($v);
+            });
             $form->switch('alarm_enable');
             $form->fieldset('告警设置', function (Form $form) {
                 $form->table('alarm_param', '', function ($table) {
@@ -100,10 +108,6 @@ class ProjectController extends AdminController
                 });
             });
 
-            $form->saving(function (Form $form) {
-                $form->domain_text = rtrim($form->domain_text ?? "", "/");
-                $form->domain_prod = rtrim($form->domain_prod ?? "", "/");
-            });
             $form->footer(function ($footer) {
                 $footer->disableViewCheck()->disableEditingCheck()->disableCreatingCheck();
             });
@@ -126,5 +130,24 @@ class ProjectController extends AdminController
             ];
         }
         return $ret;
+    }
+
+    /**
+     * 权限判断
+     * @param int $id
+     * @param bool $has_permission
+     */
+    protected function hasPermission($id, $has_permission = true)
+    {
+        if (!Admin::user()->isAdministrator()) {
+            $projectList = ProjectModel::getProjectList(Admin::user()->id)->pluck('name', 'id')->toArray();
+        } else {
+            $projectList = ProjectModel::getAll()->pluck('name', 'id')->toArray();
+        }
+        if (!isset($projectList[$id])) {
+            $has_permission = false;
+        }
+
+        return parent::hasPermission($id, $has_permission);
     }
 }
