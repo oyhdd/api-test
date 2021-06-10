@@ -53,4 +53,13 @@ class ProjectModel extends BaseModel
         $domain = array_column($domain, 'value', 'key');
         return rtrim($domain[$domain_key] ?? '', '/');
     }
+
+    public static function getDomainOptions($id)
+    {
+        $domain = self::getOne(['id' => $id])->value('domain');
+        foreach ($domain as &$value) {
+            $value['value'] = $value['key'] . ' : ' . $value['value'];
+        }
+        return array_column($domain, 'value', 'key');
+    }
 }

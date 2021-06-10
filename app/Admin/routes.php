@@ -46,4 +46,7 @@ Route::group([
     // 计划任务
     $router->resource('crontab', CrontabController::class);
 
+    // 计划任务执行日志
+    $router->resource('log_crontab', LogCrontabController::class);
+
 });

@@ -409,7 +409,8 @@
                                         '&nbsp;&nbsp;<span class="label bg-custom">' + api["method"] + '</span>' +
                                         '&nbsp;&nbsp;<span class="label bg-gray text-light">' + api["url"] + '</span>' +
                                         '&nbsp;&nbsp;<span class="label ' + success_count_class + '">成功用例：' + api["success_count"] + " / " + api["total_count"] + '</span>' +
-                                        '</a></div>' + 
+                                        '</a>' +
+                                        '<a href="/admin/run/' + api["id"] + '" target="_blank" style="margin-left:20px;"><i title="调试运行" class="fa fa-paper-plane grid-action-icon"></i></a></div>' + 
                                     '</div>' +
                                     '<div id="api_response_' + api["id"] +'" class="panel-body collapse">';
 
@@ -449,9 +450,11 @@
                                     '<div class="panel-heading bg-white">' + 
                                         '<div><a href="#unitTest_response_' + unitTest["id"] +'" data-toggle="collapse">' + 
                                         '<span class="label bg-custom">用例：' + unitTest["name"] + '</span>' +
-                                        '&nbsp;&nbsp;<span class="label ' + request_result_class + '">' + request_result + '</span>' +
-                                        '&nbsp;&nbsp;<span class="label ' + result_class + '">' + result + '</span>' +
-                                        '</a></div>' +
+                                        '&nbsp;&nbsp;<span class="label ' + request_result_class + '">' + request_result + '</span>';
+                                    if (unitTest['result'] !== undefined) {
+                                        html += '&nbsp;&nbsp;<span class="label ' + result_class + '">' + result + '</span>';
+                                    }
+                                    html += '</a></div>' +
                                     '</div>' +
                                     '<div id="unitTest_response_' + unitTest["id"] +'" class="panel-body collapse">' + 
                                     '<pre>' + formatText + '</pre>' +

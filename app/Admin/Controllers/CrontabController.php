@@ -6,6 +6,7 @@ use App\Admin\Renderable\UnitTest;
 use App\Admin\Repositories\Crontab;
 use App\Admin\Renderable\IntegrationTest;
 use App\Models\BaseModel;
+use App\Models\CrontabModel;
 use App\Models\IntegrationTestModel;
 use App\Models\ProjectModel;
 use App\Models\UnitTestModel;
@@ -26,26 +27,35 @@ class CrontabController extends AdminController
     protected function grid()
     {
         return Grid::make(new Crontab(), function (Grid $grid) {
-            $grid->model()->where(['project_id' => self::getProjectId(), 'status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
+            $grid->model()->where(['project_id' => self::getProjectId()])->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
             $grid->column('title')->sortable();
             $grid->column('desc')->limit(40);
+            $grid->column('domain');
             $grid->column('task_type')->display(function($task_type) {
                 return BaseModel::$label_task_type[$task_type] ?? '';
             });
-            $grid->column('domain')->limit(60);
             $grid->column('crontab');
+            $grid->column('alarm_enable')->switch()->sortable();
+            $grid->column('status')->display(function($status) {
+                return CrontabModel::$label_status[$status] ?? '';
+            });
+            $grid->status()->switch()->sortable();
             $grid->column('last_time')->sortable();
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->padding(0, 0, '20px')->panel();
 
                 $filter->like('title')->width(6);
+                $filter->equal('domain')->select(ProjectModel::getDomainOptions(self::getProjectId()))->width(6);
                 $filter->equal('task_type')->select(BaseModel::$label_task_type)->width(6);
+                $filter->equal('alarm_enable', '是否告警')->select(BaseModel::$label_yes_or_no)->width(6);
+                $filter->equal('status')->select(BaseModel::$label_status)->width(6);
             });
 
             $grid->actions(function (Grid\Displayers\Actions $actions) {
+                $actions->prepend("<a href='/admin/log_crontab?crontab_id={$this->id}'><i title='执行日志' class='fa fa-clock-o grid-action-icon'></i>&nbsp; </a>");
                 $actions->disableView();
             });
         });
@@ -65,6 +75,7 @@ class CrontabController extends AdminController
             $form->text('title');
             $form->textarea('desc');
 
+            $form->select('domain')->options(ProjectModel::getDomainOptions(self::getProjectId()))->required();
             $form->select('task_type')
             ->when(BaseModel::TASK_TYPE_UNIT_TEST, function (Form $form) {
                 // 异步加载测试用例
@@ -82,6 +93,9 @@ class CrontabController extends AdminController
             })
             ->options(BaseModel::$label_task_type)->default(BaseModel::TASK_TYPE_UNIT_TEST)->required();
 
+            $form->number('retain_day')->default(14);
+            $form->switch('alarm_enable');
+            $form->switch('status');
             $form->text('crontab')->default('* * * * *')->help('格式：* * * * * （minute hour day month week）');
 
             $form->submitted(function (Form $form) {

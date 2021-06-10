@@ -26,10 +26,14 @@ class ApiController extends AdminController
 
             $grid->column('id')->sortable();
             $grid->column('name')->sortable();
-            $grid->column('url');
-            $grid->column('method')->sortable();
+            $grid->column('url')->display(function($url) {
+                $class = 'bg-success';
+                if (strtoupper($this->method) == 'POST') {
+                    $class = 'bg-custom';
+                }
+                return "<span class='label {$class}'>{$this->method}</span> &nbsp;" . $url;
+            });
             $grid->column('desc')->limit(40);
-            $grid->column('alarm_enable')->switch()->sortable();
             $grid->column('updated_at')->sortable();
 
             $grid->actions(function ($actions) {
@@ -40,7 +44,6 @@ class ApiController extends AdminController
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->padding(0, 0, '20px')->panel();
                 $filter->like('name')->width(6);
-                $filter->equal('alarm_enable', '是否告警')->select(BaseModel::$label_yes_or_no)->width(6);
                 $filter->like('url')->width(6);
             });
         });
@@ -60,9 +63,6 @@ class ApiController extends AdminController
             $show->field('project.name', '项目');
             $show->field('name');
             $show->field('url')->label('info');
-            $show->field('alarm_enable')->as(function ($alarm_enable) {
-                return BaseModel::$label_yes_or_no[$alarm_enable] ?? '';
-            });
             $show->field('method')->label('success');
             $show->field('desc')->textarea();
             $show->header()->as(function ($header) {
@@ -92,7 +92,6 @@ class ApiController extends AdminController
             $form->select('project_id')->options(ProjectModel::getAll()->pluck('name', 'id'))->default(self::getProjectId())->disable();
             $form->text('name')->required();
             $form->text('url');
-            $form->switch('alarm_enable');
             $form->select('method')->options(BaseModel::$label_request_methods)->default('GET')->required();
             $form->textarea('desc');
             $form->fieldset('参数设置', function ($form) {

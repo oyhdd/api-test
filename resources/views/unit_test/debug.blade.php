@@ -18,7 +18,10 @@
         @php
         $regTest = $model->regTest->toArray();
         $domain = $model->project->domain;
-        $domainOptions = array_column($model->project->domain, 'value', 'key');
+        foreach ($domain as $key => $value) {
+            $domain[$key]['value'] = $value['key'] . ' : ' . $value['value'];
+        }
+        $domainOptions = array_column($domain, 'value', 'key');
 
         $form = new \Dcat\Admin\Widgets\Form();
         $form->action(request()->fullUrl())->setFormId('run_api')->ajax(false);

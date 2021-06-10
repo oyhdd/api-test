@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Models\CrontabModel;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -24,7 +25,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $tasks = CrontabModel::getCrontabFromCache();
+        foreach ($tasks as $task) {
+            $schedule->command("apitest:crontab {$task['id']}")->cron($task['crontab'])->runInBackground();
+        }
+        $schedule->command("apitest:clear_crontab_log")->daily()->runInBackground();
     }
 
     /**

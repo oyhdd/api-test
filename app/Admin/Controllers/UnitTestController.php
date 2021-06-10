@@ -18,6 +18,10 @@ use Illuminate\Support\Facades\DB;
  */
 class UnitTestController extends AdminController
 {
+    protected $description = [
+        'index' => '可以在 "接口调试" 界面进行管理',
+        'edit' => '可以在 "接口调试" 界面进行管理',
+    ];
     /**
      * Make a grid builder.
      *
@@ -31,10 +35,15 @@ class UnitTestController extends AdminController
             $grid->column('id')->sortable();
             $grid->column('api.name', '接口名称')->link(function () {
                 return admin_url('api/' . $this->api_id);
-            })->label('info');
+            });
             $grid->column('name')->sortable();
-            $grid->column('api.method', '请求方法');
-            $grid->column('api.url', '接口地址');
+            $grid->column('api.url', '接口地址')->display(function($url) {
+                $class = 'bg-success';
+                if (strtoupper($this->api->method) == 'POST') {
+                    $class = 'bg-custom';
+                }
+                return "<span class='label {$class}'>{$this->api->method}</span> &nbsp;" . $url;
+            });
             $grid->column('updated_at')->sortable();
 
             $grid->actions(function ($actions) {
@@ -212,9 +221,6 @@ class UnitTestController extends AdminController
         $show = Show::make($model, function (Show $show) {
             $show->field('name', '接口名称')->label()->width(10);
             $show->field('url')->label()->width(10);
-            $show->field('alarm_enable')->as(function ($alarm_enable) {
-                return BaseModel::$label_yes_or_no[$alarm_enable] ?? '';
-            })->width(10);
             $show->field('method')->label('success')->width(10);
             $show->field('desc')->textarea()->width(10);
             $show->header('请求头')->as(function ($header) {
@@ -307,8 +313,10 @@ class UnitTestController extends AdminController
                     throw new \Exception(trans('admin.delete_failed'), 1);
                 }
                 if (!empty($model->regTest)) {
-                    $model->regTest->status = $model::STATUS_DELETED;
-                    $model->regTest->save();
+                    foreach ($model->regTest as $regTest) {
+                        $regTest->status = $model::STATUS_DELETED;
+                        $regTest->save();
+                    }
                 }
             }
             DB::commit();

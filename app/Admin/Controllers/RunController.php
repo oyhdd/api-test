@@ -340,11 +340,13 @@ class RunController extends AdminController
             if (!isset($ret['list'][$project_id]['apiList'][$api_id]['unitTestList'][$requestItem['unit_test_id']])) {
                 $ret['list'][$project_id]['apiList'][$api_id]['unitTestList'][$requestItem['unit_test_id']] = [
                     'id'             => $requestItem['unit_test_id'],
-                    'result'         => $success,
                     "request_result" => $response['success'],
                     'name'           => $requestItem['unit_test_name'],
                     'response'       => $response['response'],
                 ];
+                if ($requestItem['type'] == BaseModel::REG_TYPE_ALL) {
+                    $ret['list'][$project_id]['apiList'][$api_id]['unitTestList'][$requestItem['unit_test_id']]['result'] = $success;
+                }
             }
 
             if ($success) {
@@ -364,7 +366,7 @@ class RunController extends AdminController
         return $ret;
     }
 
-        /**
+    /**
      * Make a form builder.
      *
      * @return Form

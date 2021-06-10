@@ -2,7 +2,6 @@
 
 namespace App\Admin\Forms;
 
-use App\Admin\Controllers\AdminController;
 use App\Models\ApiModel;
 use App\Models\BaseModel;
 use App\Models\ProjectModel;
@@ -28,10 +27,7 @@ class CopyApi extends Form implements LazyRenderable
             return $this->response()->error('复制失败');
         }
 
-        return $this
-				->response()
-				->success('复制成功')
-				->refresh();
+        return $this->response()->success('复制成功')->refresh();
     }
 
     /**
@@ -42,7 +38,6 @@ class CopyApi extends Form implements LazyRenderable
         $this->select('project_id', '项目')->options(ProjectModel::getAll()->pluck('name', 'id'));
         $this->text('name')->required();
         $this->text('url', '接口地址');
-        $this->switch('alarm_enable');
         $this->select('method')->options(BaseModel::$label_request_methods)->required();
         $this->textarea('desc', '描述');
         $this->fieldset('参数设置', function ($model) {

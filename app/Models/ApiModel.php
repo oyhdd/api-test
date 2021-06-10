@@ -19,7 +19,6 @@ class ApiModel extends BaseModel
         'request_example',
         'response_example',
         'response_desc',
-        'alarm_enable',
         'status',
     ];
 

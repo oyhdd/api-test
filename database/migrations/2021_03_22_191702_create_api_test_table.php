@@ -53,7 +53,6 @@ class CreateApiTestTable extends Migration
             $table->text('request_example')->nullable()->comment('请求示例');
             $table->text('response_example')->nullable()->comment('返回示例');
             $table->text('response_desc')->nullable()->comment('返回值说明');
-            $table->tinyInteger('alarm_enable')->default(0)->comment('是否告警 0关闭 1开启');
             $table->tinyInteger('status')->default(1)->comment('状态：0已删除 1正常');
             $table->timestamps();
 
@@ -123,12 +122,31 @@ class CreateApiTestTable extends Migration
             $table->tinyInteger('task_type')->default(1)->comment('任务类型：1测试用例 2集成测试');
             $table->text('task_value')->nullable()->comment('任务id');
             $table->string('crontab', 32)->default('* * * * *')->comment('crontab: * * * * *');
+            $table->integer('retain_day')->default(7)->comment('日志保留天数');
+            $table->tinyInteger('alarm_enable')->default(0)->comment('是否告警 0关闭 1开启');
             $table->tinyInteger('status')->default(1)->comment('状态：0已删除 1正常');
             $table->timestamp('last_time')->nullable()->comment('上次执行时间');
             $table->timestamps();
 
             $table->index('title');
             $table->index('last_time');
+        });
+        DB::statement("ALTER TABLE `crontab` comment 'api_test 计划任务'");
+
+        Schema::create('log_crontab', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('day', 10)->comment('日期');
+            $table->integer('project_id')->default(0)->comment('项目id');
+            $table->integer('crontab_id')->default(0)->comment('计划任务id');
+            $table->boolean('success')->default(0)->comment('是否成功：0否 1是');
+            $table->text('log')->nullable()->comment('执行日志');
+            $table->tinyInteger('status')->default(1)->comment('状态：0已删除 1正常');
+            $table->timestamps();
+
+            $table->index('day');
+            $table->index('crontab_id');
+            $table->index('project_id');
+            $table->index('updated_at');
         });
         DB::statement("ALTER TABLE `crontab` comment 'api_test 计划任务'");
     }

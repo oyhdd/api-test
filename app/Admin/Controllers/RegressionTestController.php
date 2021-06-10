@@ -7,7 +7,6 @@ use App\Models\BaseModel;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
-use App\Models\ProjectModel;
 use App\Models\ApiModel;
 
 /**
@@ -16,7 +15,7 @@ use App\Models\ApiModel;
 class RegressionTestController extends AdminController
 {
     protected $description = [
-        'create' => '建议从接口调试界面添加',
+        'index' => '请从 "接口调试" 界面添加',
     ];
     /**
      * Make a grid builder.
@@ -61,6 +60,8 @@ class RegressionTestController extends AdminController
                 // $filter->equal('domain')->select($domainList)->width(4);
                 $filter->equal('type')->select(BaseModel::$label_reg_type)->width(4);
             });
+
+            $grid->disableCreateButton()->disableEditButton();
         });
     }
 
@@ -87,10 +88,13 @@ class RegressionTestController extends AdminController
             $show->field('ignore_fields');
             $show->field('created_at');
             $show->field('updated_at');
+
+            $show->disableEditButton();
         });
     }
 
-    /**
+    
+        /**
      * Make a form builder.
      *
      * @return Form
@@ -98,25 +102,7 @@ class RegressionTestController extends AdminController
     protected function form()
     {
         return Form::make(new RegressionTest(), function (Form $form) {
-            $form->display('id');
-            $form->select('project_id')
-                ->options(ProjectModel::getAll()->pluck('name', 'id'))
-                ->default(self::getProjectId())
-                ->disable()
-                ->load('api_id', "/project/api-list");
-            $form->select('api_id')
-                ->options([])
-                ->required()
-                ->load('unit_test_id', "/api/unit-test-list");
-            $form->select('unit_test_id')
-                ->options([])
-                ->required();
-            $form->text('response_md5');
-            $form->select('type')->options(BaseModel::$label_reg_type);
-            $form->text('ignore_fields')->help('匹配时忽略字段：多个字段使用英文逗号分隔');
-        
-            $form->display('created_at');
-            $form->display('updated_at');
         });
     }
+
 }
