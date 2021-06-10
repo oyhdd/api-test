@@ -6,6 +6,7 @@
     .panel-body {padding: 10px;}
     .collapsing {position: relative;height: 0;overflow: hidden;transition: height .1s ease-in}
 </style>
+@if (!empty($data))
 <div class="panel">
     <div class="panel-heading bg-white">
         <div><a href="#project_response_{{ $data['id'] }}" data-toggle="collapse">
@@ -49,3 +50,4 @@
         @endforeach
     </div>
 </div>
+@endif
