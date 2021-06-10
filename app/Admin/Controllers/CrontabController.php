@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Actions\Grid\RunCrontab;
 use App\Admin\Renderable\UnitTest;
 use App\Admin\Repositories\Crontab;
 use App\Admin\Renderable\IntegrationTest;
@@ -55,7 +56,8 @@ class CrontabController extends AdminController
             });
 
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                $actions->prepend("<a href='/admin/log_crontab?crontab_id={$this->id}'><i title='执行日志' class='fa fa-clock-o grid-action-icon'></i>&nbsp; </a>");
+                $actions->prepend("&nbsp; <a href='/admin/log_crontab?crontab_id={$this->id}'>日志&nbsp; </a>");
+                $actions->prepend(new RunCrontab());
                 $actions->disableView();
             });
         });
