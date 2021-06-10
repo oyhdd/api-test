@@ -311,7 +311,7 @@ class CrontabModel extends BaseModel
 
     public static function alarm($crontab)
     {
-        if (!$crontab->project->alarm_enable) {
+        if (!$crontab->project->alarm_enable || !$crontab->alarm_enable) {
             return false;
         }
         $emails = [];

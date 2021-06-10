@@ -141,4 +141,25 @@ class CrontabController extends AdminController
         $table = new Table($headers, $body);
         return $table->render();
     }
+
+    public function destroy($ids)
+    {
+        $data = [
+            'status'  => true,
+            'data' => [
+                'alert' => true,
+                'message' => trans('admin.delete_succeeded'),
+            ],
+        ];
+
+        try {
+            $ids = explode(",", $ids);
+            CrontabModel::whereIn('id', $ids)->delete();
+        } catch (\Throwable $th) {
+            $data['status'] = false;
+            $data['data']['message'] = $th->getMessage();
+        }
+
+        return response()->json($data);
+    }
 }

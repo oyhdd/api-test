@@ -269,9 +269,12 @@
                 var unit_test_id = $("select[name='unit_test_id']").val();
                 var ori_ignore_fields = [];
 
-                if (regTest[unit_test_id] != null && regTest[unit_test_id]['ignore_fields'] != null && regTest[unit_test_id]['ignore_fields'] != '') {
-                    ori_ignore_fields = (regTest[unit_test_id]['ignore_fields']).split(',');
+                for (const key in regTest) {
+                    if (regTest[key]['unit_test_id'] == unit_test_id && regTest[key]['ignore_fields'] != null && regTest[key]['ignore_fields'] != '') {
+                        ori_ignore_fields = (regTest[key]['ignore_fields']).split(',');
+                    }
                 }
+
                 var ignore_fields = Object.keys(result);
                 for (const key in ignore_fields) {
                     if (ori_ignore_fields.indexOf(ignore_fields[key]) === -1) {
