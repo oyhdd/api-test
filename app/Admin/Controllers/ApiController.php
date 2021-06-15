@@ -8,6 +8,7 @@ use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use App\Models\{UnitTestModel, ProjectModel, BaseModel};
 use App\Admin\Actions\Grid\CopyApi;
+use Illuminate\Support\Facades\DB;
 
 /**
  * 接口管理
@@ -146,6 +147,62 @@ class ApiController extends AdminController
             ];
         }
         return $ret;
+    }
+
+    
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param int $id
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($ids)
+    {
+        $data = [
+            'status'  => true,
+            'data' => [
+                'alert' => true,
+                'message' => trans('admin.delete_succeeded'),
+            ],
+        ];
+
+        try {
+            DB::beginTransaction();
+
+            $ids = explode(",", $ids);
+            foreach ($ids as $id) {
+                $model = $this->form()->repository()->model()->findOrFail($id);
+                if (isset($model->status)) {
+                    $model->status = $model::STATUS_DELETED;
+                    $ret = $model->save();
+                } else {
+                    $ret = $this->form()->destroy($id);
+                }
+                if (!$ret) {
+                    throw new \Exception(trans('admin.delete_failed'), 1);
+                }
+                if (!empty($model->unitTest)) {
+                    foreach ($model->unitTest as $unitTest) {
+                        $unitTest->status = $model::STATUS_DELETED;
+                        $unitTest->save();
+                    }
+                }
+                if (!empty($model->regTest)) {
+                    foreach ($model->regTest as $regTest) {
+                        $regTest->status = $model::STATUS_DELETED;
+                        $regTest->save();
+                    }
+                }
+            }
+            DB::commit();
+        } catch (\Throwable $th) {
+            $data['status'] = false;
+            $data['data']['message'] = $th->getMessage();
+            DB::rollBack();
+        }
+
+        return response()->json($data);
     }
 
 }
