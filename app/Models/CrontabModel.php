@@ -57,10 +57,10 @@ class CrontabModel extends BaseModel
 
     public static function getCrontabFromCache()
     {
-        $task = Cache::store('redis')->get(self::CACHE_KEY);
+        $task = Cache::get(self::CACHE_KEY);
         if (empty($task)) {
             $task = CrontabModel::getAll([], ['id', 'crontab', 'retain_day'])->toArray();
-            Cache::store('redis')->set(self::CACHE_KEY, $task, self::CACHE_TIME);
+            Cache::put(self::CACHE_KEY, $task, self::CACHE_TIME);
         }
         return $task;
     }
@@ -70,19 +70,19 @@ class CrontabModel extends BaseModel
         parent::boot();
 
         CrontabModel::created(function () {
-            Cache::store('redis')->delete(self::CACHE_KEY);
+            Cache::forget(self::CACHE_KEY);
         });
 
         CrontabModel::updated(function () {
-            Cache::store('redis')->delete(self::CACHE_KEY);
+            Cache::forget(self::CACHE_KEY);
         });
 
         CrontabModel::saved(function () {
-            Cache::store('redis')->delete(self::CACHE_KEY);
+            Cache::forget(self::CACHE_KEY);
         });
 
         CrontabModel::deleted(function () {
-            Cache::store('redis')->delete(self::CACHE_KEY);
+            Cache::forget(self::CACHE_KEY);
         });
     }
 
@@ -162,7 +162,7 @@ class CrontabModel extends BaseModel
         $crontab->save();
         if (!isset($ret[$crontab->project_id])) {
             self::alarm($crontab);
-            self::saveLog($crontab->project_id, $id);
+            LogCrontabModel::saveLog($crontab->project_id, $id);
             return false;
         }
 
@@ -175,7 +175,7 @@ class CrontabModel extends BaseModel
         if (empty($success)) {
             self::alarm($crontab);
         }
-        self::saveLog($crontab->project_id, $id, $success, json_encode($ret, JSON_UNESCAPED_UNICODE));
+        LogCrontabModel::saveLog($crontab->project_id, $id, $success, json_encode($ret, JSON_UNESCAPED_UNICODE));
         return $success;
     }
 
@@ -302,12 +302,6 @@ class CrontabModel extends BaseModel
         return $ret;
     }
 
-    public static function saveLog($project_id, $crontab_id, $success = 0, $log = '[]')
-    {
-        $day = date("Y-m-d");
-        $model = new LogCrontabModel(compact('day', 'project_id', 'crontab_id', 'success', 'log'));
-        return $model->save();
-    }
 
     public static function alarm($crontab)
     {

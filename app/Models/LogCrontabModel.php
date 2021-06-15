@@ -20,4 +20,10 @@ class LogCrontabModel extends BaseModel
         return $this->belongsTo(CrontabModel::class, 'crontab_id', 'id');
     }
 
+    public static function saveLog($project_id, $crontab_id, $success = 0, $log = '[]')
+    {
+        $day = date("Y-m-d");
+        $model = new LogCrontabModel(compact('day', 'project_id', 'crontab_id', 'success', 'log'));
+        return $model->save();
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Admin\Repositories\LogCrontab;
 use App\Models\BaseModel;
+use App\Models\LogCrontabModel;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Layout\Content;
@@ -82,5 +83,26 @@ class LogCrontabController extends AdminController
     {
         return Form::make(new LogCrontab(), function (Form $form) {
         });
+    }
+
+    public function destroy($ids)
+    {
+        $data = [
+            'status'  => true,
+            'data' => [
+                'alert' => true,
+                'message' => trans('admin.delete_succeeded'),
+            ],
+        ];
+
+        try {
+            $ids = explode(",", $ids);
+            LogCrontabModel::whereIn('id', $ids)->delete();
+        } catch (\Throwable $th) {
+            $data['status'] = false;
+            $data['data']['message'] = $th->getMessage();
+        }
+
+        return response()->json($data);
     }
 }
