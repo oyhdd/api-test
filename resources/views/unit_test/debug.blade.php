@@ -266,6 +266,7 @@
                 }
                 $('#response').prepend("<span class=\"btn-pre-copy\">复制代码</span>");
 
+                switchRegression();
                 var unit_test_id = $("select[name='unit_test_id']").val();
                 var ori_ignore_fields = [];
 
