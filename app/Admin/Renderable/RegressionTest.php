@@ -3,23 +3,27 @@
 namespace App\Admin\Renderable;
 
 use App\Admin\Controllers\AdminController;
+use App\Admin\Repositories\RegressionTest as RegressionTestRep;
 use App\Models\ApiModel;
 use App\Models\BaseModel;
-use App\Admin\Repositories\UnitTest as UnitTestModel;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Grid\LazyRenderable;
 
-class UnitTest extends LazyRenderable
+class RegressionTest extends LazyRenderable
 {
     public function grid(): Grid
     {
-        return Grid::make(UnitTestModel::with(['api']), function (Grid $grid) {
-            $grid->model()->where(['project_id' => AdminController::getProjectId(), 'status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
+        return Grid::make(RegressionTestRep::with(['api', 'unitTest']), function (Grid $grid) {
+            $domain = $this->payload['domain'] ?? '';
+            $grid->model()->where(['project_id' => AdminController::getProjectId(), 'domain' => $domain, 'status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
 
             $grid->column('id', 'ID')->sortable();
             $grid->column('api.name', '接口名称');
             $grid->column('api.url', '接口地址');
-            $grid->column('name', '测试用例');
+            $grid->column('unitTest.name', '测试用例');
+            $grid->column('unitTest.type', '回归模式')->display(function () {
+                return BaseModel::$label_reg_type[$this->type] ?? '';
+            });
 
             $grid->paginate(7);
             $grid->disableActions();

@@ -260,7 +260,7 @@ class UnitTestController extends AdminController
             }
         }
         $apiResponse = json_encode($apiResponse);
-        $params['response_md5'] = md5((trim($apiResponse)));
+        $params['response'] = trim($apiResponse);
 
         $model = UnitTestModel::saveUnitTest($params);
         if (empty($model)) {

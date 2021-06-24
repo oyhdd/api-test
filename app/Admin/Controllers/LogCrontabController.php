@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Forms\CrontabLog;
 use App\Admin\Repositories\LogCrontab;
 use App\Models\BaseModel;
 use App\Models\LogCrontabModel;
@@ -50,8 +51,8 @@ class LogCrontabController extends AdminController
                 }
                 return "<span class='label {$class}'>" . ($success ? '是' : '否') . "</span> &nbsp;";
             })->sortable();
-            $grid->column('log')->display(function($log) {
-                return self::getLogModal($log);
+            $grid->column('log')->display(function() {
+                return self::getLogModal($this->id);
             });
             $grid->column('updated_at')->sortable();
 
@@ -65,12 +66,12 @@ class LogCrontabController extends AdminController
         });
     }
 
-    protected static function getLogModal($log)
+    protected static function getLogModal($id)
     {
         return Modal::make()
-        ->lg()
-        ->title('标题')
-        ->body(view('log_crontab.modal', ['data' => json_decode($log, true)]))
+        ->xl()
+        ->title('执行结果')
+        ->body(CrontabLog::make(['id' => $id]))
         ->button('<button class="btn btn-primary">查看结果</button>');
     }
 

@@ -98,11 +98,11 @@ class CrontabModel extends BaseModel
 
         $domain = ProjectModel::getDomainByKey($crontab->project_id, $crontab->domain);
         $task_value = json_decode($crontab['task_value'], true);
-        // 测试用例
-        if ($crontab['task_type'] == CrontabModel::TASK_TYPE_UNIT_TEST) {
-            $testModel = UnitTestModel::with(['api', 'regTest'])->whereIn('id', $task_value)->where(['status' => UnitTestModel::STATUS_NORMAL])->get();
+        // 回归测试用例
+        if ($crontab['task_type'] == CrontabModel::TASK_TYPE_REGRESSION_TEST) {
+            $testModel = RegressionTestModel::with(['api', 'unitTest'])->whereIn('id', $task_value)->where(['status' => UnitTestModel::STATUS_NORMAL])->get();
         } else {
-            // 集成测试
+            // 集成测试用例
         }
         if (empty($testModel)) {
             return;
@@ -110,17 +110,15 @@ class CrontabModel extends BaseModel
 
         $total_unit = 0;
         $requestData = [];
-        foreach ($testModel as $unitTest) {
-            if (empty($unitTest->regTest->toArray())) {
+        foreach ($testModel as $regTest) {
+            if (empty($regTest->toArray())) {
                 continue;
             }
-            foreach ($unitTest->regTest as $regTest) {
-                if ($regTest->domain == $crontab->domain) {
-                    break;
-                }
+            if ($regTest->domain != $crontab->domain) {
+                continue;
             }
-            $body = json_decode($unitTest->body, true);
-            $headers = json_decode($unitTest->header, true);
+            $body = json_decode($regTest->unitTest->body, true);
+            $headers = json_decode($regTest->unitTest->header, true);
             if (empty($body)) {
                 $body = [];
             }
@@ -131,26 +129,26 @@ class CrontabModel extends BaseModel
             $body = unset_null($body);
             $headers = unset_null($headers);
 
-            if ($unitTest->api->method == "GET") {
-                $url = $domain . $unitTest->api->url . "?" . http_build_query($body);
+            if ($regTest->api->method == "GET") {
+                $url = $domain . $regTest->api->url . "?" . http_build_query($body);
                 $form_params = [];
             } else {
-                $url = $domain . $unitTest->api->url;
+                $url = $domain . $regTest->api->url;
                 $form_params = $body;
             }
             $requestData[] = [
                 'url' => $url,
                 'headers' => $headers,
                 'form_params' => $form_params,
-                'api_id' => $unitTest->api->id,
-                'api_name' => $unitTest->api->name,
-                'api_url' => $unitTest->api->url,
-                'project_id' => $unitTest->project_id,
-                'unit_test_id' => $unitTest->id,
-                'method' => $unitTest->api->method,
+                'api_id' => $regTest->api->id,
+                'api_name' => $regTest->api->name,
+                'api_url' => $regTest->api->url,
+                'project_id' => $regTest->project_id,
+                'unit_test_id' => $regTest->unitTest->id,
+                'method' => $regTest->api->method,
                 'type' => $regTest->type,
-                'response_md5' => $regTest->response_md5,
-                'unit_test_name' => $unitTest->name,
+                'response' => $regTest->response,
+                'unit_test_name' => $regTest->unitTest->name,
                 'ignore_fields' => explode(',', $regTest->ignore_fields),
             ];
             $total_unit ++;
@@ -181,7 +179,7 @@ class CrontabModel extends BaseModel
 
     /**
      * 发送并发请求
-     * @param  array        $requestData        [['url','headers','form_params','api_id','api_name','api_url','project_id','unit_test_id','method','type','response_md5','unit_test_name','ignore_fields'], ...]
+     * @param  array        $requestData        [['url','headers','form_params','api_id','api_name','api_url','project_id','unit_test_id','method','type','response','unit_test_name','ignore_fields'], ...]
      * @param  int          $concurrency        并发数
      * @param  array        $header             header,例如登录认证令牌等
      * @param  int          $timeOut            超时限制60s
@@ -244,18 +242,19 @@ class CrontabModel extends BaseModel
             if ($response['success']) {
                 // 完全匹配
                 if ($requestItem['type'] == BaseModel::REG_TYPE_ALL) {
-                    $response_md5 = md5((trim($response['response'])));
                     if (!empty($requestItem['ignore_fields'])) {
-                        $temp_response = json_decode($response['response'], true);
+                        $response['response'] = json_decode($response['response'], true);
                         foreach ($requestItem['ignore_fields'] as $ignore_field) {
-                            if (!empty($ignore_field) && isset($temp_response[$ignore_field])) {
-                                unset($temp_response[$ignore_field]);
+                            if (!empty($ignore_field) && isset($response['response'][$ignore_field])) {
+                                unset($response['response'][$ignore_field]);
                             }
                         }
-                        $temp_response = json_encode($temp_response);
-                        $response_md5 = md5((trim($temp_response)));
+                        $response['response'] = json_encode($response['response']);
+                        $response_md5 = md5((trim($response['response'])));
+                    } else {
+                        $response_md5 = md5((trim($response['response'])));
                     }
-                    $success = ($response_md5 == $requestItem['response_md5']);
+                    $success = ($response_md5 == md5(trim($requestItem['response'])));
                 } else {
                     // 请求成功
                     $success = true;
@@ -285,6 +284,8 @@ class CrontabModel extends BaseModel
                     "request_result" => $response['success'],
                     'name'           => $requestItem['unit_test_name'],
                     'response'       => $response['response'],
+                    'response_reg'   => $requestItem['response'],
+                    'ignore_fields'  => implode(',', $requestItem['ignore_fields']),
                 ];
                 if ($requestItem['type'] == BaseModel::REG_TYPE_ALL) {
                     $ret[$project_id]['apiList'][$api_id]['unitTestList'][$requestItem['unit_test_id']]['result'] = $success;

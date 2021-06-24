@@ -46,7 +46,7 @@
             </div>
             <div class="modal-body">
                 @php
-                    $regressList = $model::getRegressList();
+                    $regressList = \App\Models\RegressionTestModel::getRegressList();
                     $projectIds = array_keys($regressList);
                 @endphp
 
@@ -201,6 +201,7 @@
     </div>
 </div>
 <script src="/js/json-viewer.js"></script>
+<script src="/js/jsbeautify.js"></script>
 <script type="text/javascript">
     Dcat.ready(function() {
         $(".nav-item a").each(function() {

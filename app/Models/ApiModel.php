@@ -76,52 +76,6 @@ class ApiModel extends BaseModel
         return $navItems;
     }
 
-
-    /**
-     * 获取回归测试列表
-     */
-    public static function getRegressList()
-    {
-        $apiLists = ApiModel::getAll(['project_id' => AdminController::getProjectId()]);
-
-        $regressList = RegressionTestModel::getAll([], ['api_id'])->toArray();
-        $apiIds = array_unique(array_column($regressList, 'api_id'));
-
-        $list = [];
-        foreach ($apiLists as $api) {
-            if (! in_array($api->id, $apiIds)) {
-                continue;
-            }
-            if (!isset($list[$api->project->id])) {
-                $domain = array_column($api->project->domain, 'value', 'key');
-
-                $list[$api->project->id] = [
-                    'id' => $api->project->id,
-                    'name' => $api->project->name,
-                    'domain' => $domain,
-                    'apiList' => [[
-                        'id' => $api->id,
-                        'name' => $api->name,
-                        'method' => $api->method,
-                        'url' => $api->url,
-                        'desc' => $api->desc,
-                    ]],
-                ];
-            } else {
-                $list[$api->project->id]['apiList'][] = [
-                    'id' => $api->id,
-                    'name' => $api->name,
-                    'method' => $api->method,
-                    'url' => $api->url,
-                    'desc' => $api->desc,
-                ];
-            }
-        }
-
-        return $list;
-    }
-
-
     public function getHeaderAttribute($value)
     {
         return array_values(@json_decode($value, true) ?: []);

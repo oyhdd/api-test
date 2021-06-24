@@ -271,7 +271,11 @@
                 var ori_ignore_fields = [];
 
                 for (const key in regTest) {
-                    if (regTest[key]['unit_test_id'] == unit_test_id && regTest[key]['ignore_fields'] != null && regTest[key]['ignore_fields'] != '') {
+                    if (regTest[key]['domain'] == $("select[name='domain'] :selected").val()
+                     && regTest[key]['unit_test_id'] == unit_test_id
+                     && regTest[key]['ignore_fields'] != null
+                     && regTest[key]['ignore_fields'] != ''
+                    ) {
                         ori_ignore_fields = (regTest[key]['ignore_fields']).split(',');
                     }
                 }

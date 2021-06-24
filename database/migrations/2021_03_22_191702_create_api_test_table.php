@@ -84,7 +84,7 @@ class CreateApiTestTable extends Migration
             $table->string('domain', 64)->default('')->comment('域名');
             $table->integer('api_id')->default(0)->comment('接口id');
             $table->integer('unit_test_id')->default(0)->comment('测试用例id');
-            $table->string('response_md5', 32)->default('')->comment('返回值的md5');
+            $table->longText('response')->nullable()->comment('测试结果');
             $table->tinyInteger('type')->default(1)->comment('回归模式：1完全匹配 2请求成功');
             $table->text('ignore_fields')->nullable()->comment('匹配时忽略字段');
             $table->tinyInteger('status')->default(1)->comment('状态：0已删除 1正常');
@@ -139,7 +139,7 @@ class CreateApiTestTable extends Migration
             $table->integer('project_id')->default(0)->comment('项目id');
             $table->integer('crontab_id')->default(0)->comment('计划任务id');
             $table->boolean('success')->default(0)->comment('是否成功：0否 1是');
-            $table->text('log')->nullable()->comment('执行日志');
+            $table->longText('log')->nullable()->comment('执行日志');
             $table->tinyInteger('status')->default(1)->comment('状态：0已删除 1正常');
             $table->timestamps();
 

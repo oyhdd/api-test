@@ -3,14 +3,14 @@
 namespace App\Admin\Controllers;
 
 use App\Admin\Actions\Grid\RunCrontab;
-use App\Admin\Renderable\UnitTest;
 use App\Admin\Repositories\Crontab;
 use App\Admin\Renderable\IntegrationTest;
+use App\Admin\Renderable\RegressionTest;
 use App\Models\BaseModel;
 use App\Models\CrontabModel;
 use App\Models\IntegrationTestModel;
 use App\Models\ProjectModel;
-use App\Models\UnitTestModel;
+use App\Models\RegressionTestModel;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Widgets\Table;
@@ -28,7 +28,7 @@ class CrontabController extends AdminController
     protected function grid()
     {
         return Grid::make(new Crontab(), function (Grid $grid) {
-            $grid->model()->where(['project_id' => self::getProjectId()])->orderBy('id', 'desc');
+            $grid->model()->where(['project_id' => self::getProjectId(), 'status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
             $grid->column('title')->sortable();
@@ -79,21 +79,31 @@ class CrontabController extends AdminController
 
             $form->select('domain')->options(ProjectModel::getDomainOptions(self::getProjectId()))->required();
             $form->select('task_type')
-            ->when(BaseModel::TASK_TYPE_UNIT_TEST, function (Form $form) {
+            ->when(BaseModel::TASK_TYPE_REGRESSION_TEST, function (Form $form) {
                 // 异步加载测试用例
                 $form->multipleSelectTable('task_value')
-                ->title('选择测试用例')
-                ->from(UnitTest::make(['id' => $form->getKey()]))
-                ->model(UnitTestModel::class, 'id', 'name');
+                ->title('选择回归测试用例')
+                ->from(RegressionTest::make(['id' => $form->getKey(), 'domain' => $form->model()->domain]))
+                ->options(function ($regTestIds) {
+                    if (! $regTestIds) {
+                        return [];
+                    }
+                    $regTestModel = RegressionTestModel::with(['api', 'unitTest'])->whereIn('id', $regTestIds)->get();
+                    $ret = [];
+                    foreach ($regTestModel as $regTest) {
+                        $ret[$regTest->id] = sprintf("%s : %s", $regTest->api->name, $regTest->unitTest->name);
+                    }
+                    return $ret;
+                });
             })
             ->when(BaseModel::TASK_TYPE_INTEGRATION_TEST, function (Form $form) {
                 // 异步加载集成测试
                 $form->multipleSelectTable('task_value_integration_test', '任务Id')
-                ->title('选择集成测试')
+                ->title('选择集成测试用例')
                 ->from(IntegrationTest::make())
                 ->model(IntegrationTestModel::class, 'id', 'name');
             })
-            ->options(BaseModel::$label_task_type)->default(BaseModel::TASK_TYPE_UNIT_TEST)->required();
+            ->options(BaseModel::$label_task_type)->default(BaseModel::TASK_TYPE_REGRESSION_TEST)->required();
 
             $form->number('retain_day')->default(14);
             $form->switch('alarm_enable');

@@ -236,7 +236,7 @@ class RunController extends AdminController
                             'unit_test_id' => $regTest->unit_test_id,
                             'method' => $api->method,
                             'type' => $regTest->type,
-                            'response_md5' => $regTest->response_md5,
+                            'response' => $regTest->response,
                             'unit_test_name' => $regTest->unitTest->name,
                             'ignore_fields' => explode(',', $regTest->ignore_fields),
                         ];
@@ -300,18 +300,19 @@ class RunController extends AdminController
             if ($response['success']) {
                 // 完全匹配
                 if ($requestItem['type'] == BaseModel::REG_TYPE_ALL) {
-                    $response_md5 = md5((trim($response['response'])));
                     if (!empty($requestItem['ignore_fields'])) {
-                        $temp_response = json_decode($response['response'], true);
+                        $response['response'] = json_decode($response['response'], true);
                         foreach ($requestItem['ignore_fields'] as $ignore_field) {
-                            if (!empty($ignore_field) && isset($temp_response[$ignore_field])) {
-                                unset($temp_response[$ignore_field]);
+                            if (!empty($ignore_field) && isset($response['response'][$ignore_field])) {
+                                unset($response['response'][$ignore_field]);
                             }
                         }
-                        $temp_response = json_encode($temp_response);
-                        $response_md5 = md5((trim($temp_response)));
+                        $response['response'] = json_encode($response['response']);
+                        $response_md5 = md5((trim($response['response'])));
+                    } else {
+                        $response_md5 = md5((trim($response['response'])));
                     }
-                    $success = ($response_md5 == $requestItem['response_md5']);
+                    $success = ($response_md5 == md5(trim($requestItem['response'])));
                 } else {
                     // 请求成功
                     $success = true;

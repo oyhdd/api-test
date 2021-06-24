@@ -81,11 +81,15 @@ class RegressionTestController extends AdminController
             $show->field('api.url', '接口地址');
             $show->field('api.desc', '接口描述');
             $show->field('unit_test.name', '测试用例')->link('/admin/unit-test/'. $show->model()->unit_test_id)->label('info');
-            $show->field('response_md5');
             $show->field('type')->as(function ($type) {
                 return BaseModel::$label_reg_type[$type] ?? '';
             });
             $show->field('ignore_fields');
+            $show->field('response')->as(function ($response) {
+                if (!empty($response)) {
+                    return json_encode(json_decode($response),JSON_PRETTY_PRINT);
+                }
+            })->textarea();
             $show->field('created_at');
             $show->field('updated_at');
 

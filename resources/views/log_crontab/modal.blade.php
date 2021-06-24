@@ -1,4 +1,3 @@
-
 <style>
     .panel {background: rgb(15 14 14 / 40%) !important;border: 1px solid gray;border-radius: 4px;}
     .panel-heading {padding: 10px;border-top-left-radius: 3px;border-top-right-radius: 3px;}
@@ -41,9 +40,19 @@
                             @endif
                         </a></div>
                     </div>
-                    <div id="unitTest_response_{{ $unitTest['id'] }}" class="panel-body collapse">
-                        <pre>{{ json_encode(json_decode($unitTest['response']),JSON_PRETTY_PRINT) }}</pre>
-                    </div></div>
+                    <div id="unitTest_response_{{ $unitTest['id'] }}" class="panel-body collapse show">
+                    @if (!empty($unitTest['ignore_fields']))
+                    <pre>完全匹配时忽略字段：{{ $unitTest['ignore_fields'] }}</pre>
+                    @endif
+                    @php
+                        echo view('json-compare', [
+                            'id' => $id,
+                            'json_left'  => ['key' => '回归测试结果', 'value' => $unitTest['response_reg'] ?? ''],
+                            'json_right' => ['key' => '当前运行结果', 'value' => $unitTest['response'] ?? ''],
+                        ]);
+                    @endphp
+                    </div>
+                </div>
                 @endforeach
             </div>
         </div>

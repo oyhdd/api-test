@@ -9,7 +9,7 @@ return [
         'domain' => '域名环境',
         'api_id' => '接口',
         'unit_test_id' => '测试用例',
-        'response_md5' => '返回值的md5',
+        'response' => '测试结果',
         'type' => '回归模式',
         'ignore_fields' => '忽略字段',
     ],
