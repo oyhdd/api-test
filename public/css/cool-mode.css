@@ -138,7 +138,7 @@ body.dark-mode::-webkit-scrollbar-track {
 }
 
 body.dark-mode::-webkit-scrollbar-thumb {
-	background-color: #1e1e2d;
+	background-color: white;
 	border-radius: .4rem
 }
 
@@ -422,7 +422,7 @@ body.dark-mode .table-responsive[data-pattern=priority-columns]::-webkit-scrollb
 }
 
 body.dark-mode .table-responsive[data-pattern=priority-columns]::-webkit-scrollbar-thumb {
-	background-color: #1e1e2d;
+	background-color: white;
 	border-radius: .4rem
 }
 
@@ -655,7 +655,7 @@ body.dark-mode .layui-layer-page .layui-layer-content::-webkit-scrollbar-track {
 }
 
 body.dark-mode .layui-layer-page .layui-layer-content::-webkit-scrollbar-thumb {
-	background-color: gray;
+	background-color: white;
 	border-radius: .4rem
 }
 
@@ -743,7 +743,7 @@ body.dark-mode .iconpicker .iconpicker-items::-webkit-scrollbar-track {
 }
 
 body.dark-mode .iconpicker .iconpicker-items::-webkit-scrollbar-thumb {
-	background-color: #1e1e2d;
+	background-color: white;
 	border-radius: .4rem
 }
 
@@ -901,7 +901,7 @@ body.dark-mode .table-main::-webkit-scrollbar-track {
 }
 
 body.dark-mode .table-main::-webkit-scrollbar-thumb {
-	background-color: #1e1e2d;
+	background-color: white;
 	border-radius: .4rem
 }
 
