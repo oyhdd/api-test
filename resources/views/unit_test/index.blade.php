@@ -142,8 +142,8 @@
     <div class="run-panel col-md-9 col-sm-12">
 
         <pre id="api_desc"><b><br><span class="label bg-success">{{ $model->method }}</span>&nbsp;<span class="label bg-gray">{{ $model->url }}</span>
-            <br>接口名称：{{ $model->name }}<br>接口描述：{{ $model->desc }}
-        </b></pre>
+            <br>接口名称：</b>{{ $model->name }}<br><b>接口描述：</b>{{ $model->desc }}
+        </pre>
         <ul class="tabs">
             <li class="active"><a href="#tab1">接口文档</a></li>
             <li><a href="#tab2">在线测试</a></li>

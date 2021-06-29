@@ -28,7 +28,7 @@ class CrontabController extends AdminController
     protected function grid()
     {
         return Grid::make(new Crontab(), function (Grid $grid) {
-            $grid->model()->where(['project_id' => self::getProjectId(), 'status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
+            $grid->model()->where(['project_id' => self::getProjectId()])->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
             $grid->column('title')->sortable();

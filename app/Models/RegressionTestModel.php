@@ -49,8 +49,10 @@ class RegressionTestModel extends BaseModel
 
         $model = RegressionTestModel::where(['unit_test_id' => $params['unit_test_id'], 'domain' => $params['domain']])->first();
         if (empty($model)) {
+            if ($params['status'] == RegressionTestModel::STATUS_DELETED) {
+                return true;
+            }
             $model = new RegressionTestModel();
-            $params['status'] = RegressionTestModel::STATUS_NORMAL;
         }
 
         $model->fill($params);

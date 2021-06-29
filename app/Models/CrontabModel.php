@@ -91,7 +91,7 @@ class CrontabModel extends BaseModel
      */
     public static function runCrontab($id)
     {
-        $crontab = CrontabModel::getOne(['id' => $id]);
+        $crontab = CrontabModel::where(['id' => $id])->first();
         if (empty($crontab)) {
             return;
         }
@@ -182,10 +182,10 @@ class CrontabModel extends BaseModel
      * @param  array        $requestData        [['url','headers','form_params','api_id','api_name','api_url','project_id','unit_test_id','method','type','response','unit_test_name','ignore_fields'], ...]
      * @param  int          $concurrency        并发数
      * @param  array        $header             header,例如登录认证令牌等
-     * @param  int          $timeOut            超时限制60s
+     * @param  int          $timeOut            超时限制120s
      * @return false|array
      */
-    public static function sendRequest($requestData = [], $concurrency = 20, $header = [], $timeOut = 120)
+    public static function sendRequest($requestData = [], $concurrency = 20, $timeOut = 120)
     {
         if (empty($requestData)) {
             return false;
