@@ -49,7 +49,7 @@ class LogCrontabController extends AdminController
                 if (!$success) {
                     $class = 'bg-danger';
                 }
-                return "<span class='label {$class}'>" . ($success ? '是' : '否') . "</span> &nbsp;";
+                return "<span class='label {$class}'>" . BaseModel::$label_yes_or_no[$success] . "</span> &nbsp;";
             })->sortable();
             $grid->column('log')->display(function() {
                 return self::getLogModal($this->id);
@@ -59,7 +59,8 @@ class LogCrontabController extends AdminController
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->padding(0, 0, '20px')->panel();
 
-                $filter->between('updated_at')->datetime();
+                $filter->equal('success')->select(BaseModel::$label_yes_or_no)->width(4);
+                $filter->between('updated_at')->datetime()->width(8);
             });
 
             $grid->disableViewButton()->disableEditButton()->disableCreateButton();

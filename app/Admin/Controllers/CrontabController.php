@@ -105,7 +105,7 @@ class CrontabController extends AdminController
             })
             ->options(BaseModel::$label_task_type)->default(BaseModel::TASK_TYPE_REGRESSION_TEST)->required();
 
-            $form->number('retain_day')->default(14);
+            $form->number('retain_day')->min(0)->default(0)->help('为0时永久保留');
             $form->switch('alarm_enable');
             $form->switch('status');
             $form->text('crontab')->default('* * * * *')->help('格式：* * * * * （minute hour day month week）');

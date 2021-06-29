@@ -41,8 +41,10 @@ class ClearCrontabLog extends Command
     {
         $tasks = CrontabModel::getCrontabFromCache();
         foreach ($tasks as $task) {
-            $day = date('Y-m-d', strtotime("-{$task['retain_day']} day"));
-            LogCrontabModel::where(['crontab_id' => $task['id']])->where('day', '<', $day)->delete();
+            if ($task['retain_day'] > 0) {
+                $day = date('Y-m-d', strtotime("-{$task['retain_day']} day"));
+                LogCrontabModel::where(['crontab_id' => $task['id']])->where('day', '<', $day)->delete();
+            }
         }
     }
 }

@@ -38,9 +38,9 @@
         $form->embeds('header', '请求头', function ($form) use ($model) {
             foreach ($model['header'] as $param) {
                 if ($param['is_necessary']) {
-                    $form->textarea($param['key'], $param['key'])->placeholder($param['desc'] ? $param['desc'] : "请输入 {$param['key']}")->width(12, 12)->required();
+                    $form->textarea($param['key'], $param['key'])->placeholder($param['desc'] ? str_replace("<br>", "\n", $param['desc']) : "请输入 {$param['key']}")->width(12, 12)->required();
                 } else {
-                    $form->textarea($param['key'], $param['key'])->placeholder($param['desc'] ? $param['desc'] : "请输入 {$param['key']}")->width(12, 12);
+                    $form->textarea($param['key'], $param['key'])->placeholder($param['desc'] ? str_replace("<br>", "\n", $param['desc']) : "请输入 {$param['key']}")->width(12, 12);
                 }
             }
 
@@ -52,9 +52,9 @@
         $form->embeds('body', '请求体', function ($form) use ($model) {
             foreach ($model['body'] as $key => $param) {
                 if ($param['is_necessary']) {
-                    $form->textarea($param['key'], $param['key'])->placeholder($param['desc'] ? $param['desc'] : "请输入 {$param['key']}")->width(12, 12)->required();
+                    $form->textarea($param['key'], $param['key'])->placeholder($param['desc'] ? str_replace("<br>", "\n", $param['desc']) : "请输入 {$param['key']}")->width(12, 12)->required();
                 } else {
-                    $form->textarea($param['key'], $param['key'])->placeholder($param['desc'] ? $param['desc'] : "请输入 {$param['key']}")->width(12, 12);
+                    $form->textarea($param['key'], $param['key'])->placeholder($param['desc'] ? str_replace("<br>", "\n", $param['desc']) : "请输入 {$param['key']}")->width(12, 12);
                 }
             }
 
