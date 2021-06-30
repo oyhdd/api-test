@@ -94,10 +94,11 @@
                                                 <span class="vs-checkbox"><span class="vs-checkbox--check"><i class="vs-icon feather icon-check"></i></span></span>
                                             </div>
                                         </th>
+                                        <th>接口id</th>
                                         <th>接口名称</th>
                                         <th>请求方式</th>
                                         <th>接口地址</th>
-                                        <th>测试描述</th>
+                                        <th>接口描述</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -109,6 +110,7 @@
                                                 <span class="vs-checkbox"><span class="vs-checkbox--check"><i class="vs-icon feather icon-check"></i></span></span>
                                             </div>
                                         </td>
+                                        <td>{{ $api['id'] ?? '' }}</td>
                                         <td>{{ $api['name'] ?? '' }}</td>
                                         <td>{{ $api['method'] ?? '' }}</td>
                                         <td>{{ $api['url'] ?? '' }}</td>

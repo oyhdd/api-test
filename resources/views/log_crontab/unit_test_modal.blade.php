@@ -20,7 +20,7 @@
             <div class="panel-heading bg-white">
                 <div>
                     <a href="#api_response_{{ $api['id'] }}" data-toggle="collapse">
-                        <span class="label bg-custom">接口：{{ $api['name'] }}&nbsp;&nbsp;</span>
+                        <span class="label bg-custom">接口{{ $api['id'] }}：{{ $api['name'] }}&nbsp;&nbsp;</span>
                         <span class="label bg-custom">{{ $api['method'] }}&nbsp;&nbsp;</span>
                         <span class="label bg-gray text-light">{{ $api['url'] }}&nbsp;&nbsp;</span>
                         <span class="label {{ $api['success_count'] < $api['total_count'] ? 'bg-danger' : 'bg-success'  }}">成功用例：{{ $api['success_count'] }}  / {{ $api['total_count'] }}</span>
@@ -33,7 +33,7 @@
                 <div class="panel">
                     <div class="panel-heading bg-white">
                         <div><a href="#unitTest_response_{{ $unitTest['id'] }}" data-toggle="collapse">
-                            <span class="label bg-custom">用例：{{ $unitTest['name'] }}&nbsp;&nbsp;</span>
+                            <span class="label bg-custom">回归用例{{ $unitTest['id'] }}：{{ $unitTest['name'] }}&nbsp;&nbsp;</span>
                             <span class="label {{ $unitTest['request_result'] ? 'bg-success' : 'bg-danger' }}">{{ $unitTest['request_result'] ? '请求成功' : '请求失败' }}&nbsp;&nbsp;</span>
                             @if (isset($unitTest['result']))
                             <span class="label {{ $unitTest['result'] ? 'bg-success' : 'bg-danger' }}">{{ $unitTest['result'] ? '匹配成功' : '匹配失败' }}&nbsp;&nbsp;</span>

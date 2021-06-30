@@ -64,10 +64,11 @@ class RegressionTestModel extends BaseModel
      */
     public static function getRegressList()
     {
-        $models = RegressionTestModel::getAll(['project_id' => AdminController::getProjectId()]);
+        $models = RegressionTestModel::getAll(['project_id' => AdminController::getProjectId()])->groupBy('api_id');
 
         $list = [];
         foreach ($models as $model) {
+            $model = $model->shift();
             if (!isset($list[$model->project_id])) {
                 $domain = array_column($model->project->domain, 'value', 'key');
 

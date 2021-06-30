@@ -9,6 +9,7 @@ use App\Admin\Repositories\Crontab;
 use App\Models\BaseModel;
 use App\Models\CrontabModel;
 use App\Models\IntegrationTestModel;
+use App\Models\LogCrontabModel;
 use App\Models\ProjectModel;
 use App\Models\RegressionTestModel;
 use Dcat\Admin\Form;
@@ -165,6 +166,7 @@ class CrontabController extends AdminController
         try {
             $ids = explode(",", $ids);
             CrontabModel::whereIn('id', $ids)->delete();
+            LogCrontabModel::whereIn('crontab_id', $ids)->delete();
         } catch (\Throwable $th) {
             $data['status'] = false;
             $data['data']['message'] = $th->getMessage();
