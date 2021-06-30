@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Admin\Actions\Grid;
+namespace App\Admin\Extensions\Grid\Action;
 
 use Dcat\Admin\Grid\RowAction;
-use App\Admin\Forms\CopyApi as CopyApiForm;
 use Dcat\Admin\Widgets\Modal;
+use App\Admin\Extensions\Form\CopyApi as CopyApiForm;
 
 class CopyApi extends RowAction
 {

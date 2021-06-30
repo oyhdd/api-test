@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin\Actions\Grid;
+namespace App\Admin\Extensions\Grid\Action;
 
 use Dcat\Admin\Grid\RowAction;
 use App\Models\CrontabModel;

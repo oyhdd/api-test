@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin\Renderable;
+namespace App\Admin\Extensions\Renderable;
 
 use App\Admin\Controllers\AdminController;
 use App\Admin\Repositories\RegressionTest as RegressionTestRep;

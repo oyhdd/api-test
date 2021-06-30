@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin\Renderable;
+namespace App\Admin\Extensions\Renderable;
 
 use App\Models\ApiModel;
 use App\Models\BaseModel;

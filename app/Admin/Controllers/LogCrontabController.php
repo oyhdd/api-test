@@ -2,7 +2,7 @@
 
 namespace App\Admin\Controllers;
 
-use App\Admin\Forms\CrontabLog;
+use App\Admin\Extensions\Form\CrontabLog;
 use App\Admin\Repositories\LogCrontab;
 use App\Models\BaseModel;
 use App\Models\LogCrontabModel;
@@ -62,7 +62,7 @@ class LogCrontabController extends AdminController
                 $filter->equal('success')->select(BaseModel::$label_yes_or_no)->width(4);
                 $filter->between('updated_at')->datetime()->width(8);
             });
-
+            $grid->tools('<a class="btn btn-primary disable-outline">测试按钮</a>');
             $grid->disableViewButton()->disableEditButton()->disableCreateButton();
         });
     }

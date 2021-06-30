@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin\Forms;
+namespace App\Admin\Extensions\Form;
 
 use App\Models\ApiModel;
 use App\Models\BaseModel;

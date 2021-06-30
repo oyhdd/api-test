@@ -2,10 +2,10 @@
 
 namespace App\Admin\Controllers;
 
-use App\Admin\Actions\Grid\RunCrontab;
+use App\Admin\Extensions\Grid\Action\RunCrontab;
+use App\Admin\Extensions\Renderable\IntegrationTest;
+use App\Admin\Extensions\Renderable\RegressionTest;
 use App\Admin\Repositories\Crontab;
-use App\Admin\Renderable\IntegrationTest;
-use App\Admin\Renderable\RegressionTest;
 use App\Models\BaseModel;
 use App\Models\CrontabModel;
 use App\Models\IntegrationTestModel;
