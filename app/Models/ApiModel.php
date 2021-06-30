@@ -80,10 +80,10 @@ class ApiModel extends BaseModel implements Sortable
         $navItems = [];
         foreach ($apiLists as $id => $api) {
             unset($apiLists[$id]['order']);
+            $apiLists[$id]['href'] = "/admin/run/{$api['id']}";
+            $apiLists[$id]['edit_href'] = "/admin/api/{$api['id']}/edit";
+            $apiLists[$id]['active'] = $this->id == $api['id'];
             if (isset($apiLists[$api['parent_id']])) {
-                $apiLists[$id]['href'] = "/admin/run/{$api['id']}";
-                $apiLists[$id]['edit_href'] = "/admin/api/{$api['id']}/edit";
-                $apiLists[$id]['active'] = $this->id == $api['id'];
                 $apiLists[$api['parent_id']]['subMenus'][] = &$apiLists[$id];
             } else {
                 $navItems[] = &$apiLists[$id];
