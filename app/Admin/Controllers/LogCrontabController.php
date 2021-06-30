@@ -54,7 +54,7 @@ class LogCrontabController extends AdminController
             $grid->column('log')->display(function() {
                 return self::getLogModal($this->id);
             });
-            $grid->column('updated_at')->sortable();
+            $grid->column('updated_at', '执行时间')->sortable();
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->padding(0, 0, '20px')->panel();

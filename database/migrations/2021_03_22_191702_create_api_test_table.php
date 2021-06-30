@@ -43,6 +43,8 @@ class CreateApiTestTable extends Migration
 
         Schema::create('api', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('parent_id')->default(0)->comment('父级');
+            $table->integer('order')->default(0)->comment('排序');
             $table->integer('project_id')->default(0)->comment('项目id');
             $table->string('name', 64)->default('')->comment('接口名称');
             $table->string('url', 255)->default('')->comment('接口地址');

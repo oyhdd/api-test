@@ -2,7 +2,7 @@
 
 namespace App\Admin\Extensions\Grid\Action;
 
-use Dcat\Admin\Grid\RowAction;
+use Dcat\Admin\Tree\RowAction;
 use Dcat\Admin\Widgets\Modal;
 use App\Admin\Extensions\Form\CopyApi as CopyApiForm;
 
@@ -16,7 +16,7 @@ class CopyApi extends RowAction
     public function render()
     {
         // 实例化表单类并传递自定义参数
-        $form = CopyApiForm::make()->payload(['id' => $this->getKey()]);
+        $form = CopyApiForm::make()->payload(['id' => $this->getKey(), 'project_id' => $this->getRow()->project_id]);
 
         return Modal::make()
             ->xl()

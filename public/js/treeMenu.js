@@ -1,24 +1,36 @@
 /**
  *  //1、menu01: JS Array
- *  var menus01 = [{
- *      name: "menu1",
- *      href: "",
- *      subMenus: [{
- *          name: "menu1.1",
- *          href: "",
- *          subMenus: [{
- *              name: "menu1.1.1",
- *              href: "#menu1.1.1",
- *              active: true
- *          }, {
- *              name: "menu1.1.2",
- *              href: "#menu1.1.2"
- *          }]
+ *  var menus01 = [
+ *      {
+ *          "href": "#",
+ *          "edit_href": "#",
+ *          "name": "Test1"
  *      },
- *      ....//省略若干子菜单
- *      ]
- *  },
- *  ...//省略若干菜单
+ *      {
+ *          "name": "Test2",
+ *          "href": "",
+ *          "subMenus": [
+ *          {
+ *              "name": "Test21",
+ *              "href": "#",
+ *              "edit_href": "#",
+ *              "active": false
+ *          },
+ *          {
+ *              "name": "Test22",
+ *              "href": "",
+ *              "edit_href": "",
+ *              "active": false,
+ *              "subMenus": [
+ *              {
+ *                  "name": "Test23",
+ *                  "href": "#",
+ *                  "edit_href": "#",
+ *                  "active": true
+ *              }]
+ *          }
+ *      }
+ *       ...//省略若干菜单
  *  ];
  *
  *  //2、menu02：JSON Array
@@ -216,7 +228,7 @@
             });
             var menuLink = $("<a>");
 
-            var hasHref = menu.href && $.trim(menu.href).length > 0;
+            var hasHref = menu.subMenus == undefined && menu.href && $.trim(menu.href).length > 0;
             if(hasHref === true) {
                 menuLink.attr("href", menu.href);
                 menuLink.css("width", "100%");
@@ -228,8 +240,7 @@
 
             menuLink.appendTo(menuNameDiv);
 
-
-            var editHref = menu.edit_href && $.trim(menu.edit_href).length > 0;
+            var editHref = menu.subMenus == undefined && menu.edit_href && $.trim(menu.edit_href).length > 0;
             if (editHref === true) {
                 var editLink = $("<a class='edit-api' href=" + menu.edit_href + "><i class='feather icon-edit'></i></a>");
                 editLink.appendTo(menuNameDiv);

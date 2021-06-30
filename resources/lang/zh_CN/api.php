@@ -5,6 +5,8 @@ return [
         'api' => '接口列表',
     ],
     'fields' => [
+        'parent_id' => '父级',
+        'order' => '排序',
         'project_id' => '项目',
         'name' => '接口名称',
         'url' => '接口地址',

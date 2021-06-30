@@ -3,12 +3,23 @@
 namespace App\Models;
 
 use App\Admin\Controllers\AdminController;
+use Spatie\EloquentSortable\Sortable;
+use Dcat\Admin\Traits\HasDateTimeFormatter;
+use Dcat\Admin\Traits\ModelTree;
 
-class ApiModel extends BaseModel
+class ApiModel extends BaseModel implements Sortable
 {
+    use HasDateTimeFormatter,
+    ModelTree {
+        allNodes as treeAllNodes;
+        ModelTree::boot as treeBoot;
+    }
+
     protected $table = 'api';
 
     protected $fillable = [
+        'parent_id',
+        'order',
         'project_id',
         'name',
         'url',
@@ -21,6 +32,15 @@ class ApiModel extends BaseModel
         'response_desc',
         'status',
     ];
+
+    /**
+     * @var array
+     */
+    protected $sortable = [
+        'sort_when_creating' => true,
+    ];
+
+    protected $titleColumn = 'name';
 
     public function project()
     {
@@ -49,28 +69,25 @@ class ApiModel extends BaseModel
     public function getNavItems()
     {
         $project_id = AdminController::getProjectId();
-        $apiLists = ApiModel::getAll(['project_id' => $project_id]);
+        $apiLists = ApiModel::select(['id', 'parent_id', 'order', 'name'])
+            ->where(['project_id' => $project_id, 'status' => self::STATUS_NORMAL])
+            ->orderBy('order', 'ASC')
+            ->get()
+            ->toArray();
 
-        $list = $navItems = [];
-        foreach ($apiLists as $api) {
-            $list[$api->project->name][$api->id] = $api;
-        }
-        foreach ($list as $project_name => $apis) {
-            $subMenus = [];
-            foreach ($apis as $api) {
-                $subMenus[] = [
-                    "name" => $api->name,
-                    "href" => "/admin/run/{$api->id}",
-                    "edit_href" => "/admin/api/{$api->id}/edit",
-                    "active" => $this->id == $api->id,
-                ];
+        $apiLists = array_column($apiLists, null, 'id');
+
+        $navItems = [];
+        foreach ($apiLists as $id => $api) {
+            unset($apiLists[$id]['order']);
+            if (isset($apiLists[$api['parent_id']])) {
+                $apiLists[$id]['href'] = "/admin/run/{$api['id']}";
+                $apiLists[$id]['edit_href'] = "/admin/api/{$api['id']}/edit";
+                $apiLists[$id]['active'] = $this->id == $api['id'];
+                $apiLists[$api['parent_id']]['subMenus'][] = &$apiLists[$id];
+            } else {
+                $navItems[] = &$apiLists[$id];
             }
-
-            $navItems[] = [
-                "name" => $project_name,
-                "href" => "",
-                "subMenus" => $subMenus,
-            ];
         }
 
         return $navItems;

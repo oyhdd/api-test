@@ -36,6 +36,11 @@ class CopyApi extends Form implements LazyRenderable
     public function form()
     {
         $this->select('project_id', '项目')->options(ProjectModel::getAll()->pluck('name', 'id'));
+        $this->select('parent_id', '父级')->options(ApiModel::selectOptions(function($query) {
+            return $query->where(['project_id' => $this->payload['project_id'], 'status' => BaseModel::STATUS_NORMAL]);
+        }))->saving(function ($v) {
+            return (int) $v;
+        });
         $this->text('name')->required();
         $this->text('url', '接口地址');
         $this->select('method')->options(BaseModel::$label_request_methods)->required();

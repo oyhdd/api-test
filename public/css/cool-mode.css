@@ -453,7 +453,9 @@ body.dark-mode .table td,body.dark-mode .table th {
 
 body.dark-mode .table .thead tr:not([class*=table-]) td,body.dark-mode .table .thead tr:not([class*=table-]) th,body.dark-mode .table tbody tr:not([class*=table-]) td,body.dark-mode .table tbody tr:not([class*=table-]) th {
 	border: 0;
-	color: white
+	color: white;
+    word-wrap:break-word;
+    word-break:break-all;
 }
 
 body.dark-mode .table .thead tr:not([class*=table-]) td code,body.dark-mode .table .thead tr:not([class*=table-]) th code,body.dark-mode .table tbody tr:not([class*=table-]) td code,body.dark-mode .table tbody tr:not([class*=table-]) th code {

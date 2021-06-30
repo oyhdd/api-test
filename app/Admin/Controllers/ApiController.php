@@ -7,49 +7,103 @@ use App\Admin\Repositories\Api;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
-use App\Models\{UnitTestModel, ProjectModel, BaseModel};
-
+use App\Models\{ApiModel, UnitTestModel, ProjectModel, BaseModel};
 use Illuminate\Support\Facades\DB;
+use Dcat\Admin\Layout\Content;
+use Dcat\Admin\Layout\Row;
+use Dcat\Admin\Layout\Column;
+use Dcat\Admin\Widgets\Box;
+use Dcat\Admin\Tree;
+use Dcat\Admin\Widgets\Form as WidgetForm;
 
 /**
  * 接口管理
  */
 class ApiController extends AdminController
 {
-    /**
-     * Make a grid builder.
-     *
-     * @return Grid
-     */
-    protected function grid()
+
+    public function index(Content $content)
     {
-        return Grid::make(new Api(), function (Grid $grid) {
-            $grid->model()->where(['project_id' => self::getProjectId(), 'status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
+        return $content
+            ->title($this->title())
+            ->description($this->description()['index'] ?? trans('admin.list'))
+            ->body(function (Row $row) {
+                $row->column(5, $this->treeView()->render());
 
-            $grid->column('id')->sortable();
-            $grid->column('name')->sortable();
-            $grid->column('url')->display(function($url) {
-                $class = 'bg-success';
-                if (strtoupper($this->method) == 'POST') {
-                    $class = 'bg-custom';
-                }
-                return "<span class='label {$class}'>{$this->method}</span> &nbsp;" . $url;
+                $row->column(7, function (Column $column) {
+                    $form = new WidgetForm();
+
+                    $form->select('parent_id')
+                    ->options(ApiModel::selectOptions(function($query) {
+                        return $query->where(['project_id' => self::getProjectId(), 'status' => BaseModel::STATUS_NORMAL]);
+                    }));
+                    $form->hidden('project_id')->default(self::getProjectId());
+                    $form->text('name')->required();
+                    $form->text('url');
+                    $form->select('method')->options(BaseModel::$label_request_methods)->default('GET')->required();
+                    $form->textarea('desc');
+                    $form->fieldset('参数设置', function ($form) {
+                        $form->table('header', function ($table) {
+                            $table->text('key', '参数名')->required();
+                            $table->text('type', '参数类型')->default('string');
+                            $table->radio('is_necessary', '是否必填')->options(BaseModel::$label_yes_or_no)->default(BaseModel::NO);
+                            $table->text('desc', '参数说明');
+                        })->saving(function ($v) {
+                            return json_encode($v);
+                        });
+                        $form->table('body', function ($table) {
+                            $table->text('key', '参数名')->required();
+                            $table->text('type', '参数类型')->default('string');
+                            $table->radio('is_necessary', '是否必填')->options(BaseModel::$label_yes_or_no)->default(BaseModel::NO);
+                            $table->text('desc', '参数说明');
+                        })->saving(function ($v) {
+                            return json_encode($v);
+                        });
+                    });
+                    $form->textarea('request_example');
+                    $form->textarea('response_example');
+                    $form->textarea('response_desc');
+
+                    $form->width(9, 2);
+
+                    $column->append(Box::make(trans('admin.new'), $form));
+                });
             });
-            $grid->column('desc')->limit(40);
-            $grid->column('updated_at')->sortable();
+    }
 
-            $grid->actions(function ($actions) {
-                $actions->prepend("&nbsp; <a href='/admin/run/{$this->getKey()}'><i title='运行' class='fa fa-paper-plane grid-action-icon'></i>&nbsp; </a>");
+    /**
+     * @return \Dcat\Admin\Tree
+     */
+    protected function treeView()
+    {
+        return new Tree(new ApiModel(), function (Tree $tree) {
+            $tree->query(function($query) {
+                return $query->where(['project_id' => self::getProjectId(), 'status' => BaseModel::STATUS_NORMAL]);
+            });
+            $tree->disableCreateButton();
+            $tree->disableQuickCreateButton();
+            $tree->disableQuickEditButton();
+            $tree->showEditButton();
+            $tree->maxDepth(3);
+
+            $tree->actions(function (Tree\Actions $actions) {
                 $actions->prepend(new CopyApi());
+                $actions->prepend("&nbsp;<a href='/admin/api/{$this->getKey()}'><i title='查看' class='feather icon-eye grid-action-icon'></i>&nbsp; </a>");
             });
 
-            $grid->filter(function (Grid\Filter $filter) {
-                $filter->padding(0, 0, '20px')->panel();
-                $filter->like('name')->width(6);
-                $filter->like('url')->width(6);
+            $tree->branch(function ($branch) {
+                $payload = "<strong>{$branch['name']}</strong>";
+
+                if (! isset($branch['children'])) {
+                    $uri = $branch['url'];
+                    $payload .= "&nbsp;&nbsp;<a href=\"/admin/run/{$branch['id']}\" class=\"dd-nodrag\">$uri</a>";
+                }
+
+                return $payload;
             });
         });
     }
+
 
     /**
      * Make a show builder.
@@ -91,6 +145,11 @@ class ApiController extends AdminController
         return Form::make(new Api(), function (Form $form) {
 
             $form->display('id');
+            $form->select('parent_id')->options(ApiModel::selectOptions(function($query) {
+                return $query->where(['project_id' => self::getProjectId(), 'status' => BaseModel::STATUS_NORMAL]);
+            }))->saving(function ($v) {
+                return (int) $v;
+            });
             $form->select('project_id')->options(ProjectModel::getAll()->pluck('name', 'id'))->default(self::getProjectId())->disable();
             $form->text('name')->required();
             $form->text('url');
