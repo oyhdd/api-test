@@ -62,7 +62,7 @@ class LogCrontabController extends AdminController
                 $filter->equal('success')->select(BaseModel::$label_yes_or_no)->width(4);
                 $filter->between('updated_at')->datetime()->width(8);
             });
-            $grid->tools('<a class="btn btn-primary disable-outline">测试按钮</a>');
+            $grid->tools('<a class="btn btn-primary">全部删除</a>');
             $grid->disableViewButton()->disableEditButton()->disableCreateButton();
         });
     }

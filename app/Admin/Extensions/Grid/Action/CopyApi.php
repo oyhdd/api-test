@@ -11,7 +11,7 @@ class CopyApi extends RowAction
     /**
      * @return string
      */
-	protected $title = "复制";
+	protected $title = "<a href='javascript:void(0);'><i title='复制' class='fa fa-copy'></i></a>";
 
     public function render()
     {
@@ -20,7 +20,7 @@ class CopyApi extends RowAction
 
         return Modal::make()
             ->xl()
-            ->title($this->title)
+            ->title('复制')
             ->body($form)
             ->button($this->title);
     }

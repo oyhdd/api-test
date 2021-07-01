@@ -5,7 +5,6 @@ namespace App\Admin\Controllers;
 use App\Admin\Extensions\Grid\Action\CopyApi;
 use App\Admin\Repositories\Api;
 use Dcat\Admin\Form;
-use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use App\Models\{ApiModel, UnitTestModel, ProjectModel, BaseModel};
 use Illuminate\Support\Facades\DB;
@@ -87,8 +86,9 @@ class ApiController extends AdminController
             $tree->maxDepth(3);
 
             $tree->actions(function (Tree\Actions $actions) {
+                $actions->prepend("&nbsp;<a href='/admin/run/{$this->getKey()}'><i title='运行' class='fa fa-paper-plane grid-action-icon'></i>&nbsp;</a>&nbsp;");
                 $actions->prepend(new CopyApi());
-                $actions->prepend("&nbsp;<a href='/admin/api/{$this->getKey()}'><i title='查看' class='feather icon-eye grid-action-icon'></i>&nbsp; </a>");
+                $actions->prepend("&nbsp;<a href='/admin/api/{$this->getKey()}'><i title='查看' class='feather icon-eye grid-action-icon'></i>&nbsp;</a>");
             });
 
             $tree->branch(function ($branch) {

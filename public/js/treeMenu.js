@@ -242,7 +242,7 @@
 
             var editHref = menu.subMenus == undefined && menu.edit_href && $.trim(menu.edit_href).length > 0;
             if (editHref === true) {
-                var editLink = $("<a class='edit-api' href=" + menu.edit_href + "><i class='feather icon-edit'></i></a>");
+                var editLink = $("<a class='edit-api' href=" + menu.edit_href + " target='_blank'><i class='feather icon-edit'></i></a>");
                 editLink.appendTo(menuNameDiv);
             }
 
