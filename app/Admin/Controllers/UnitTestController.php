@@ -193,7 +193,6 @@ class UnitTestController extends AdminController
             Admin::script("$(\"select[name='api_id']\").change(function () {
                 var api_id = $(\"select[name='api_id']\").val();
                 if (api_id != null) {
-                    console.log(api_id)
                     $.pjax.reload({
                         url: '/admin/unit-test/api-detail/'+ api_id,
                         container: '#api_refresh'
