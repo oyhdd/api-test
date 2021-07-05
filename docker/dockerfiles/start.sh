@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# # Copy config of nginx
+cp -r /data/www/apitest/docker/nginx/nginx.conf /etc/nginx/nginx.conf
+
+# Update nginx to match worker_processes to no. of cpu's
+procs=$(cat /proc/cpuinfo | grep processor | wc -l)
+sed -i -e "s/worker_processes  1/worker_processes $procs/" /etc/nginx/nginx.conf
+
+# start crontab
+/etc/init.d/cron start
+
+# Start supervisord and services
+
+/usr/local/bin/supervisord -n -c /etc/supervisord.conf
+

@@ -1,0 +1,18 @@
+version: '3'
+services:
+    apitest:
+        container_name: apitest
+        build: dockerfiles
+        image: apitest
+        volumes:
+            - ../:/data/www/apitest
+            - ./logs:/var/log/nginx
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+        ports:
+            - 8081:80
+        command: 
+            - /bin/sh
+            - -c
+            - sh /start.sh
+        extra_hosts:
+            - "dev.wonder.com:10.24.19.175"
