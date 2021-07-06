@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Admin\Extensions\Form\CrontabLog;
+use App\Admin\Extensions\Grid\Tool\DeleteAll;
 use App\Admin\Repositories\LogCrontab;
 use App\Models\BaseModel;
 use App\Models\LogCrontabModel;
@@ -62,7 +63,7 @@ class LogCrontabController extends AdminController
                 $filter->equal('success')->select(BaseModel::$label_yes_or_no)->width(4);
                 $filter->between('updated_at')->datetime()->width(8);
             });
-            $grid->tools('<a class="btn btn-primary">全部删除</a>');
+            $grid->tools(new DeleteAll())->toolsWithOutline(false);
             $grid->disableViewButton()->disableEditButton()->disableCreateButton();
         });
     }

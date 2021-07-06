@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Extensions\Show;
+namespace App\Admin\Extensions\Show;
 
 use Dcat\Admin\Show\AbstractField;
 
