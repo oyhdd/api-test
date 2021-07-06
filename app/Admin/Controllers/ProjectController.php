@@ -96,7 +96,7 @@ class ProjectController extends AdminController
             $form->select('owner_uid')->options(BaseModel::getUserList())->default(Admin::user()->id)->required();
             $form->table('domain', function ($table) {
                 $table->text('key', '环境名称')->required();
-                $table->text('value', '域名地址')->default('string');
+                $table->text('value', '域名地址')->required();
             })->saving(function ($v) {
                 return json_encode($v);
             });
