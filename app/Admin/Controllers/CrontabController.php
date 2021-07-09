@@ -83,7 +83,7 @@ class CrontabController extends AdminController
             ->when(BaseModel::TASK_TYPE_REGRESSION_TEST, function (Form $form) {
                 // 异步加载测试用例
                 $form->multipleSelectTable('task_value')
-                ->title('选择回归测试用例')
+                ->title('选择回归用例')
                 ->from(RegressionTest::make(['id' => $form->getKey(), 'domain' => $form->model()->domain]))
                 ->options(function ($regTestIds) {
                     if (! $regTestIds) {
@@ -100,7 +100,7 @@ class CrontabController extends AdminController
             ->when(BaseModel::TASK_TYPE_INTEGRATION_TEST, function (Form $form) {
                 // 异步加载集成测试
                 $form->multipleSelectTable('task_value_integration_test', '任务Id')
-                ->title('选择集成测试用例')
+                ->title('选择集成用例')
                 ->from(IntegrationTest::make())
                 ->model(IntegrationTestModel::class, 'id', 'name');
             })

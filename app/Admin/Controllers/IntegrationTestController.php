@@ -23,7 +23,7 @@ class IntegrationTestController extends AdminController
             $grid->column('id')->sortable();
             $grid->column('project_id');
             $grid->column('parent_id');
-            $grid->column('unit_test_id');
+            $grid->column('reg_test_id');
             $grid->column('name');
             $grid->column('status');
             $grid->column('created_at');
@@ -49,7 +49,7 @@ class IntegrationTestController extends AdminController
             $show->field('id');
             $show->field('project_id');
             $show->field('parent_id');
-            $show->field('unit_test_id');
+            $show->field('reg_test_id');
             $show->field('name');
             $show->field('status');
             $show->field('created_at');
@@ -68,7 +68,7 @@ class IntegrationTestController extends AdminController
             $form->display('id');
             $form->text('project_id');
             $form->text('parent_id');
-            $form->text('unit_test_id');
+            $form->text('reg_test_id');
             $form->text('name');
             $form->text('status');
         

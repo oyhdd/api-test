@@ -51,7 +51,7 @@
                 @endphp
 
                 @if (empty($regressList))
-                    <pre>当前无可用的回归测试用例，请先添加回归测试用例.</pre>
+                    <pre>当前无可用的回归用例，请先添加回归用例.</pre>
                 @endif
                 @foreach($regressList as $project)
                 <div class="panel">
@@ -129,7 +129,7 @@
             </div>
             <div class="modal-footer">
                 <span id="select_rows">已选择 0 项</span>&nbsp;&nbsp;&nbsp;&nbsp;
-                <span id="start_regression_test_time">将运行选中的回归测试用例，运行时可关闭面板，稍后再次点击查看！</span>
+                <span id="start_regression_test_time">将运行选中的回归用例，运行时可关闭面板，稍后再次点击查看！</span>
                 <button id="start_regression_test" type="button" class="btn btn-success  pull-right">开始测试</button>
                 <button type="button" class="btn btn-default pull-right" data-dismiss="modal">关闭</button>
             </div>

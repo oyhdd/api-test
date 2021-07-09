@@ -15,7 +15,7 @@ use App\Models\ApiModel;
 class RegressionTestController extends AdminController
 {
     protected $description = [
-        'index' => '请从 "接口调试" 界面添加',
+        'index' => '请从 <a href="/admin/run" target="_blank">接口调试</a> 界面添加',
     ];
     /**
      * Make a grid builder.

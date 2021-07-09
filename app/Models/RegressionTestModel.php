@@ -37,7 +37,7 @@ class RegressionTestModel extends BaseModel
     }
 
     /**
-     * @name   保存回归测试用例
+     * @name   保存回归用例
      * @param  array      $params
      * @return bool
      */

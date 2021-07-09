@@ -7,7 +7,7 @@ return [
     'fields' => [
         'project_id' => '项目id',
         'parent_id' => '父id',
-        'unit_test_id' => '单元测试id',
+        'reg_test_id' => '回归用例id',
         'name' => '用例名称',
     ],
     'options' => [

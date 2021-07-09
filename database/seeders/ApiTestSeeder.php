@@ -68,9 +68,9 @@ class ApiTestSeeder extends Seeder
                 'created_at' => $now,
                 'updated_at' => $now
             ], [
-                'parent_id' => 0,
+                'parent_id' => 9,
                 'order' => 1,
-                'title' => '回归测试',
+                'title' => '回归用例',
                 'icon' => 'feather icon-corner-right-up',
                 'uri' => '/regression-test',
                 'extension' => '',

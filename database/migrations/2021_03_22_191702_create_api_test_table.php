@@ -102,7 +102,7 @@ class CreateApiTestTable extends Migration
             $table->increments('id');
             $table->integer('project_id')->default(0)->comment('项目id');
             $table->integer('parent_id')->default(0)->comment('父id');
-            $table->integer('unit_test_id')->default(0)->comment('测试用例id');
+            $table->integer('reg_test_id')->default(0)->comment('回归用例id');
             $table->string('name', 64)->default('')->comment('用例名称');
             $table->tinyInteger('status')->default(1)->comment('状态：0已删除 1正常');
             $table->timestamps();
@@ -121,7 +121,7 @@ class CreateApiTestTable extends Migration
             $table->string('domain', 64)->default('')->comment('域名');
             $table->string('title', 64)->comment('任务名称');
             $table->string('desc', 255)->default('')->comment('任务描述');
-            $table->tinyInteger('task_type')->default(1)->comment('任务类型：1测试用例 2集成测试');
+            $table->tinyInteger('task_type')->default(1)->comment('任务类型：1回归用例 2集成用例');
             $table->text('task_value')->nullable()->comment('任务id');
             $table->string('crontab', 32)->default('* * * * *')->comment('crontab: * * * * *');
             $table->integer('retain_day')->default(7)->comment('日志保留天数');
@@ -166,5 +166,7 @@ class CreateApiTestTable extends Migration
         Schema::dropIfExists('unit_test');
         Schema::dropIfExists('regression_test');
         Schema::dropIfExists('integration_test');
+        Schema::dropIfExists('crontab');
+        Schema::dropIfExists('log_crontab');
     }
 }
