@@ -53,11 +53,9 @@ class RegressionTestController extends AdminController
                     $item->name .= ": " . $item->url;
                     return [$item];
                 })->toArray();
-                // $domainList = ProjectModel::getAll(['id' => self::getProjectId()], ['domain_prod', 'domain_text'])->toArray();
 
                 $apiList = array_column($apiList, 'name', 'id');
                 $filter->equal('api_id')->select($apiList)->width(4);
-                // $filter->equal('domain')->select($domainList)->width(4);
                 $filter->equal('type')->select(BaseModel::$label_reg_type)->width(4);
             });
 

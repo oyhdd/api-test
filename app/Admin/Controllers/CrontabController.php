@@ -34,7 +34,7 @@ class CrontabController extends AdminController
             $grid->column('id')->sortable();
             $grid->column('title')->sortable();
             $grid->column('desc')->limit(20);
-            $grid->column('domain')->select(ProjectModel::getDomainOptions(self::getProjectId()), true);
+            $grid->column('domain');
             $grid->column('task_type')->display(function($task_type) {
                 return BaseModel::$label_task_type[$task_type] ?? '';
             });

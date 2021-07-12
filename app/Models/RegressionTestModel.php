@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Admin\Controllers\AdminController;
+use App\Helpers\Compress;
 
 class RegressionTestModel extends BaseModel
 {
@@ -103,5 +104,15 @@ class RegressionTestModel extends BaseModel
     public function getNameAttribute($value)
     {
         return sprintf("%s : %s", $this->api->name, $this->unitTest->name);
+    }
+
+    public function setResponseAttribute($value)
+    {
+        $this->attributes['response'] = Compress::compress($value);
+    }
+
+    public function getResponseAttribute($value)
+    {
+        return Compress::decompress($value);
     }
 }
