@@ -231,6 +231,7 @@
             var hasHref = menu.subMenus == undefined && menu.href && $.trim(menu.href).length > 0;
             if(hasHref === true) {
                 menuLink.attr("href", menu.href);
+                menuLink.attr("target", '_blank');
                 menuLink.css("width", "100%");
             }
             var hasName = menu.name && menu.name.length > 0;

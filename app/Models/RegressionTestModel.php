@@ -72,6 +72,9 @@ class RegressionTestModel extends BaseModel
             $model = $model->shift();
             if (!isset($list[$model->project_id])) {
                 $domain = array_column($model->project->domain, 'value', 'key');
+                if (array_key_first($domain) != $model->domain) {
+                    continue;
+                }
 
                 $list[$model->project_id] = [
                     'id' => $model->project_id,
@@ -88,6 +91,9 @@ class RegressionTestModel extends BaseModel
                     ],
                 ];
             } else {
+                if (array_key_first($list[$model->project_id]['domain']) != $model->domain) {
+                    continue;
+                }
                 $list[$model->project_id]['apiList'][] = [
                     'id' => $model->api_id,
                     'name' => $model->api->name,

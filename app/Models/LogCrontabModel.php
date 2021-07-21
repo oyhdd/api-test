@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Helpers\Compress;
+
 class LogCrontabModel extends BaseModel
 {
     protected $table = 'log_crontab';
@@ -25,5 +27,15 @@ class LogCrontabModel extends BaseModel
         $day = date("Y-m-d");
         $model = new LogCrontabModel(compact('day', 'project_id', 'crontab_id', 'success', 'log'));
         return $model->save();
+    }
+
+    public function setLogAttribute($value)
+    {
+        $this->attributes['log'] = Compress::compress($value);
+    }
+
+    public function getLogAttribute($value)
+    {
+        return Compress::decompress($value);
     }
 }

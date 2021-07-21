@@ -181,24 +181,16 @@
             leftInputView.codemirror.scrollTo(scrollInfo.left, scrollInfo.top);
         });
 
-        function compareJson(leftText, rightText) {
+        function compareJson(leftJson, rightJson) {
+            leftText = JSON.stringify(leftJson);
+            leftText = js_beautify(leftText, 4, ' ');
+            rightText = JSON.stringify(rightJson);
+            rightText = js_beautify(rightText, 4, ' ');
+
             leftInputView.clearMarkers();
             rightInputView.clearMarkers();
-            leftText = js_beautify(leftText, 4, ' ');
-            rightText = js_beautify(rightText, 4, ' ');
             leftInputView.codemirror.setValue(leftText)
             rightInputView.codemirror.setValue(rightText)
-            var leftJson, rightJson;
-            try {
-                if (leftText) {
-                    leftJson = JSON.parse(leftText);
-                }
-                if (rightText) {
-                    rightJson = JSON.parse(rightText);
-                }
-            } catch (e) {
-            }
-            if (!leftJson || !rightJson) return;
             var diffs = jsonpatch.compare(leftJson, rightJson);
             window.diff = diffs;
             
@@ -218,8 +210,8 @@
             });
         }
 
-        var leftJson = '<?php echo $json_left["value"] ?? ''; ?>';
-        var rightJson = '<?php echo $json_right["value"] ?? ''; ?>';
+        var leftJson = <?php echo $json_left["value"] ?? '{}'; ?>;
+        var rightJson = <?php echo $json_right["value"] ?? '{}'; ?>;
 
         compareJson(leftJson, rightJson);
     });

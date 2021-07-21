@@ -92,7 +92,7 @@ class CrontabController extends AdminController
                     $regTestModel = RegressionTestModel::with(['api', 'unitTest'])->whereIn('id', $regTestIds)->get();
                     $ret = [];
                     foreach ($regTestModel as $regTest) {
-                        $ret[$regTest->id] = sprintf("%s : %s", $regTest->api->name, $regTest->unitTest->name);
+                        $ret[$regTest->id] = sprintf("%s : %s%s", $regTest->api->name, $regTest->unitTest->name, $regTest->id);
                     }
                     return $ret;
                 });

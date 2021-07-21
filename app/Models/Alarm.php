@@ -15,18 +15,18 @@ class Alarm
      * @param string $title         告警标题
      * @param array  $robot_keys    企业微信群聊机器人的key
      *
-     * @return bool
+     * @return void
      */
-    public static function alarmQyWeachat(string $msg, string $title = '', $robot_keys = []): bool
+    public static function alarmQyWeachat(string $msg, string $title = '', $robot_keys = [])
     {
         if (empty($robot_keys)) {
-            return false;
+            return;
         }
 
         try {
             foreach ($robot_keys as $robot_key) {
                 $client = new \GuzzleHttp\Client();
-                $res = $client->request('POST', self::WEACHAT_URL . $robot_key, [
+                $client->request('POST', self::WEACHAT_URL . $robot_key, [
                     'headers' => ['Content-Type' => 'application/json'],
                     'json' => [
                         'msgtype' => 'markdown',
@@ -37,16 +37,9 @@ class Alarm
                     ],
                     'timeout' => 1,
                 ]);
-                $result = $res->getBody()->getContents();
-                $result = json_decode($result, true);
-                if ($result['errcode'] == 0) {
-                    return true;
-                }
             }
         } catch (\Throwable $th) {
         }
-
-        return false;
     }
 
     /**

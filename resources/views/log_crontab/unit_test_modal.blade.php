@@ -47,8 +47,8 @@
                     @php
                         echo view('json-compare', [
                             'id' => $id . "_" . $unitTest['id'],
-                            'json_left'  => ['key' => '回归测试结果', 'value' => $unitTest['response_reg'] ?? ''],
-                            'json_right' => ['key' => '当前运行结果', 'value' => $unitTest['response'] ?? ''],
+                            'json_left'  => ['key' => '回归测试结果', 'value' => $unitTest['response_reg'] ?? '{}'],
+                            'json_right' => ['key' => '当前运行结果', 'value' => $unitTest['response'] ?? '{}'],
                         ]);
                     @endphp
                     </div>
