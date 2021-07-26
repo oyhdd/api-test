@@ -8,6 +8,10 @@ ENV fpm_conf /etc/php/7.3/fpm/pool.d/www.conf
 ENV COMPOSER_VERSION 1.10.15
 ENV LANG C.UTF-8
 
+RUN sed -i s@/archive.ubuntu.com/@/mirrors.aliyun.com/@g /etc/apt/sources.list
+RUN apt-get clean
+RUN apt-get update
+
 # Install Basic Requirements
 RUN buildDeps='curl gcc make autoconf libc-dev zlib1g-dev pkg-config' \
     && set -x \
