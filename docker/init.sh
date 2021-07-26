@@ -13,4 +13,6 @@ docker-compose up --no-start
 # 启动容器
 docker-compose start
 
+docker-compose exec apitest sh -c "cd /data/www/apitest && composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/ && composer install"
+
 exit 1
