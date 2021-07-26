@@ -109,7 +109,7 @@ class CreateApiTestTable extends Migration
 
             $table->index('project_id');
             $table->index('parent_id');
-            $table->index('unit_test_id');
+            $table->index('reg_test_id');
             $table->index('name');
         });
 
