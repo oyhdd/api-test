@@ -17,3 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::any('test1', 'App\Http\Controllers\TestController@test1');
+Route::any('test2', 'App\Http\Controllers\TestController@test2');
