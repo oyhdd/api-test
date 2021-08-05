@@ -95,7 +95,6 @@
                 $(".header-" + side).show();
                 $(".header-" + otherSide).show();
             }
-            console.log(side,clickClass)
             $('.' + side + '-input').addClass(sideClass);
             $('.' + otherSide + '-input').addClass(otherSideClass);
         }

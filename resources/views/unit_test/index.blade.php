@@ -29,6 +29,8 @@
     .collapsing {position: relative;height: 0;overflow: hidden;transition: height .1s ease-in}
     body.dark-mode .vs-checkbox-con .vs-checkbox {border: 2px solid white;}
     body.dark-mode .vs-checkbox-con input:checked~.vs-checkbox {border-color: #4e9876;}
+    .header {height: 32px;background-color: #666666;font-family: monospace;padding: 0 32px;}
+    .header span {line-height: 32px;}
 </style>
 <!-- 模态弹出窗 -->
 <div id="mymodal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden='true' data-backdrop='static'>
@@ -204,6 +206,7 @@
 </div>
 <script src="/js/json-viewer.js"></script>
 <script src="/js/jsbeautify.js"></script>
+<script src="/js/diff.js"></script>
 <script type="text/javascript">
     Dcat.ready(function() {
         $(".nav-item a").each(function() {
@@ -434,21 +437,28 @@
                                         request_result = '请求成功';
                                     }
 
-                                    try {
-                                        if (typeof unitTest["response"] == 'object') {
-                                            var content = JSON.stringify(unitTest["response"]);
-                                            var formatText = js_beautify(content, 4, ' ');
-                                        } else if (typeof unitTest["response"] === 'string') {
-                                            //防中文乱码
-                                            var content = eval("(" + unitTest["response"] + ")")
-                                            content = JSON.stringify(content);
-                                            var formatText = js_beautify(content, 4, ' ');
-                                        } else {
-                                            var formatText = unitTest["response"];
+                                    var response = jsonFormat(unitTest["response"]);
+                                    var response_reg = jsonFormat(unitTest["response_reg"]);
+
+                                    var diff = Diff.diffLines(response_reg, response);
+                                    var formatText = '';
+                                    var leftText = '';
+                                    var rightText = '';
+                                    diff.forEach(function(part){
+                                        // green for additions, red for deletions
+                                        var color = part.added ? 'green' : (part.removed ? 'red' : 'transparent');
+                                        var span = '<span style="background-color: ' + color + '">' + part.value + '</span>';
+                                        if (!part.added && !part.removed) {
+                                            leftText += span;
+                                            rightText += span;
+                                        } else if (part.removed) {
+                                            leftText += span;
+                                        } else if (part.added) {
+                                            rightText += span;
                                         }
-                                    } catch (error) {
-                                        var formatText = unitTest["response"];
-                                    }
+                                        formatText += span;
+                                    });
+
                                     html += '<div class="panel">' + 
                                     '<div class="panel-heading bg-white">' + 
                                         '<div><a href="#unitTest_response_' + unitTest["id"] +'" data-toggle="collapse">' + 
@@ -459,9 +469,15 @@
                                     }
                                     html += '</a></div>' +
                                     '</div>' +
-                                    '<div id="unitTest_response_' + unitTest["id"] +'" class="panel-body collapse">' + 
-                                    '<pre>' + formatText + '</pre>' +
-                                    '</div></div>';
+                                    '<div id="unitTest_response_' + unitTest["id"] +'" class="panel-body collapse">' +
+                                    '<header class="header"><div class="float-left"><span class="header-left"> 回归测试结果 </span></div><div class="float-right"><span class="header-right"> 当前运行结果 </span></div></header>' +
+                                    '<div style="display: flex;">' +
+                                    // '<pre style="max-height: 600px; width:50%">' + leftText + '</pre>' +
+                                    // '<pre style="max-height: 600px; width:50%">' + rightText + '</pre>' +
+                                    
+                                    '<div style="max-height: 600px; width:50%""><pre style="height: 100%;">' + leftText + '</pre></div>' +
+                                    '<div style="max-height: 600px; width:50%""><pre style="height: 100%;">' + rightText + '</pre></div>' +
+                                    '</div></div></div>';
                                 }
                                 html += '</div></div>';
                             }
@@ -480,5 +496,25 @@
                 }
             });
         });
+
+        function jsonFormat(json) {
+            try {
+                if (typeof json == 'object') {
+                    var content = JSON.stringify(json);
+                    var formatJson = js_beautify(content, 4, ' ');
+                } else if (typeof json === 'string') {
+                    //防中文乱码
+                    var content = eval("(" + json + ")")
+                    content = JSON.stringify(content);
+                    var formatJson = js_beautify(content, 4, ' ');
+                } else {
+                    var formatJson = json;
+                }
+            } catch (error) {
+                var formatJson = json;
+            }
+
+            return formatJson;
+        }
     });
 </script>

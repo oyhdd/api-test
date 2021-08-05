@@ -86,7 +86,7 @@ class ApiController extends AdminController
             $tree->maxDepth(3);
 
             $tree->actions(function (Tree\Actions $actions) {
-                $actions->prepend("&nbsp;<a href='/admin/run/{$this->getKey()}'><i title='运行' class='fa fa-paper-plane grid-action-icon'></i>&nbsp;</a>&nbsp;");
+                // $actions->prepend("&nbsp;<a href='/admin/run/{$this->getKey()}'><i title='运行' class='fa fa-paper-plane grid-action-icon'></i>&nbsp;</a>&nbsp;");
                 $actions->prepend(new CopyApi());
                 $actions->prepend("&nbsp;<a href='/admin/api/{$this->getKey()}'><i title='查看' class='feather icon-eye grid-action-icon'></i>&nbsp;</a>");
             });

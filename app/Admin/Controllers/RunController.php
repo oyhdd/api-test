@@ -344,6 +344,7 @@ class RunController extends AdminController
                     "request_result" => $response['success'],
                     'name'           => $requestItem['unit_test_name'],
                     'response'       => $response['response'],
+                    'response_reg'   => $requestItem['response'],
                 ];
                 if ($requestItem['type'] == BaseModel::REG_TYPE_ALL) {
                     $ret['list'][$project_id]['apiList'][$api_id]['unitTestList'][$requestItem['unit_test_id']]['result'] = $success;
