@@ -1,9 +1,9 @@
 version: '3'
 services:
-    apitest:
-        container_name: apitest
+    api_test:
+        container_name: api_test
         build: dockerfiles
-        image: apitest
+        image: api_test
         volumes:
             - ../:/data/www/apitest
             - ./logs:/var/log/nginx
@@ -14,5 +14,27 @@ services:
             - /bin/sh
             - -c
             - sh /start.sh
-        extra_hosts:
-            - "dev.wonder.com:10.24.19.175"
+
+    api_mysql:
+        container_name: api_mysql
+        image: mysql:5.7
+        restart: always
+        ports:
+            - 33061:3306
+        environment:
+            - TZ=Asia/Shanghai
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE-api_test
+        volumes:
+            - api_data:/var/lib/mysql
+            - ./mysqlconf:/etc/mysql/conf.d
+
+    api_redis:
+        container_name: api_redis
+        restart: always
+        image: redis:5.0
+        ports:
+            - 63791:6379
+
+volumes:
+    api_data:

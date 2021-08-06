@@ -47,6 +47,17 @@ class ApitestCommand extends Command
      */
     public function initDatabase()
     {
+        // 创建库
+        $connection = config('database.connections.mysql');
+
+        $mysqli = new \mysqli($connection['host'] . ':' . $connection['port'], $connection['username'], $connection['password']);
+        if ($mysqli->connect_errno) {
+            printf("Connect failed: %s\n", $mysqli->connect_error);
+        }
+        if (!$mysqli->query(sprintf("create database %s;", $connection['database']))) {
+            printf("Query failed: %s\n", $mysqli->error);
+        }
+
         $this->call('migrate');
 
         $userModel = config('admin.database.users_model');
