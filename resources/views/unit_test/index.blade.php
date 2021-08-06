@@ -32,7 +32,7 @@
     .header {height: 32px;background-color: #666666;font-family: monospace;padding: 0 32px;}
     .header span {line-height: 32px;}
     .text-line {float: left;height: 100%;box-sizing: content-box;border-right: 1px solid #3c3a3a;color: #999999; margin-right: 5px;}
-    .text-num {padding: 0 8px 0 5px;white-space: nowrap;}
+    .text-num {padding: 0 8px 0 5px;white-space: nowrap; font-family: inconsolata, monospace;}
     .input-buttons{position: absolute; top: 5px; right: 5px; font-size: 28px;}
 </style>
 <!-- 模态弹出窗 -->
@@ -465,10 +465,10 @@
                                         request_result = '请求成功';
                                     }
 
-                                    var response = jsonFormat(unitTest["response"]);
-                                    var response_reg = jsonFormat(unitTest["response_reg"]);
-                                    var response_num = response.match(/\n/ig).length + 1;
-                                    var response_reg_num = response_reg.match(/\n/ig).length + 1;
+                                    var response = jsonFormat(unitTest["response"]) + "\n";
+                                    var response_reg = jsonFormat(unitTest["response_reg"]) + "\n";
+                                    var response_num = response.match(/\n/ig).length;
+                                    var response_reg_num = response_reg.match(/\n/ig).length;
                                     if (response_reg_num > response_num) {
                                         response_num = response_reg_num;
                                     }
@@ -477,7 +477,7 @@
                                     for (let index = 1; index <= response_num; index++) {
                                         response_num_str += "<span class='text-num'>" + index + "</span><br>";
                                     }
-                                    var diff = Diff.diffLines(response_reg, response);
+                                    var diff = Diff.diffJson(response_reg, response);
                                     var formatText = '';
                                     var leftText = '';
                                     var rightText = '';
