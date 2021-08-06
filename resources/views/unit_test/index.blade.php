@@ -1,14 +1,14 @@
 <link href="/css/json-viewer.css" type="text/css" rel="stylesheet" />
 <style>
     .TreeMenuList>div {border: ridge;margin-bottom: 20px;}
-    body.dark-mode pre {animation: mymove 0.5s;background-color: black !important;color: lightgray;margin-bottom: 10px;}
-    ul.tabs {animation: mymove 0.5s;margin: 0;padding: 0;float: left;list-style: none;height: 32px;border-bottom: 1px solid #999;border-left: 1px solid #999;width: 100%;}
+    body.dark-mode pre {background-color: black !important;color: lightgray;margin-bottom: 10px;}
+    ul.tabs {margin: 0;padding: 0;float: left;list-style: none;height: 32px;border-bottom: 1px solid #999;border-left: 1px solid #999;width: 100%;}
     ul.tabs li {float: left;margin: 0;padding: 0;height: 31px;line-height: 31px;border: 1px solid #999;border-left: none;border-bottom: none;margin-bottom: -1px;background: #837b7b;overflow: hidden;position: relative;color: #fff;}
     ul.tabs li a {color: #fff;text-decoration: none;display: block;font-size: 1.2em;padding: 0 20px;outline: none;}
     html ul.tabs li.active,
     html ul.tabs li.active a:hover {background: #21b978;border: 1px solid #21b978;color: white;}
     .tab_container {border: 1px solid #999;border-top: none;clear: both;float: left;width: 100%;border-radius: .25rem !important;-moz-border-radius-bottomright: 5px;-khtml-border-radius-bottomright: 5px;-webkit-border-bottom-right-radius: 5px;-moz-border-radius-bottomleft: 5px;-khtml-border-radius-bottomleft: 5px;-webkit-border-bottom-left-radius: 5px;}
-    body.dark-mode .tab_container {animation: mymove 0.5s;background: url(/img/bg-2.jpg) fixed !important;-webkit-transition: none !important;transition: none !important;background-size: cover !important;}
+    body.dark-mode .tab_container {background: url(/img/bg-2.jpg) fixed !important;-webkit-transition: none !important;transition: none !important;background-size: cover !important;}
     .submit-example {background: linear-gradient(to right, #4a9dd3, #3085d6);}
     .input-example {width: 100%;overflow: auto !important;padding-left: 10px;outline: none;resize: vertical;border-color: gray !important;height: 350px;}
     body.dark-mode .input-example {color: white !important;background-color: rgba(0, 0, 0, .09);}
