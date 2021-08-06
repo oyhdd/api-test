@@ -31,7 +31,9 @@
     body.dark-mode .vs-checkbox-con input:checked~.vs-checkbox {border-color: #4e9876;}
     .header {height: 32px;background-color: #666666;font-family: monospace;padding: 0 32px;}
     .header span {line-height: 32px;}
-    .text-num {float: left;height: 100%;padding: 0 8px 0 5px;white-space: nowrap;box-sizing: content-box;border-right: 1px solid #3c3a3a;margin-right: 3px;color: #999999;}
+    .text-line {float: left;height: 100%;box-sizing: content-box;border-right: 1px solid #3c3a3a;color: #999999; margin-right: 5px;}
+    .text-num {padding: 0 8px 0 5px;white-space: nowrap;}
+    .input-buttons{position: absolute; top: 5px; right: 5px; font-size: 28px;}
 </style>
 <!-- 模态弹出窗 -->
 <div id="mymodal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden='true' data-backdrop='static'>
@@ -262,6 +264,31 @@
             }
         });
 
+        $(document).on("click", ".left-input .input-split,.left-input .input-expand", onPaneResizeLeftClick);
+        $(document).on("click", ".right-input .input-split,.right-input .input-expand", onPaneResizeRightClick);
+        function onPaneResizeLeftClick(e) {
+            onResize(e, 'left');
+        }
+        function onPaneResizeRightClick(e) {
+            onResize(e, 'right');
+        }
+        function onResize(e, side) {
+            e.preventDefault();
+            var otherSide = side === 'left' ? 'right' : 'left';
+            var clickClass = e.currentTarget.className;
+            console.log(otherSide,clickClass)
+            if (clickClass === 'input-expand') { // 展开
+                $("." + side + "-input").width("100%");
+                $("." + otherSide + "-input").hide();
+                $("." + side + "-input .input-expand").hide()
+                $("." + side + "-input .input-split").show()
+            } else { // 分裂
+                $("." + side + "-input").width("50%");
+                $("." + otherSide + "-input").show();
+                $("." + side + "-input .input-expand").show()
+                $("." + side + "-input .input-split").hide()
+            }
+        }
 
         // $("body").addClass("sidebar-collapse");
         let api_id = '<?php echo $model->id ?>';
@@ -448,7 +475,7 @@
 
                                     var response_num_str = "";
                                     for (let index = 1; index <= response_num; index++) {
-                                        response_num_str += index + "<br>";
+                                        response_num_str += "<span class='text-num'>" + index + "</span><br>";
                                     }
                                     var diff = Diff.diffLines(response_reg, response);
                                     var formatText = '';
@@ -481,9 +508,13 @@
                                     '</div>' +
                                     '<div id="unitTest_response_' + unitTest["id"] +'" class="panel-body collapse">' +
                                     '<header class="header"><div class="float-left"><span class="header-left"> 回归测试结果 </span></div><div class="float-right"><span class="header-right"> 当前运行结果 </span></div></header>' +
-                                    '<div style="display: flex;">' +
-                                    '<div style="max-height: 600px; width:50%"><pre style="height: 100%;"><div class="text-num">' + response_num_str + '</div>' + leftText + '</pre></div>' +
-                                    '<div style="max-height: 600px; width:50%"><pre style="height: 100%;"><div class="text-num">' + response_num_str + '</div>' + rightText + '</pre></div>' +
+                                    '<div style="display: flex; max-height: 600px; overflow: auto;">' +
+                                    '<div class="left-input" style="position: relative; width:50%;">' +
+                                    '<span class="input-buttons"><a class="input-split" href="#" style="display:none;">◫</a><a class="input-expand" href="#">☐</a></span>' +
+                                    '<pre><div class="text-line">' + response_num_str + '</div>' + leftText + '</pre></div>' +
+                                    '<div class="right-input" style="position: relative; width:50%;">' +
+                                    '<span class="input-buttons"><a class="input-split" href="#" style="display:none;">◫</a><a class="input-expand" href="#">☐</a></span>' +
+                                    '<pre><div class="text-line">' + response_num_str + '</div>' + rightText + '</pre></div>' +
                                     '</div></div></div>';
                                 }
                                 html += '</div></div>';
