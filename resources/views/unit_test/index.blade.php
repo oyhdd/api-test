@@ -31,6 +31,7 @@
     body.dark-mode .vs-checkbox-con input:checked~.vs-checkbox {border-color: #4e9876;}
     .header {height: 32px;background-color: #666666;font-family: monospace;padding: 0 32px;}
     .header span {line-height: 32px;}
+    .text-num {float: left;height: 100%;padding: 0 8px 0 5px;white-space: nowrap;box-sizing: content-box;border-right: 1px solid #3c3a3a;margin-right: 3px;color: #999999;}
 </style>
 <!-- 模态弹出窗 -->
 <div id="mymodal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden='true' data-backdrop='static'>
@@ -439,7 +440,16 @@
 
                                     var response = jsonFormat(unitTest["response"]);
                                     var response_reg = jsonFormat(unitTest["response_reg"]);
+                                    var response_num = response.match(/\n/ig).length + 1;
+                                    var response_reg_num = response_reg.match(/\n/ig).length + 1;
+                                    if (response_reg_num > response_num) {
+                                        response_num = response_reg_num;
+                                    }
 
+                                    var response_num_str = "";
+                                    for (let index = 1; index <= response_num; index++) {
+                                        response_num_str += index + "<br>";
+                                    }
                                     var diff = Diff.diffLines(response_reg, response);
                                     var formatText = '';
                                     var leftText = '';
@@ -472,11 +482,8 @@
                                     '<div id="unitTest_response_' + unitTest["id"] +'" class="panel-body collapse">' +
                                     '<header class="header"><div class="float-left"><span class="header-left"> 回归测试结果 </span></div><div class="float-right"><span class="header-right"> 当前运行结果 </span></div></header>' +
                                     '<div style="display: flex;">' +
-                                    // '<pre style="max-height: 600px; width:50%">' + leftText + '</pre>' +
-                                    // '<pre style="max-height: 600px; width:50%">' + rightText + '</pre>' +
-                                    
-                                    '<div style="max-height: 600px; width:50%""><pre style="height: 100%;">' + leftText + '</pre></div>' +
-                                    '<div style="max-height: 600px; width:50%""><pre style="height: 100%;">' + rightText + '</pre></div>' +
+                                    '<div style="max-height: 600px; width:50%"><pre style="height: 100%;"><div class="text-num">' + response_num_str + '</div>' + leftText + '</pre></div>' +
+                                    '<div style="max-height: 600px; width:50%"><pre style="height: 100%;"><div class="text-num">' + response_num_str + '</div>' + rightText + '</pre></div>' +
                                     '</div></div></div>';
                                 }
                                 html += '</div></div>';
