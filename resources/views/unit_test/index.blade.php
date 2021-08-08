@@ -276,17 +276,20 @@
             e.preventDefault();
             var otherSide = side === 'left' ? 'right' : 'left';
             var clickClass = e.currentTarget.className;
-            console.log(otherSide,clickClass)
             if (clickClass === 'input-expand') { // 展开
                 $("." + side + "-input").width("100%");
                 $("." + otherSide + "-input").hide();
                 $("." + side + "-input .input-expand").hide()
                 $("." + side + "-input .input-split").show()
+                $(".header-" + otherSide).hide();
+                $(".header-" + side).show();
             } else { // 分裂
                 $("." + side + "-input").width("50%");
                 $("." + otherSide + "-input").show();
                 $("." + side + "-input .input-expand").show()
                 $("." + side + "-input .input-split").hide()
+                $(".header-" + otherSide).show();
+                $(".header-" + side).show();
             }
         }
 
