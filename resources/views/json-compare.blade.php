@@ -1,32 +1,13 @@
-<link rel="stylesheet" href="/css/codemirror.css" charset="utf-8" />
-<link rel="stylesheet" href="/css/tomorrow-night.css" charset="utf-8" />
 <style>
     .header {height: 32px;background-color: #666666;font-family: monospace;padding: 0 32px;}
     .header span {line-height: 32px;}
+    .input-buttons{position: absolute; top: 5px; right: 5px; font-size: 28px;}
+    .text-line {float: left;height: 100%;box-sizing: content-box;border-right: 1px solid #3c3a3a;color: #999999; margin-right: 5px;}
+    .text-num {padding: 0 8px 0 5px;white-space: nowrap; font-family: inconsolata, monospace;}
     .clear {clear: both;}
-    div.CodeMirror-code > div > pre {border: none !important;}
-
-    .json-diff-input {height: 100%; box-sizing: border-box; display: inline-block; float: left; position: relative;}
-    .json-diff-input .CodeMirror {height: 100%;}
-    .json-diff-input:hover .input-buttons {opacity: 1;}
-    .json-diff-input.collapse .input-buttons {display: none;}
-    .input-buttons a:hover {opacity: .7;}
-    .json-diff-input .input-buttons {transition: opacity .2s; opacity: 0; position: absolute; right: 19px; top: 0; z-index: 4;}
-    .json-diff-input .input-buttons a {color: white; text-decoration: none; font-size: 26px;}
-    .lighttheme .json-diff-input .input-buttons a {color: #1D1F21;}
-    .json-diff-input .input-buttons a.input-split {font-size: 33px; position: relative; top: 5px;}
-    .json-diff-input.split {width: 50%;}
-    .json-diff-input.collapse {width: 0%;}
-    .json-diff-input.expand {width: 100%;}
-    .json-diff-input.split .input-split {display: none;}
-    .json-diff-input.collapse .input-collapse {display: none;}
-    .json-diff-input.expand .input-expand {display: none;}
-    .diff-inputs {width: 100%; float: left; height: calc(100% - 48px);}
-
-
 </style>
 
-<header class="header">
+<header class="header compare-content-{{ $id ?? 0 }}">
     <div class="float-left">
         <span class="header-left"> {{ $json_left['key'] ?? '回归测试结果' }} </span>
     </div>
@@ -35,183 +16,96 @@
     </div>
 </header>
 
-<div class="diff-inputs">
-    <div class="left-input json-diff-input split">
-        <textarea id="json-diff-left-{{ $id ?? 0 }}"></textarea>
+<div class="compare-content-{{ $id ?? 0 }}" style="display: flex; max-height: 600px; overflow: auto;">
+    <div class="left-input" style="position: relative; width:50%;">
         <span class="input-buttons">
-            <a class="input-split" href="#">◫</a>
-            <a class="input-expand" href="#">☐</a>
+            <a class="input-split" href="#" style="display:none;" data-id="{{ $id ?? 0 }}">◫</a>
+            <a class="input-expand" href="#" data-id="{{ $id ?? 0 }}">☐</a>
         </span>
+        <pre style="display: flex;">
+            <div id="left_line_{{ $id ?? 0 }}" class="text-line"></div>
+            <div id="left_text_{{ $id ?? 0 }}"></div>
+        </pre>
     </div>
-    <div class="right-input json-diff-input split">
-        <textarea id="json-diff-right-{{ $id ?? 0 }}"></textarea>
+    <div class="right-input" style="position: relative; width:50%;">
         <span class="input-buttons">
-            <a class="input-split" href="#">◫</a>
-            <a class="input-expand" href="#">☐</a>
+            <a class="input-split" href="#" style="display:none;" data-id="{{ $id ?? 0 }}">◫</a>
+            <a class="input-expand" href="#" data-id="{{ $id ?? 0 }}">☐</a>
         </span>
+        <pre style="display: flex;">
+            <div id="right_line_{{ $id ?? 0 }}" class="text-line"></div>
+            <div id="right_text_{{ $id ?? 0 }}"></div>
+        </pre>
     </div>
 </div>
-
 <div class="clear"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
-<script src="/js/json-patch-duplex.min.js" charset="utf-8"></script>
-<script src="/js/backbone-events-standalone.min.js" charset="utf-8"></script>
-<script src="/js/codemirror.js" charset="utf-8"></script>
-<script src="/js/json-source-map.js" charset="utf-8"></script>
-<script src="/js/jsbeautify.js"></script>
+<script src="/js/diff.js"></script>
 <script type="text/javascript">
     Dcat.onPjaxLoaded(function() {
+
         var id = "<?php echo $id ?? 0; ?>";
-
-        $('.left-input').on('click', '.input-collapse,.input-split,.input-expand', onPaneResizeLeftClick);
-        $('.right-input').on('click', '.input-collapse,.input-split,.input-expand', onPaneResizeRightClick);
-
-        function onPaneResizeLeftClick(e) {
-            onResize(e, 'left');
-        }
-
-        function onPaneResizeRightClick(e) {
-            onResize(e, 'right');
-        }
-
-        function onResize(e, side) {
-            e.preventDefault();
-            var otherSide = side === 'left' ? 'right' : 'left';
-            var clickClass = e.currentTarget.className;
-            $('.json-diff-input').removeClass('split');
-            $('.json-diff-input').removeClass('expand');
-            $('.json-diff-input').removeClass('collapse');
-            var sideClass = 'split';
-            var otherSideClass = 'split';
-            if (clickClass === 'input-collapse') {
-                sideClass = 'collapse';
-                otherSideClass = 'expand';
-            } else if (clickClass === 'input-expand') {
-                sideClass = 'expand';
-                otherSideClass = 'collapse';
-                $(".header-" + otherSide).hide();
-            } else {
-                $(".header-" + side).show();
-                $(".header-" + otherSide).show();
-            }
-            $('.' + side + '-input').addClass(sideClass);
-            $('.' + otherSide + '-input').addClass(otherSideClass);
-        }
-
-        function JsonInputView(el) {
-            this.el = el;
-            this.codemirror = CodeMirror.fromTextArea(this.el, {
-                lineNumbers: true,
-                mode: {name: "javascript", json: true},
-                matchBrackets: true,
-                theme: 'tomorrow-night',
-                readOnly: true,
-                styleActiveLine: false,
-            });
-        }
-    
-        JsonInputView.prototype.getText = function () {
-            return this.codemirror.getValue();
-        };
-    
-        JsonInputView.prototype.setText = function (text) {
-            return this.codemirror.setValue(text);
-        };
-    
-        JsonInputView.prototype.highlightRemoval = function (diff) {
-            this._highlight(diff, '#DD4444');
-        };
-    
-        JsonInputView.prototype.highlightAddition = function (diff) {
-            this._highlight(diff, isLightTheme() ? '#4ba2ff' : '#2E6DFF');
-        };
-    
-        JsonInputView.prototype.highlightChange = function (diff) {
-            this._highlight(diff, isLightTheme() ? '#E5E833' : '#9E9E00');
-        };
-    
-        JsonInputView.prototype._highlight = function (diff, color) {
-            var pos = getStartAndEndPosOfDiff(this.getText(), diff);
-            this.codemirror.markText(pos.start, pos.end, {
-                css: 'background-color: ' + color
-            });
-        };
-    
-        JsonInputView.prototype.clearMarkers = function () {
-            this.codemirror.getAllMarks().forEach(function (marker) {
-                marker.clear();
-            });
-        };
-    
-        function getStartAndEndPosOfDiff(textValue, diff) {
-            var result = parse(textValue);
-            var pointers = result.pointers;
-            var path = diff.path;
-            var start = {
-                line: pointers[path].key ? pointers[path].key.line : pointers[path].value.line,
-                ch: pointers[path].key ? pointers[path].key.column : pointers[path].value.column
-            };
-            var end = {
-                line: pointers[path].valueEnd.line,
-                ch: pointers[path].valueEnd.column
-            };
-            return {
-                start: start,
-                end: end
-            }
-        }
-
-        function isLightTheme() {
-            return $('body').hasClass('lighttheme');
-        }
-    
-        BackboneEvents.mixin(JsonInputView.prototype);
-    
-        var leftInputView = new JsonInputView(document.getElementById('json-diff-left-' + id));
-        var rightInputView = new JsonInputView(document.getElementById('json-diff-right-' + id));
-    
-        leftInputView.codemirror.on('scroll', function () {
-            var scrollInfo = leftInputView.codemirror.getScrollInfo();
-            rightInputView.codemirror.scrollTo(scrollInfo.left, scrollInfo.top);
-        });
-        rightInputView.codemirror.on('scroll', function () {
-            var scrollInfo = rightInputView.codemirror.getScrollInfo();
-            leftInputView.codemirror.scrollTo(scrollInfo.left, scrollInfo.top);
-        });
-
-        function compareJson(leftJson, rightJson) {
-            leftText = JSON.stringify(leftJson);
-            leftText = js_beautify(leftText, 4, ' ');
-            rightText = JSON.stringify(rightJson);
-            rightText = js_beautify(rightText, 4, ' ');
-
-            leftInputView.clearMarkers();
-            rightInputView.clearMarkers();
-            leftInputView.codemirror.setValue(leftText)
-            rightInputView.codemirror.setValue(rightText)
-            var diffs = jsonpatch.compare(leftJson, rightJson);
-            window.diff = diffs;
-            
-            diffs.forEach(function (diff) {
-                try {
-                    if (diff.op === 'remove') {
-                        leftInputView.highlightRemoval(diff);
-                    } else if (diff.op === 'add') {
-                        rightInputView.highlightAddition(diff);
-                    } else if (diff.op === 'replace') {
-                        rightInputView.highlightChange(diff);
-                        leftInputView.highlightChange(diff);
-                    }
-                } catch(e) {
-                    console.warn('error while trying to highlight diff', e);
-                }
-            });
-        }
-
         var leftJson = <?php echo $json_left["value"] ?? '{}'; ?>;
         var rightJson = <?php echo $json_right["value"] ?? '{}'; ?>;
 
-        compareJson(leftJson, rightJson);
+        var diff = Diff.diffJson(leftJson, rightJson);
+        var leftText = rightText = '';
+        var left_num = right_num = 0;
+        diff.forEach(function(part){
+            // green for additions, red for deletions
+            var color = part.added ? 'green' : (part.removed ? 'red' : 'transparent');
+            var span = '<span style="background-color: ' + color + '">' + part.value + '</span>';
+            if (part.removed) {
+                leftText += span;
+                left_num += part.count;
+            } else if (part.added) {
+                rightText += span;
+                right_num += part.count;
+            } else {
+                leftText += span;
+                rightText += span;
+                left_num += part.count;
+                right_num += part.count;
+            }
+        });
+
+        var response_num = left_num > right_num ? left_num : right_num;
+        var response_num_str = "";
+        for (let index = 1; index <= response_num; index++) {
+            response_num_str += "<span class='text-num'>" + index + "</span><br>";
+        }
+        $('#left_line_' + id).html(response_num_str);
+        $('#right_line_' + id).html(response_num_str);
+        $('#left_text_' + id).html(leftText);
+        $('#right_text_' + id).html(rightText);
+
+        $(document).on("click", ".left-input .input-split,.left-input .input-expand", onPaneResizeLeftClick);
+        $(document).on("click", ".right-input .input-split,.right-input .input-expand", onPaneResizeRightClick);
+        function onPaneResizeLeftClick(e) {
+            onResize(e, 'left', $(this).attr('data-id'));
+        }
+        function onPaneResizeRightClick(e) {
+            onResize(e, 'right', $(this).attr('data-id'));
+        }
+        function onResize(e, side, id) {
+            e.preventDefault();
+            var otherSide = side === 'left' ? 'right' : 'left';
+            var clickClass = e.currentTarget.className;
+            if (clickClass === 'input-expand') { // 展开
+                $(".compare-content-" + id +  " ." + side + "-input").width("100%");
+                $(".compare-content-" + id +  " ." + otherSide + "-input").hide();
+                $(".compare-content-" + id +  " ." + side + "-input .input-expand").hide()
+                $(".compare-content-" + id +  " ." + side + "-input .input-split").show()
+                $(".compare-content-" + id +  " .header-" + otherSide).hide();
+                $(".compare-content-" + id +  " .header-" + side).show();
+            } else { // 分裂
+                $(".compare-content-" + id +  " ." + side + "-input").width("50%");
+                $(".compare-content-" + id +  " ." + otherSide + "-input").show();
+                $(".compare-content-" + id +  " ." + side + "-input .input-expand").show()
+                $(".compare-content-" + id +  " ." + side + "-input .input-split").hide()
+                $(".compare-content-" + id +  " .header-" + otherSide).show();
+                $(".compare-content-" + id +  " .header-" + side).show();
+            }
+        }
     });
 </script>
