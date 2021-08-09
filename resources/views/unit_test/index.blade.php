@@ -468,36 +468,35 @@
                                         request_result = '请求成功';
                                     }
 
-                                    var response = jsonFormat(unitTest["response"]) + "\n";
-                                    var response_reg = jsonFormat(unitTest["response_reg"]) + "\n";
-                                    var response_num = response.match(/\n/ig).length;
-                                    var response_reg_num = response_reg.match(/\n/ig).length;
-                                    if (response_reg_num > response_num) {
-                                        response_num = response_reg_num;
-                                    }
-
-                                    var response_num_str = "";
-                                    for (let index = 1; index <= response_num; index++) {
-                                        response_num_str += "<span class='text-num'>" + index + "</span><br>";
-                                    }
+                                    var response = toJson(unitTest["response"]);
+                                    var response_reg = toJson(unitTest["response_reg"]);
                                     var diff = Diff.diffJson(response_reg, response);
-                                    var formatText = '';
-                                    var leftText = '';
-                                    var rightText = '';
+
+                                    var leftText = rightText = '';
+                                    var left_num = right_num = 0;
                                     diff.forEach(function(part){
                                         // green for additions, red for deletions
                                         var color = part.added ? 'green' : (part.removed ? 'red' : 'transparent');
                                         var span = '<span style="background-color: ' + color + '">' + part.value + '</span>';
-                                        if (!part.added && !part.removed) {
+                                        if (part.removed) {
                                             leftText += span;
-                                            rightText += span;
-                                        } else if (part.removed) {
-                                            leftText += span;
+                                            left_num += part.count;
                                         } else if (part.added) {
                                             rightText += span;
+                                            right_num += part.count;
+                                        } else {
+                                            leftText += span;
+                                            rightText += span;
+                                            left_num += part.count;
+                                            right_num += part.count;
                                         }
-                                        formatText += span;
                                     });
+
+                                    var response_num = left_num > right_num ? left_num : right_num;
+                                    var response_num_str = "";
+                                    for (let index = 1; index <= response_num; index++) {
+                                        response_num_str += "<span class='text-num'>" + index + "</span><br>";
+                                    }
 
                                     html += '<div class="panel">' + 
                                     '<div class="panel-heading bg-white">' + 
@@ -538,24 +537,16 @@
             });
         });
 
-        function jsonFormat(json) {
+        function toJson(string) {
+            var content = string;
             try {
-                if (typeof json == 'object') {
-                    var content = JSON.stringify(json);
-                    var formatJson = js_beautify(content, 4, ' ');
-                } else if (typeof json === 'string') {
-                    //防中文乱码
-                    var content = eval("(" + json + ")")
-                    content = JSON.stringify(content);
-                    var formatJson = js_beautify(content, 4, ' ');
-                } else {
-                    var formatJson = json;
+                if (typeof json != 'object') {
+                    content = JSON.parse(string);
                 }
             } catch (error) {
-                var formatJson = json;
+                content = eval("(" + json + ")");
             }
-
-            return formatJson;
+            return content;
         }
     });
 </script>
