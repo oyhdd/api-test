@@ -51,31 +51,65 @@
         var diff = Diff.diffJson(leftJson, rightJson);
         var leftText = rightText = '';
         var left_num = right_num = 0;
-        diff.forEach(function(part){
+        var modify_flag = left_num_str = right_num_str = '';
+        diff.forEach(function(part, index){
             // green for additions, red for deletions
             var color = part.added ? 'green' : (part.removed ? 'red' : 'transparent');
             var span = '<span style="background-color: ' + color + '">' + part.value + '</span>';
+
             if (part.removed) {
+                modify_flag = 'removed';
                 leftText += span;
-                left_num += part.count;
+                var flag = ! (diff[index + 1].added && diff[index + 1].count == part.count);
+                for (let count = 1; count <= part.count; count++) {
+                    left_num ++;
+                    left_num_str += "<span class='text-num'>" + left_num + "</span><br>";
+                    if (flag) {
+                        modify_flag = '';
+                        right_num ++;
+                        rightText += '<br>';
+                        right_num_str += "<span class='text-num'>- " + right_num + "</span><br>";
+                    }
+                }
             } else if (part.added) {
                 rightText += span;
-                right_num += part.count;
+                var flag = modify_flag == '' || modify_flag != 'removed';
+                for (let count = 1; count <= part.count; count++) {
+                    right_num ++;
+                    right_num_str += "<span class='text-num'>" + right_num + "</span><br>";
+                    if (flag) {
+                        left_num ++;
+                        leftText += '<br>';
+                        left_num_str += "<span class='text-num'>- " + left_num + "</span><br>";
+                    }
+                }
+                modify_flag = 'added';
             } else {
                 leftText += span;
                 rightText += span;
-                left_num += part.count;
-                right_num += part.count;
+                modify_flag = '';
+                for (let count = 1; count <= part.count; count++) {
+                    left_num ++;
+                    right_num ++;
+                    left_num_str += "<span class='text-num'>" + left_num + "</span><br>";
+                    right_num_str += "<span class='text-num'>" + right_num + "</span><br>";
+                }
             }
         });
 
-        var response_num = left_num > right_num ? left_num : right_num;
-        var response_num_str = "";
-        for (let index = 1; index <= response_num; index++) {
-            response_num_str += "<span class='text-num'>" + index + "</span><br>";
+        var text_num = left_num - right_num;
+        if (text_num >= 0) {
+            for (let i = 0; i < text_num; i++) {
+                right_num_str += "<span class='text-num'></span><br>";
+            }
+        } else {
+            for (let i = 0; i < -text_num; i++) {
+                left_num_str += "<span class='text-num'></span><br>";
+            }
         }
-        $('#left_line_' + id).html(response_num_str);
-        $('#right_line_' + id).html(response_num_str);
+
+        $('#left_line_' + id).html(left_num_str);
+        $('#right_line_' + id).html(right_num_str);
         $('#left_text_' + id).html(leftText);
         $('#right_text_' + id).html(rightText);
 
