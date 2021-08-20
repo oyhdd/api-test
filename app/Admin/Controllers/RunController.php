@@ -7,12 +7,17 @@ use Dcat\Admin\Admin;
 use App\Models\ApiModel;
 use App\Models\BaseModel;
 use App\Models\ProjectModel;
+use App\Models\RegressionTestModel;
 use Dcat\Admin\Form;
+use Dcat\Admin\Layout\Column;
+use Dcat\Admin\Layout\Row;
 use Dcat\Admin\Layout\Content;
+use Dcat\Admin\Widgets\Box;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use GuzzleHttp\Exception\RequestException;
+use Dcat\Admin\Widgets\Form as WidgetForm;
 
 /**
  * 接口调试
@@ -60,7 +65,7 @@ class RunController extends AdminController
         return $content
             ->title($model->project->name ?? "")
             ->description($model->name)
-            ->row(view('unit_test.index', ['model' => $model]));
+            ->row(view('run.index', ['model' => $model]));
     }
 
     /**
@@ -377,5 +382,39 @@ class RunController extends AdminController
     {
         return Form::make(new Api(), function (Form $form) {
         });
+    }
+
+    /**
+     * 一键回归测试
+     * @author   wangmeng
+     * @dateTime 2021-08-10
+     * @param Content $content
+     */
+    public function regressTest(Content $content)
+    {
+        return $content
+            ->title('回归测试')
+            ->breadcrumb(
+                ['text' => '接口调试', 'url' => '/run'],
+                ['text' => '回归测试']
+            )
+            ->body(function (Row $row) {
+                $row->column(5, function (Column $column) {
+                    $form = new WidgetForm();
+                    $form->action(admin_url('run/regress'));
+
+                    $domainList = ProjectModel::getDomainOptions(self::getProjectId());
+                    $form->select('domain', '运行环境')->options($domainList)->default(array_key_first($domainList))->required();
+                    $form->tree('regression_test', '回归用例')
+                        ->expand(false)
+                        ->readOnly()
+                        ->nodes(RegressionTestModel::getRegressList(array_key_first($domainList)));
+                    $form->hidden('_token')->default(csrf_token());
+                    $form->width(10, 2)->disableResetButton();
+                    $column->append(Box::make('选择回归用例', $form));
+                });
+
+                $row->column(7, 123);
+            });
     }
 }

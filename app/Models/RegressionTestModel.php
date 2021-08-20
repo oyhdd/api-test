@@ -63,45 +63,27 @@ class RegressionTestModel extends BaseModel
     /**
      * 获取回归测试列表
      */
-    public static function getRegressList()
+    public static function getRegressList($domain)
     {
-        $models = RegressionTestModel::getAll(['project_id' => AdminController::getProjectId()])->groupBy('api_id');
+        $apiModels = ApiModel::with(['unitTest'])->where(['project_id' => AdminController::getProjectId(), 'status' => self::STATUS_NORMAL])->orderBy('order', 'ASC')->get(['id', 'name', 'parent_id', 'order']);
 
         $list = [];
-        foreach ($models as $model) {
-            $model = $model->shift();
-            if (!isset($list[$model->project_id])) {
-                $domain = array_column($model->project->domain, 'value', 'key');
-                if (array_key_first($domain) != $model->domain) {
-                    continue;
+        foreach ($apiModels as $apiModel) {
+            $disabled = true;
+            foreach ($apiModel->unitTest as $unitTest) {
+                foreach ($unitTest->regTest as $regTest) {
+                    if ($regTest->domain == $domain) {
+                        $disabled = false;
+                        break 2;
+                    }
                 }
-
-                $list[$model->project_id] = [
-                    'id' => $model->project_id,
-                    'name' => $model->project->name,
-                    'domain' => $domain,
-                    'apiList' => [
-                        [
-                            'id' => $model->api->id,
-                            'name' => $model->api->name,
-                            'method' => $model->api->method,
-                            'url' => $model->api->url,
-                            'desc' => $model->api->desc,
-                        ]
-                    ],
-                ];
-            } else {
-                if (array_key_first($list[$model->project_id]['domain']) != $model->domain) {
-                    continue;
-                }
-                $list[$model->project_id]['apiList'][] = [
-                    'id' => $model->api_id,
-                    'name' => $model->api->name,
-                    'method' => $model->api->method,
-                    'url' => $model->api->url,
-                    'desc' => $model->api->desc,
-                ];
             }
+            $list[] = [
+                'id' => $apiModel->id,
+                'name' => $apiModel->name,
+                'parent_id' => $apiModel->parent_id,
+                'state' => ['disabled' => $disabled]
+            ];
         }
 
         return $list;

@@ -199,7 +199,7 @@
             </div>
             <div id="tab2" class="tab_content" style="display: none; ">
                 @php
-                    echo view('unit_test.debug', [
+                    echo view('run.debug', [
                         'model' => $model
                     ]);
                 @endphp
@@ -223,10 +223,10 @@
         let api_url = '<?php echo $model->url ?>';
 
         $(".breadcrumb").html(
-            "<div data-toggle='modal' data-target='#mymodal' class='btn btn-sm btn-success'>" +
+            "<a href='/admin/run/regress-test' class='btn btn-sm btn-success' target='_blank'>" +
             "<i class='feather icon-corner-right-up'></i>" +
             "<span class='d-none d-sm-inline'> 回归测试</span>" +
-            "</div>"
+            "</a>"
         );
 
         // 回归测试面板行选择器
