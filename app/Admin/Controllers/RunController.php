@@ -405,11 +405,10 @@ class RunController extends AdminController
 
                     $domainList = ProjectModel::getDomainOptions(self::getProjectId());
                     $form->select('domain', '运行环境')->options($domainList)->default(array_key_first($domainList))->required();
-                    $form->tree('regression_test', '回归用例')
-                        ->expand(false)
-                        ->readOnly()
+
+                    $form->treeSelect('regression_test', '回归用例')
+                        ->expand()
                         ->nodes(RegressionTestModel::getRegressList(array_key_first($domainList)));
-                    $form->hidden('_token')->default(csrf_token());
                     $form->width(10, 2)->disableResetButton();
                     $column->append(Box::make('选择回归用例', $form));
                 });
