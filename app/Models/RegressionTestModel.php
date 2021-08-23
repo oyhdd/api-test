@@ -63,9 +63,9 @@ class RegressionTestModel extends BaseModel
     /**
      * 获取回归测试列表
      */
-    public static function getRegressList($domain)
+    public static function getRegressList($domain, $apiIds = [])
     {
-        $apiModels = ApiModel::with(['unitTest'])->where(['project_id' => AdminController::getProjectId(), 'status' => self::STATUS_NORMAL])->orderBy('order', 'ASC')->get(['id', 'name', 'parent_id', 'order']);
+        $apiModels = ApiModel::with(['unitTest'])->where(['project_id' => AdminController::getProjectId(), 'status' => self::STATUS_NORMAL])->orderBy('order', 'ASC')->get(['id', 'name', 'parent_id', 'order', 'url']);
 
         $list = [];
         foreach ($apiModels as $apiModel) {
@@ -82,7 +82,10 @@ class RegressionTestModel extends BaseModel
                 'id' => $apiModel->id,
                 'name' => $apiModel->name,
                 'parent_id' => $apiModel->parent_id,
-                'state' => ['disabled' => $disabled]
+                'state' => [
+                    'disabled' => $disabled,
+                    'selected' => in_array($apiModel->id, $apiIds),
+                ]
             ];
         }
 

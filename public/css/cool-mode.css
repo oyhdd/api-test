@@ -185,6 +185,10 @@ body.dark-mode label,body.dark-mode p,body.dark-mode small {
 	color: white
 }
 
+body.dark-mode .alert-warning p {
+	color: #a8a9bb
+}
+
 body.dark-mode .label {
 	color: #f9f9f9
 }
@@ -1038,7 +1042,7 @@ body.dark-mode .apexcharts-tooltip.apexcharts-theme-light {
     background: rgba(0, 0, 0, 0.7) !important;
 }
 body.dark-mode .jstree-proton .jstree-disabled {
-    color: lightgray;
+    color: darkgray;
 }
 body.dark-mode .filter-box.card {
     border-top-color: transparent !important;

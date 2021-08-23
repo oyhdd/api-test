@@ -7,7 +7,7 @@ use Dcat\Admin\Form\Field\Tree;
 
 class TreeSelect extends Tree
 {
-    protected $view = 'run.treeSelect';
+    protected $view = 'run.tree-select';
 
     protected $options = [
         'plugins' => ['checkbox', 'types'],

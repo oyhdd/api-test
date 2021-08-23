@@ -100,7 +100,7 @@ class CrontabModel extends BaseModel
         $task_value = json_decode($crontab['task_value'], true);
         // 回归用例
         if ($crontab['task_type'] == CrontabModel::TASK_TYPE_REGRESSION_TEST) {
-            $testModel = RegressionTestModel::with(['api', 'unitTest'])->whereIn('id', $task_value)->where(['status' => UnitTestModel::STATUS_NORMAL])->get();
+            $testModel = RegressionTestModel::with(['api', 'unitTest'])->whereIn('id', $task_value)->where(['status' => self::STATUS_NORMAL])->get();
         } else {
             // 集成用例
         }
@@ -108,7 +108,6 @@ class CrontabModel extends BaseModel
             return;
         }
 
-        $total_unit = 0;
         $requestData = [];
         foreach ($testModel as $regTest) {
             if (empty($regTest->toArray())) {
@@ -151,7 +150,6 @@ class CrontabModel extends BaseModel
                 'unit_test_name' => $regTest->unitTest->name,
                 'ignore_fields' => explode(',', $regTest->ignore_fields),
             ];
-            $total_unit ++;
         }
 
         $ret = self::sendRequest($requestData);
