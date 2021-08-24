@@ -138,10 +138,13 @@ class RunController extends AdminController
         $project_id = AdminController::getProjectId();
         $domain_key = $this->request->input('domain');
         if (empty($domain_key)) {
-            return admin_toastr('请选择运行环境');
+            return response()->json(['message' => '请选择运行环境'], 400);
         }
         $domain = ProjectModel::getDomainByKey($project_id, $domain_key);
         $api_ids = $this->request->input('api_ids', '');
+        if (empty($api_ids)) {
+            return response()->json(['message' => '请选择回归用例'], 400);
+        }
         $api_ids = explode(',', $api_ids);
 
         $testModel = RegressionTestModel::with(['api', 'unitTest'])->whereIn('api_id', $api_ids)->where(['domain' => $domain_key, 'status' => RegressionTestModel::STATUS_NORMAL])->get();
@@ -195,8 +198,10 @@ class RunController extends AdminController
             $ret['domain_env'] = $domain_key;
             $ret['domain'] = $domain;
             $ret['project_name'] = (AdminController::getProject())->name;
-            return view('log_crontab.unit_test_modal', ['id' => $project_id, 'data' => $ret]);
+            return view('log_crontab.unit_test_modal', ['id' => $project_id, 'data' => $ret, 'expand' => true]);
         }
+
+        return response()->json(['message' => '运行失败！请联系管理员'], 400);
     }
 
     /**
@@ -224,11 +229,15 @@ class RunController extends AdminController
 
         return $content
             ->title('回归测试')
-            ->description('请先将 <a href="/admin/run" target="_blank">调试结果</a> 保存至回归测试中，方可选择')
+            ->description('请先将 <a href="/admin/run" target="_blank">调试结果</a> 保存至回归测试中，方可选择回归用例')
             ->breadcrumb(
                 ['text' => '接口调试', 'url' => '/run'],
                 ['text' => '回归测试']
             )
-            ->body(view('run.regression-test', ['project_id' => self::getProjectId(), 'domain' => $domain, 'api_ids' => $api_ids]));
+            ->body(view('run.regression-test', [
+                'project_id' => self::getProjectId(),
+                'domain' => $domain,
+                'api_ids' => $api_ids,
+            ]));
     }
 }

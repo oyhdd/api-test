@@ -3,6 +3,7 @@
     use Dcat\Admin\Widgets\Box;
     use Dcat\Admin\Layout\Column;
     use Dcat\Admin\Layout\Row;
+    use Dcat\Admin\Widgets\Checkbox;
 
     $row = new Row();
     $row->column(4, function (Column $column) use ($project_id, $domain, $api_ids) {
@@ -30,8 +31,14 @@
         $column->append(Box::make('选择回归用例', $form));
     });
     $row->column(8, function (Column $column) {
-        
-        $column->append(Box::make('运行结果', '<div id="run_regression_test_response"></div>'));
+        $checkboxes = new Checkbox();
+        $checkboxes->name('reg-test-expand');
+        $checkboxes->style('primary');
+        $checkboxes->inline();
+        $checkboxes->options([
+            1 => trans('admin.expand'),
+        ]);
+        $column->append(Box::make('运行结果', '<div id="run_regression_test_response"></div>')->tool($checkboxes));
     });
 
     echo $row->render();
@@ -48,24 +55,38 @@
         // ajax表单提交
         $('#run_regression_test').form({
             validate: true, //开启表单验证
+            before: function (fields, form, opt) {
+                if ($('input[name="reg-test-expand"]').prop("checked")) {
+                    $('input[name="reg-test-expand"]').click();
+                }
+            },
             success: function (response) {
-                $("#run_regression_test_response").html(response)
-                
+                $("#run_regression_test_response").html(response);
+                return false;
             },
             error: function (response) {
-                console.log(2)
                 // 当提交表单失败的时候会有默认的处理方法，通常使用默认的方式处理即可
                 var errorData = JSON.parse(response.responseText);
 
                 if (errorData) {
                     Dcat.error(errorData.message);
-                } else {
-                    console.log('提交出错', response.responseText);
                 }
 
                 // 终止后续逻辑执行
                 return false;
             },
+        });
+
+        $('input[name="reg-test-expand"]').on("click", function () {
+            var checked = $(this).prop("checked");
+            $("div.collapse-response").each(function(){
+                if (checked) {
+                    $(this).addClass('show');
+                } else {
+                    $(this).removeClass('show');
+                }
+                
+            })
         });
     });
 </script>

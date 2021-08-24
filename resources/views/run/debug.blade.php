@@ -155,16 +155,6 @@
             $this.on('click', function () {
                 var clipboard = new ClipboardJS('.btn-pre-copy');
                 let btn = $(this);
-                // let pre = btn.parent();
-                // //为了实现复制功能。新增一个临时的textarea节点。使用他来复制内容
-                // let temp = $("<textarea></textarea>");
-                // //避免复制内容时把按钮文字也复制进去。先临时置空
-                // btn.text("");
-                // temp.text(pre.text());
-                // temp.appendTo(pre);
-                // temp.select();
-                // document.execCommand("Copy");
-                // temp.remove();
                 //修改按钮名
                 btn.text("复制成功");
                 setTimeout(()=> {
@@ -299,7 +289,7 @@
                     $('#response').html(formatText);
                     $('#response').prepend("<span class=\"btn-pre-copy\">复制</span>");
                 }
-                $('#ret').html("服务器内部错误！请联系管理员<br>" + errorData.message);
+                $('#ret').html("运行失败！请联系管理员<br>" + errorData.message);
                 $('#ret').css({
                     color: "orangered"
                 });

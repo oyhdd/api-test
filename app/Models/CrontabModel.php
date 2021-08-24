@@ -298,6 +298,10 @@ class CrontabModel extends BaseModel
             $ret[$project_id]['apiList'][$api_id]['total_count'] ++;
         }
 
+        foreach ($ret as $project_id => &$projectData) {
+            ksort($projectData['apiList']);
+        }
+
         return $ret;
     }
 
