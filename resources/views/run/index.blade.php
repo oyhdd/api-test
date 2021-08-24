@@ -103,7 +103,7 @@
             "<i class='feather icon-corner-right-up'></i>" +
             "<span class='d-none d-sm-inline'> 回归测试</span>" +
             "</a>&emsp;" +
-            "<a href='/admin/run/integration-test' class='btn btn-sm btn-warning' target='_blank'>" +
+            "<a href='/admin/run/integra-test' class='btn btn-sm btn-warning' target='_blank'>" +
             "<i class='feather icon-activity'></i>" +
             "<span class='d-none d-sm-inline'> 集成测试</span>" +
             "</a>"

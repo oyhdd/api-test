@@ -10,7 +10,7 @@ use Dcat\Admin\Admin;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Grid\LazyRenderable;
 
-class IntegrationTest extends LazyRenderable
+class IntegraTest extends LazyRenderable
 {
     public function grid(): Grid
     {

@@ -1,8 +1,8 @@
 <?php 
 return [
     'labels' => [
-        'IntegrationTest' => '集成测试',
-        'integration-test' => '集成测试',
+        'IntegraTest' => '集成测试',
+        'integra-test' => '集成测试',
     ],
     'fields' => [
         'project_id' => '项目id',

@@ -28,7 +28,7 @@ Route::group([
     // 接口运行
     $router->post('run/regress', 'RunController@regress');
     $router->get('run/regress-test', 'RunController@regressTest'); // 回归测试
-    $router->get('run/integration-test', 'RunController@regressTest'); // 集成测试
+    $router->get('run/integra-test', 'RunController@integraTest'); // 集成测试
     $router->resource('run', RunController::class); // 接口调试
 
     // 测试用例
@@ -43,7 +43,7 @@ Route::group([
     $router->resource('unit-test', UnitTestController::class);
 
     // 集成测试
-    $router->resource('integration-test', IntegrationTestController::class);
+    $router->resource('integra-test', IntegraTestController::class);
 
     // 计划任务
     $router->resource('crontab', CrontabController::class);

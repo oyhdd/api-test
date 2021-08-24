@@ -2,7 +2,7 @@
 
 namespace App\Admin\Controllers;
 
-use App\Admin\Repositories\IntegrationTest;
+use App\Admin\Repositories\IntegraTest;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -10,7 +10,7 @@ use Dcat\Admin\Show;
 /**
  * 集成测试
  */
-class IntegrationTestController extends AdminController
+class IntegraTestController extends AdminController
 {
     /**
      * Make a grid builder.
@@ -19,7 +19,7 @@ class IntegrationTestController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(new IntegrationTest(), function (Grid $grid) {
+        return Grid::make(new IntegraTest(), function (Grid $grid) {
             $grid->column('id')->sortable();
             $grid->column('project_id');
             $grid->column('parent_id');
@@ -45,7 +45,7 @@ class IntegrationTestController extends AdminController
      */
     protected function detail($id)
     {
-        return Show::make($id, new IntegrationTest(), function (Show $show) {
+        return Show::make($id, new IntegraTest(), function (Show $show) {
             $show->field('id');
             $show->field('project_id');
             $show->field('parent_id');
@@ -64,7 +64,7 @@ class IntegrationTestController extends AdminController
      */
     protected function form()
     {
-        return Form::make(new IntegrationTest(), function (Form $form) {
+        return Form::make(new IntegraTest(), function (Form $form) {
             $form->display('id');
             $form->text('project_id');
             $form->text('parent_id');

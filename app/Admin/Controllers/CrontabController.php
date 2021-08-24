@@ -3,12 +3,12 @@
 namespace App\Admin\Controllers;
 
 use App\Admin\Extensions\Grid\Action\RunCrontab;
-use App\Admin\Extensions\Renderable\IntegrationTest;
+use App\Admin\Extensions\Renderable\IntegraTest;
 use App\Admin\Extensions\Renderable\RegressionTest;
 use App\Admin\Repositories\Crontab;
 use App\Models\BaseModel;
 use App\Models\CrontabModel;
-use App\Models\IntegrationTestModel;
+use App\Models\IntegraTestModel;
 use App\Models\LogCrontabModel;
 use App\Models\ProjectModel;
 use App\Models\RegressionTestModel;
@@ -97,12 +97,12 @@ class CrontabController extends AdminController
                     return $ret;
                 });
             })
-            ->when(BaseModel::TASK_TYPE_INTEGRATION_TEST, function (Form $form) {
+            ->when(BaseModel::TASK_TYPE_INTEGRA_TEST, function (Form $form) {
                 // 异步加载集成测试
-                $form->multipleSelectTable('task_value_integration_test', '任务Id')
+                $form->multipleSelectTable('task_value_integra_test', '任务Id')
                 ->title('选择集成用例')
-                ->from(IntegrationTest::make())
-                ->model(IntegrationTestModel::class, 'id', 'name');
+                ->from(IntegraTest::make())
+                ->model(IntegraTestModel::class, 'id', 'name');
             })
             ->options(BaseModel::$label_task_type)->default(BaseModel::TASK_TYPE_REGRESSION_TEST)->required();
 
@@ -112,14 +112,14 @@ class CrontabController extends AdminController
             $form->text('crontab')->default('* * * * *')->help('格式：* * * * * （minute hour day month week）');
 
             $form->submitted(function (Form $form) {
-                if ($form->task_type == BaseModel::TASK_TYPE_INTEGRATION_TEST) {
-                    $task_value = $form->task_value_integration_test;
+                if ($form->task_type == BaseModel::TASK_TYPE_INTEGRA_TEST) {
+                    $task_value = $form->task_value_integra_test;
                     $form->input('task_value', $task_value);
                 }
                 if ($form->isCreating()) {
                     $form->project_id = self::getProjectId();
                 }
-                $form->deleteInput('task_value_integration_test');
+                $form->deleteInput('task_value_integra_test');
             });
 
             $form->fieldset('crontab 参数说明', function ($form) {
