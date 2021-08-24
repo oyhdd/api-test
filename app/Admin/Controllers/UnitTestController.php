@@ -3,7 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Admin\Repositories\UnitTest;
-use App\Models\{ApiModel, UnitTestModel, ProjectModel, BaseModel, RegressionTestModel};
+use App\Models\{ApiModel, UnitTestModel, ProjectModel, BaseModel, RegressTestModel};
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -267,8 +267,8 @@ class UnitTestController extends AdminController
         }
 
         $params['unit_test_id'] = $model->id;
-        $params['status'] = $params['regression_status'];
-        $ret = RegressionTestModel::saveRegTest($params);
+        $params['status'] = $params['regress_status'];
+        $ret = RegressTestModel::saveRegTest($params);
 
         return [
             'status'  => $ret,

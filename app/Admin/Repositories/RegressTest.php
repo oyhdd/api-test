@@ -2,10 +2,10 @@
 
 namespace App\Admin\Repositories;
 
-use App\Models\RegressionTestModel as Model;
+use App\Models\RegressTestModel as Model;
 use Dcat\Admin\Repositories\EloquentRepository;
 
-class RegressionTest extends EloquentRepository
+class RegressTest extends EloquentRepository
 {
     /**
      * Model.

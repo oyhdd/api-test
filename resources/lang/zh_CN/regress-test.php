@@ -1,8 +1,8 @@
 <?php 
 return [
     'labels' => [
-        'RegressionTest' => '回归用例',
-        'regression-test' => '回归用例',
+        'RegressTest' => '回归用例',
+        'regress-test' => '回归用例',
     ],
     'fields' => [
         'project_id' => '项目',

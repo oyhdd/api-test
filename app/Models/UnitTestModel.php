@@ -27,7 +27,7 @@ class UnitTestModel extends BaseModel
 
     public function regTest()
     {
-        return $this->hasMany(RegressionTestModel::class, 'unit_test_id')->where('status', self::STATUS_NORMAL);
+        return $this->hasMany(RegressTestModel::class, 'unit_test_id')->where('status', self::STATUS_NORMAL);
     }
 
     public static function formatTableData($params = [])

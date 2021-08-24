@@ -58,7 +58,7 @@ class ApiModel extends BaseModel implements Sortable
 
     public function regTest()
     {
-        return $this->hasMany(RegressionTestModel::class, 'api_id')->where('status', self::STATUS_NORMAL);
+        return $this->hasMany(RegressTestModel::class, 'api_id')->where('status', self::STATUS_NORMAL);
     }
 
     public function unitTest()

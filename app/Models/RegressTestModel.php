@@ -7,9 +7,9 @@ namespace App\Models;
 use App\Admin\Controllers\AdminController;
 use App\Helpers\Compress;
 
-class RegressionTestModel extends BaseModel
+class RegressTestModel extends BaseModel
 {
-    protected $table = 'regression_test';
+    protected $table = 'regress_test';
 
     protected $fillable = [
         'project_id',
@@ -45,15 +45,15 @@ class RegressionTestModel extends BaseModel
     public static function saveRegTest(array $params): bool
     {
         if (empty($params['type'])) {
-            $params['type'] = RegressionTestModel::REG_TYPE_ALL;
+            $params['type'] = RegressTestModel::REG_TYPE_ALL;
         }
 
-        $model = RegressionTestModel::where(['unit_test_id' => $params['unit_test_id'], 'domain' => $params['domain']])->first();
+        $model = RegressTestModel::where(['unit_test_id' => $params['unit_test_id'], 'domain' => $params['domain']])->first();
         if (empty($model)) {
-            if ($params['status'] == RegressionTestModel::STATUS_DELETED) {
+            if ($params['status'] == RegressTestModel::STATUS_DELETED) {
                 return true;
             }
-            $model = new RegressionTestModel();
+            $model = new RegressTestModel();
         }
 
         $model->fill($params);

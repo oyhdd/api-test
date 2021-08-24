@@ -60,10 +60,10 @@ class BaseModel extends Model
     /**
      * 计划任务类型
      */
-    const TASK_TYPE_REGRESSION_TEST  = 1;
+    const TASK_TYPE_REGRESS_TEST = 1;
     const TASK_TYPE_INTEGRA_TEST = 2;
     public static $label_task_type = [
-        self::TASK_TYPE_REGRESSION_TEST  => '回归用例',
+        self::TASK_TYPE_REGRESS_TEST  => '回归用例',
         self::TASK_TYPE_INTEGRA_TEST => '集成用例',
     ];
 

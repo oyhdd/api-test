@@ -3,17 +3,17 @@
 namespace App\Admin\Extensions\Renderable;
 
 use App\Admin\Controllers\AdminController;
-use App\Admin\Repositories\RegressionTest as RegressionTestRep;
+use App\Admin\Repositories\RegressTest as RegressTestRep;
 use App\Models\ApiModel;
 use App\Models\BaseModel;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Grid\LazyRenderable;
 
-class RegressionTest extends LazyRenderable
+class RegressTest extends LazyRenderable
 {
     public function grid(): Grid
     {
-        return Grid::make(RegressionTestRep::with(['api', 'unitTest']), function (Grid $grid) {
+        return Grid::make(RegressTestRep::with(['api', 'unitTest']), function (Grid $grid) {
             $domain = $this->payload['domain'] ?? '';
             $grid->model()->where(['project_id' => AdminController::getProjectId(), 'domain' => $domain, 'status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
 

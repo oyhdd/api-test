@@ -8,7 +8,7 @@
     $row = new Row();
     $row->column(4, function (Column $column) use ($project_id, $domain, $api_ids) {
         $form = new Form();
-        $form->action(admin_url('run/regress'))->setFormId('run_regression_test')->ajax(false);
+        $form->action(admin_url('run/regress'))->setFormId('run_regress_test')->ajax(false);
         $domainList = \App\Models\ProjectModel::getDomainOptions($project_id);
         if (empty($domain)) {
             $domain = array_key_first($domainList);
@@ -17,7 +17,7 @@
 
         $form->treeSelect('api_ids', '回归用例')
             ->expand(false)
-            ->nodes(\App\Models\RegressionTestModel::getRegressList($domain, $api_ids));
+            ->nodes(\App\Models\RegressTestModel::getRegressList($domain, $api_ids));
         $form->width(10, 2)->disableResetButton();
         $form->addVariables(['footer' =>
         '<div class="box-footer row d-flex">
@@ -38,7 +38,7 @@
         $checkboxes->options([
             1 => trans('admin.expand'),
         ]);
-        $column->append(Box::make('运行结果', '<div id="run_regression_test_response"></div>')->tool($checkboxes));
+        $column->append(Box::make('运行结果', '<div id="run_regress_test_response"></div>')->tool($checkboxes));
     });
 
     echo $row->render();
@@ -53,7 +53,7 @@
             }
         });
         // ajax表单提交
-        $('#run_regression_test').form({
+        $('#run_regress_test').form({
             validate: true, //开启表单验证
             before: function (fields, form, opt) {
                 if ($('input[name="reg-test-expand"]').prop("checked")) {
@@ -61,7 +61,7 @@
                 }
             },
             success: function (response) {
-                $("#run_regression_test_response").html(response);
+                $("#run_regress_test_response").html(response);
                 return false;
             },
             error: function (response) {

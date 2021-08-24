@@ -37,7 +37,7 @@ Route::group([
     $router->resource('unit-test', UnitTestController::class);
 
     // 回归测试
-    $router->resource('regression-test', RegressionTestController::class);
+    $router->resource('regress-test', RegressTestController::class);
 
     // 单元测试
     $router->resource('unit-test', UnitTestController::class);

@@ -80,7 +80,7 @@ class CreateApiTestTable extends Migration
         });
         DB::statement("ALTER TABLE `unit_test` comment 'api_test 测试用例表'");
 
-        Schema::create('regression_test', function (Blueprint $table) {
+        Schema::create('regress_test', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('project_id')->default(0)->comment('项目id');
             $table->string('domain', 64)->default('')->comment('域名');
@@ -96,7 +96,7 @@ class CreateApiTestTable extends Migration
             $table->index('api_id');
             $table->index('unit_test_id');
         });
-        DB::statement("ALTER TABLE `regression_test` comment 'autotest 回归测试表'");
+        DB::statement("ALTER TABLE `regress_test` comment 'autotest 回归测试表'");
 
         Schema::create('integra_test', function (Blueprint $table) {
             $table->increments('id');
@@ -164,7 +164,7 @@ class CreateApiTestTable extends Migration
         Schema::dropIfExists('project_user');
         Schema::dropIfExists('api');
         Schema::dropIfExists('unit_test');
-        Schema::dropIfExists('regression_test');
+        Schema::dropIfExists('regress_test');
         Schema::dropIfExists('integra_test');
         Schema::dropIfExists('crontab');
         Schema::dropIfExists('log_crontab');

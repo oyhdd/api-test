@@ -86,10 +86,10 @@
         <hr>
         <div>
             <div>回归测试：<input id="save_reg_test" type="checkbox" /></div>
-            <div class="regression-type" style="display: none;">
+            <div class="regress-type" style="display: none;">
                 请求成功：<input class="reg-model" type="radio" name="reg-model" value="{{ $model::REG_TYPE_SUCCESS }}" />&nbsp;完全匹配：<input type="radio" class="reg-model" name="reg-model" value="{{ $model::REG_TYPE_ALL }}" />
             </div>
-            <div class="regression-type-all form-group row form-field" style="display: none;">
+            <div class="regress-type-all form-group row form-field" style="display: none;">
                 <label class="col-md-3 text-capitalize control-label">匹配时忽略字段:</label>
                 <div class="col-md-9">
                     <select class="form-control" id="ignore_fields" multiple="multiple"></select>
@@ -132,21 +132,21 @@
         // 显示与隐藏回归模式
         $('#save_reg_test').click(function() {
             if ($("#save_reg_test").prop('checked')) {
-                $(".regression-type").show();
+                $(".regress-type").show();
                 if (typeof $(":radio[name='reg-model']:checked").val() == 'undefined') {
                     $(":radio[name='reg-model']").eq(0).prop("checked", true);
                 }
             } else {
-                $(".regression-type").hide();
+                $(".regress-type").hide();
             }
         });
 
         // 显示与隐藏忽略字段
         $(":radio[name='reg-model']").change(function() {
             if ($(":radio[name='reg-model']:checked").val() == 1) {
-                $(".regression-type-all").show();
+                $(".regress-type-all").show();
             } else {
-                $(".regression-type-all").hide();
+                $(".regress-type-all").hide();
             }
         });
 
@@ -164,7 +164,7 @@
         });
 
         $("select[name='domain']").change(function() {
-            switchRegression();
+            switchRegress();
         });
 
         // 自动加载测试用例
@@ -192,23 +192,23 @@
 
             $("#unit_test_name").val($("select[name='unit_test_id'] :selected").text());
 
-            switchRegression();
+            switchRegress();
         });
 
-        function switchRegression() {
+        function switchRegress() {
             var unit_test_id = $("select[name='unit_test_id']").val();
-            $(".regression-type-all").hide();
+            $(".regress-type-all").hide();
             $("#ignore_fields").empty();
             $("#save_reg_test").prop('checked', false);
-            $(".regression-type").hide();
+            $(".regress-type").hide();
             $(":radio[name='reg-model']").prop("checked", false);
             for (const key in regTest) {
                 if (regTest[key]['unit_test_id'] == unit_test_id && regTest[key]['domain'] == $("select[name='domain'] :selected").val()) {
                     $("#save_reg_test").prop('checked', true);
-                    $(".regression-type").show();
+                    $(".regress-type").show();
                     $(":radio[name='reg-model'][value='" + regTest[key]['type'] + "']").prop("checked", true);
                     if (regTest[key]['type'] == 1) {
-                        $(".regression-type-all").show();
+                        $(".regress-type-all").show();
                         if (regTest[key]['ignore_fields'] != null && regTest[key]['ignore_fields'] != '') {
                             var ignore_fields = (regTest[key]['ignore_fields']).split(',');
                             for (const key in ignore_fields) {
@@ -257,7 +257,7 @@
                 }
                 $('#response').prepend("<span class=\"btn-pre-copy\" data-clipboard-action=\"copy\" data-clipboard-target=\"#response\">复制</span>");
 
-                switchRegression();
+                switchRegress();
                 var unit_test_id = $("select[name='unit_test_id']").val();
                 var ori_ignore_fields = [];
 
@@ -354,7 +354,7 @@
                 "name": "type",
                 "value": $(":radio[name=reg-model]:checked").val(),
             }, {
-                "name": "regression_status",
+                "name": "regress_status",
                 "value": Number($("#save_reg_test").prop('checked')),
             }, {
                 "name": "ignore_fields",

@@ -2,7 +2,7 @@
 
 namespace App\Admin\Controllers;
 
-use App\Admin\Repositories\RegressionTest;
+use App\Admin\Repositories\RegressTest;
 use App\Models\BaseModel;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -12,7 +12,7 @@ use App\Models\ApiModel;
 /**
  * 回归测试
  */
-class RegressionTestController extends AdminController
+class RegressTestController extends AdminController
 {
     protected $description = [
         'index' => '请从 <a href="/admin/run" target="_blank">接口调试</a> 界面添加',
@@ -24,7 +24,7 @@ class RegressionTestController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(RegressionTest::with(['api', 'unitTest']), function (Grid $grid) {
+        return Grid::make(RegressTest::with(['api', 'unitTest']), function (Grid $grid) {
             $grid->model()->where(['project_id' => self::getProjectId(), 'status' => BaseModel::STATUS_NORMAL])->orderBy('id', 'desc');
 
             $grid->column('id')->sortable();
@@ -72,7 +72,7 @@ class RegressionTestController extends AdminController
      */
     protected function detail($id)
     {
-        return Show::make($id, RegressionTest::with(['project', 'api', 'unitTest']), function (Show $show) {
+        return Show::make($id, RegressTest::with(['project', 'api', 'unitTest']), function (Show $show) {
             $show->field('id');
             $show->field('project.name', '项目');
             $show->field('api.name', '接口名称');
@@ -103,7 +103,7 @@ class RegressionTestController extends AdminController
      */
     protected function form()
     {
-        return Form::make(new RegressionTest(), function (Form $form) {
+        return Form::make(new RegressTest(), function (Form $form) {
         });
     }
 

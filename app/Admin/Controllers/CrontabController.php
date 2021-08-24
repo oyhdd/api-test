@@ -4,14 +4,14 @@ namespace App\Admin\Controllers;
 
 use App\Admin\Extensions\Grid\Action\RunCrontab;
 use App\Admin\Extensions\Renderable\IntegraTest;
-use App\Admin\Extensions\Renderable\RegressionTest;
+use App\Admin\Extensions\Renderable\RegressTest;
 use App\Admin\Repositories\Crontab;
 use App\Models\BaseModel;
 use App\Models\CrontabModel;
 use App\Models\IntegraTestModel;
 use App\Models\LogCrontabModel;
 use App\Models\ProjectModel;
-use App\Models\RegressionTestModel;
+use App\Models\RegressTestModel;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Widgets\Table;
@@ -80,16 +80,16 @@ class CrontabController extends AdminController
 
             $form->select('domain')->options(ProjectModel::getDomainOptions(self::getProjectId()))->required();
             $form->select('task_type')
-            ->when(BaseModel::TASK_TYPE_REGRESSION_TEST, function (Form $form) {
+            ->when(BaseModel::TASK_TYPE_REGRESS_TEST, function (Form $form) {
                 // 异步加载测试用例
                 $form->multipleSelectTable('task_value')
                 ->title('选择回归用例')
-                ->from(RegressionTest::make(['id' => $form->getKey(), 'domain' => $form->model()->domain]))
+                ->from(RegressTest::make(['id' => $form->getKey(), 'domain' => $form->model()->domain]))
                 ->options(function ($regTestIds) {
                     if (! $regTestIds) {
                         return [];
                     }
-                    $regTestModel = RegressionTestModel::with(['api', 'unitTest'])->whereIn('id', $regTestIds)->get();
+                    $regTestModel = RegressTestModel::with(['api', 'unitTest'])->whereIn('id', $regTestIds)->get();
                     $ret = [];
                     foreach ($regTestModel as $regTest) {
                         $ret[$regTest->id] = sprintf("%s : %s%s", $regTest->api->name, $regTest->unitTest->name, $regTest->id);
@@ -104,7 +104,7 @@ class CrontabController extends AdminController
                 ->from(IntegraTest::make())
                 ->model(IntegraTestModel::class, 'id', 'name');
             })
-            ->options(BaseModel::$label_task_type)->default(BaseModel::TASK_TYPE_REGRESSION_TEST)->required();
+            ->options(BaseModel::$label_task_type)->default(BaseModel::TASK_TYPE_REGRESS_TEST)->required();
 
             $form->number('retain_day')->min(0)->default(0)->help('为0时永久保留');
             $form->switch('alarm_enable');

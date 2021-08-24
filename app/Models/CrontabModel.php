@@ -99,8 +99,8 @@ class CrontabModel extends BaseModel
         $domain = ProjectModel::getDomainByKey($crontab->project_id, $crontab->domain);
         $task_value = json_decode($crontab['task_value'], true);
         // 回归用例
-        if ($crontab['task_type'] == CrontabModel::TASK_TYPE_REGRESSION_TEST) {
-            $testModel = RegressionTestModel::with(['api', 'unitTest'])->whereIn('id', $task_value)->where(['status' => self::STATUS_NORMAL])->get();
+        if ($crontab['task_type'] == CrontabModel::TASK_TYPE_REGRESS_TEST) {
+            $testModel = RegressTestModel::with(['api', 'unitTest'])->whereIn('id', $task_value)->where(['status' => self::STATUS_NORMAL])->get();
         } else {
             // 集成用例
         }

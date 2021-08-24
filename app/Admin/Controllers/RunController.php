@@ -7,7 +7,7 @@ use Dcat\Admin\Admin;
 use App\Models\ApiModel;
 use App\Models\CrontabModel;
 use App\Models\ProjectModel;
-use App\Models\RegressionTestModel;
+use App\Models\RegressTestModel;
 use Dcat\Admin\Form;
 use Dcat\Admin\Layout\Content;
 use GuzzleHttp\Client;
@@ -147,7 +147,7 @@ class RunController extends AdminController
         }
         $api_ids = explode(',', $api_ids);
 
-        $testModel = RegressionTestModel::with(['api', 'unitTest'])->whereIn('api_id', $api_ids)->where(['domain' => $domain_key, 'status' => RegressionTestModel::STATUS_NORMAL])->get();
+        $testModel = RegressTestModel::with(['api', 'unitTest'])->whereIn('api_id', $api_ids)->where(['domain' => $domain_key, 'status' => RegressTestModel::STATUS_NORMAL])->get();
 
         $requestData = [];
         foreach ($testModel as $regTest) {
@@ -234,7 +234,7 @@ class RunController extends AdminController
                 ['text' => '接口调试', 'url' => '/run'],
                 ['text' => '回归测试']
             )
-            ->body(view('run.regression-test', [
+            ->body(view('run.regress-test', [
                 'project_id' => self::getProjectId(),
                 'domain' => $domain,
                 'api_ids' => $api_ids,
