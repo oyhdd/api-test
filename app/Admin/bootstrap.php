@@ -25,6 +25,7 @@ use Dcat\Admin\Show;
  *
  */
 
+\Dcat\Admin\Form::extend('treeSelect', App\Admin\Extensions\Form\TreeSelect::class);
 \Dcat\Admin\Show\Field::extend('textarea', App\Admin\Extensions\Show\Textarea::class);
 
 if (in_array('cool-mode', config('admin.layout.body_class'))) {

@@ -10,7 +10,7 @@
     <div class="panel-heading bg-white">
         <div><a href="#project_response_{{ $data['id'] }}" data-toggle="collapse">
             <span class="label bg-info">项目：{{ $data['project_name'] }}&nbsp;&nbsp;</span>
-            <span class="label bg-custom">{{ $data['domain_env'] }}: {{ $data['domain'] }}&nbsp;&nbsp;</span>
+            <span class="label bg-info">{{ $data['domain_env'] }}: {{ $data['domain'] }}&nbsp;&nbsp;</span>
             <span class="label {{ $data['success_count'] < $data['total_count'] ? 'bg-danger' : 'bg-success'  }}">成功用例：{{ $data['success_count'] }} / {{ $data['total_count'] }}</span>
         </a></div>
     </div>
@@ -20,15 +20,15 @@
             <div class="panel-heading bg-white">
                 <div>
                     <a href="#api_response_{{ $api['id'] }}" data-toggle="collapse">
-                        <span class="label bg-custom">接口{{ $api['id'] }}：{{ $api['name'] }}&nbsp;&nbsp;</span>
-                        <span class="label bg-custom">{{ $api['method'] }}&nbsp;&nbsp;</span>
+                        <span class="label bg-blue-1">接口{{ $api['id'] }}：{{ $api['name'] }}&nbsp;&nbsp;</span>
+                        <span class="label bg-blue-1">{{ $api['method'] }}&nbsp;&nbsp;</span>
                         <span class="label bg-gray text-light">{{ $api['url'] }}&nbsp;&nbsp;</span>
                         <span class="label {{ $api['success_count'] < $api['total_count'] ? 'bg-danger' : 'bg-success'  }}">成功用例：{{ $api['success_count'] }}  / {{ $api['total_count'] }}</span>
                     </a>
                     <a href="/admin/run/{{ $api['id'] }}" target="_blank" style="margin-left:20px;"><i title="调试运行" class="fa fa-paper-plane grid-action-icon"></i></a>
             </div>
             </div>
-            <div id="api_response_{{ $api['id'] }}" class="panel-body collapse show">
+            <div id="api_response_{{ $api['id'] }}" class="collapse-response panel-body collapse {{ empty($expand) ? 'show' : ''}}">
                 @foreach($api['unitTestList'] as $unitTest)
                 <div class="panel">
                     <div class="panel-heading bg-white">
@@ -40,7 +40,7 @@
                             @endif
                         </a></div>
                     </div>
-                    <div id="unitTest_response_{{ $unitTest['id'] }}" class="panel-body collapse show">
+                    <div id="unitTest_response_{{ $unitTest['id'] }}" class="collapse-response panel-body collapse {{ empty($expand) ? 'show' : ''}}">
                     @if (!empty($unitTest['ignore_fields']))
                     <pre>完全匹配时忽略字段：{{ $unitTest['ignore_fields'] }}</pre>
                     @endif

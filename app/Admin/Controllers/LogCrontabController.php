@@ -11,6 +11,7 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Widgets\Modal;
+use Dcat\Admin\Admin;
 
 class LogCrontabController extends AdminController
 {
@@ -23,6 +24,9 @@ class LogCrontabController extends AdminController
      */
     public function index(Content $content)
     {
+        Admin::js([
+            '/js/diff.js',
+        ]);
         return $content
             ->title($this->title())
             ->description($this->description()['index'] ?? trans('admin.list'))

@@ -27,7 +27,9 @@ Route::group([
 
     // 接口运行
     $router->post('run/regress', 'RunController@regress');
-    $router->resource('run', RunController::class);
+    $router->get('run/regress-test', 'RunController@regressTest'); // 回归测试
+    $router->get('run/integration-test', 'RunController@regressTest'); // 集成测试
+    $router->resource('run', RunController::class); // 接口调试
 
     // 测试用例
     $router->post('unit-test/save', 'UnitTestController@save');

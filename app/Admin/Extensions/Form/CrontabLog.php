@@ -13,6 +13,6 @@ class CrontabLog extends LazyRenderable
     public function render()
     {
         $logCrontab = LogCrontabModel::getOne(['id' => $this->id])->toArray();
-        return view('log_crontab.unit_test_modal', ['id' => $this->id, 'data' => json_decode($logCrontab['log'], true)]);
+        return view('log_crontab.unit_test_modal', ['id' => $this->id, 'data' => json_decode($logCrontab['log'], true), 'expand' => false]);
     }
 }

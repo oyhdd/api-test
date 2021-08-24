@@ -78,7 +78,7 @@ class ApiTestSeeder extends Seeder
                 'created_at' => $now,
                 'updated_at' => $now
             ], [
-                'parent_id' => 0,
+                'parent_id' => 9,
                 'order' => 1,
                 'title' => '集成测试',
                 'icon' => 'feather icon-activity',
