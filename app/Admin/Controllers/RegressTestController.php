@@ -8,6 +8,7 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use App\Models\ApiModel;
+use App\Models\ProjectModel;
 
 /**
  * 回归测试
@@ -46,16 +47,19 @@ class RegressTestController extends AdminController
             });
 
             $grid->filter(function (Grid\Filter $filter) {
+                $project_id = self::getProjectId();
                 $filter->padding(0, 0, '20px')->panel();
 
-                $apiList = ApiModel::getAll(['project_id' => self::getProjectId()]);
+                $apiList = ApiModel::getAll(['project_id' => $project_id]);
                 $apiList = $apiList->flatMap(function ($item) {
                     $item->name .= ": " . $item->url;
                     return [$item];
                 })->toArray();
-
                 $apiList = array_column($apiList, 'name', 'id');
+                $domainList = ProjectModel::getDomainOptions($project_id);
+
                 $filter->equal('api_id')->select($apiList)->width(4);
+                $filter->equal('domain')->select($domainList)->width(4);
                 $filter->equal('type')->select(BaseModel::$label_reg_type)->width(4);
             });
 

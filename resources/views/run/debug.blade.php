@@ -329,7 +329,7 @@
 
         // 保存用例
         $('#save_unit_test').click(function() {
-            if (!can_save) {
+            if ($("#save_reg_test").prop('checked') && !can_save) {
                 Dcat.swal.error('', '请先运行用例并确保测试结果正确');
                 return;
             }
